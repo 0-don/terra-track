@@ -1,6 +1,8 @@
 use std::process::Command;
 use std::str;
-fn main() {
+
+#[tokio::main]
+async fn main() {
     let mut command = Command::new("nmap");
     let output = command.output().unwrap();
 
