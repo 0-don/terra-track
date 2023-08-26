@@ -6,7 +6,6 @@ use socket_iterator::SocketIterator;
 use async_std::io;
 use async_std::net::TcpStream;
 use async_std::prelude::*;
-use colored::Colorize;
 use futures::stream::FuturesUnordered;
 use std::{
     collections::HashSet,
@@ -72,7 +71,7 @@ impl Scanner {
             }
         }
 
-        debug!("Start scanning sockets. \nBatch size {}\nNumber of ip-s {}\nNumber of ports {}\nTargets all together {} ", 
+        println!("Start scanning sockets. \nBatch size {}\nNumber of ip-s {}\nNumber of ports {}\nTargets all together {} ", 
             self.batch_size,
             self.ips.len(),
             &ports.len(),
@@ -93,8 +92,8 @@ impl Scanner {
                 }
             }
         }
-        debug!("Typical socket connection errors {:?}", errors);
-        debug!("Open Sockets found: {:?}", &open_sockets);
+        println!("Typical socket connection errors {:?}", errors);
+        println!("Open Sockets found: {:?}", &open_sockets);
         open_sockets
     }
 
@@ -116,22 +115,22 @@ impl Scanner {
         for nr_try in 1..=tries {
             match self.connect(socket).await {
                 Ok(x) => {
-                    debug!(
+                    println!(
                         "Connection was successful, shutting down stream {}",
                         &socket
                     );
                     if let Err(e) = x.shutdown(Shutdown::Both) {
-                        debug!("Shutdown stream error {}", &e);
+                        println!("Shutdown stream error {}", &e);
                     }
                     if !self.greppable {
                         if self.accessible {
                             println!("Open {socket}");
                         } else {
-                            println!("Open {}", socket.to_string().purple());
+                            println!("Open {}", socket.to_string());
                         }
                     }
 
-                    debug!("Return Ok after {} tries", nr_try);
+                    println!("Return Ok after {} tries", nr_try);
                     return Ok(socket);
                 }
                 Err(e) => {

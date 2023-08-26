@@ -2,8 +2,6 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::doc_markdown, clippy::if_not_else, clippy::non_ascii_literal)]
 
-extern crate shell_words;
-
 mod input;
 use input::{Config, Opts, PortRange, ScanOrder, ScriptsRequired};
 
@@ -39,21 +37,18 @@ const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 // Safest batch size based on experimentation
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
-#[macro_use]
-extern crate log;
 
 #[cfg(not(tarpaulin_include))]
 #[allow(clippy::too_many_lines)]
 /// Faster Nmap scanning with Rust
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
-    env_logger::init();
 
     let mut opts: Opts = Opts::read();
     let config = Config::read(opts.config_path.clone());
     opts.merge(&config);
 
-    debug!("Main() `opts` arguments are {:?}", opts);
+    println!("Main() `opts` arguments are {:?}", opts);
 
     let scripts_to_run: Vec<ScriptFile> = match init_scripts(opts.scripts) {
         Ok(scripts_to_run) => scripts_to_run,
@@ -63,7 +58,7 @@ fn main() {
         }
     };
 
-    debug!("Scripts initialized {:?}", &scripts_to_run);
+    println!("Scripts initialized {:?}", &scripts_to_run);
 
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -87,7 +82,7 @@ fn main() {
         PortStrategy::pick(&opts.range, opts.ports, opts.scan_order),
         opts.accessible,
     );
-    debug!("Scanner finished building: {:?}", scanner);
+    println!("Scanner finished building: {:?}", scanner);
 
     let scan_result = block_on(scanner.run());
 
@@ -127,13 +122,13 @@ fn main() {
             // This part allows us to add commandline arguments to the Script call_format, appending them to the end of the command.
             if !opts.command.is_empty() {
                 let user_extra_args = &opts.command.join(" ");
-                debug!("Extra args vec {:?}", user_extra_args);
+                println!("Extra args vec {:?}", user_extra_args);
                 if script_f.call_format.is_some() {
                     let mut call_f = script_f.call_format.unwrap();
                     call_f.push(' ');
                     call_f.push_str(user_extra_args);
                     println!("Running script {:?} on ip {}\nDepending on the complexity of the script, results may take some time to appear.", call_f, &ip);
-                    debug!("Call format {}", call_f);
+                    println!("Call format {}", call_f);
                     script_f.call_format = Some(call_f);
                 }
             }
@@ -246,7 +241,7 @@ fn read_ips_from_file(
         if let Ok(address) = address_line {
             ips.extend(parse_address(&address, backup_resolver));
         } else {
-            debug!("Line in file is not valid");
+            println!("Line in file is not valid");
         }
     }
 

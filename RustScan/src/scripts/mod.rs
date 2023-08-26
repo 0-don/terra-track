@@ -84,16 +84,16 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
                 Ok(script_paths) => script_paths,
                 Err(e) => return Err(anyhow!(e)),
             };
-            debug!("Scripts paths \n{:?}", script_paths);
+            println!("Scripts paths \n{:?}", script_paths);
 
             let parsed_scripts = parse_scripts(script_paths);
-            debug!("Scripts parsed \n{:?}", parsed_scripts);
+            println!("Scripts parsed \n{:?}", parsed_scripts);
 
             let script_config = match ScriptConfig::read_config() {
                 Ok(script_config) => script_config,
                 Err(e) => return Err(anyhow!(e)),
             };
-            debug!("Script config \n{:?}", script_config);
+            println!("Script config \n{:?}", script_config);
 
             // Only Scripts that contain all the tags found in ScriptConfig will be selected.
             if script_config.tags.is_some() {
@@ -106,7 +106,7 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
                         if config_hashset.is_subset(&script_hashset) {
                             scripts_to_run.push(script.clone());
                         } else {
-                            debug!(
+                            println!(
                                 "\nScript tags does not match config tags {:?} {}",
                                 &script_hashset,
                                 script.path.clone().unwrap().display()
@@ -115,7 +115,7 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
                     }
                 }
             }
-            debug!("\nScript(s) to run {:?}", scripts_to_run);
+            println!("\nScript(s) to run {:?}", scripts_to_run);
             Ok(scripts_to_run)
         }
     }
@@ -124,7 +124,7 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
 pub fn parse_scripts(scripts: Vec<PathBuf>) -> Vec<ScriptFile> {
     let mut parsed_scripts: Vec<ScriptFile> = Vec::with_capacity(scripts.len());
     for script in scripts {
-        debug!("Parsing script {}", &script.display());
+        println!("Parsing script {}", &script.display());
         if let Some(script_file) = ScriptFile::new(script) {
             parsed_scripts.push(script_file);
         }
@@ -194,7 +194,7 @@ impl Script {
     // Some variables get changed before read, and compiler throws warning on warn(unused_assignments)
     #[allow(unused_assignments)]
     pub fn run(self) -> Result<String> {
-        debug!("run self {:?}", &self);
+        println!("run self {:?}", &self);
 
         let separator = self.ports_separator.unwrap_or_else(|| ",".into());
 
@@ -231,7 +231,7 @@ impl Script {
             };
             to_run = default_template.fill_with_struct(&exec_parts)?;
         }
-        debug!("\nScript format to run {}", to_run);
+        println!("\nScript format to run {}", to_run);
 
         let arguments = shell_words::split(&to_run).expect("Failed to parse script arguments");
 
@@ -241,7 +241,7 @@ impl Script {
 
 #[cfg(not(tarpaulin_include))]
 fn execute_script(mut arguments: Vec<String>) -> Result<String> {
-    debug!("\nScript arguments vec: {:?}", &arguments);
+    println!("\nScript arguments vec: {:?}", &arguments);
     let process = Exec::cmd(arguments.remove(0)).args(&arguments);
     match process.capture() {
         Ok(c) => {
@@ -257,7 +257,7 @@ fn execute_script(mut arguments: Vec<String>) -> Result<String> {
             Ok(c.stdout_str())
         }
         Err(error) => {
-            debug!("Command error {}", error.to_string());
+            println!("Command error {}", error.to_string());
             Err(anyhow!(error.to_string()))
         }
     }
@@ -266,7 +266,7 @@ fn execute_script(mut arguments: Vec<String>) -> Result<String> {
 pub fn find_scripts(mut path: PathBuf) -> Result<Vec<PathBuf>> {
     path.push(".rustscan_scripts");
     if path.is_dir() {
-        debug!("Scripts folder found {}", &path.display());
+        println!("Scripts folder found {}", &path.display());
         let mut files_vec: Vec<PathBuf> = Vec::new();
         for entry in fs::read_dir(path)? {
             let entry = entry?;
@@ -304,20 +304,20 @@ impl ScriptFile {
                 }
             }
         } else {
-            debug!("Failed to read file: {}", &real_path.display());
+            println!("Failed to read file: {}", &real_path.display());
             return None;
         }
-        debug!("ScriptFile {} lines\n{}", &real_path.display(), &lines_buf);
+        println!("ScriptFile {} lines\n{}", &real_path.display(), &lines_buf);
 
         match toml::from_str::<ScriptFile>(&lines_buf) {
             Ok(mut parsed) => {
-                debug!("Parsed ScriptFile{} \n{:?}", &real_path.display(), &parsed);
+                println!("Parsed ScriptFile{} \n{:?}", &real_path.display(), &parsed);
                 parsed.path = Some(real_path);
                 // parsed_scripts.push(parsed);
                 Some(parsed)
             }
             Err(e) => {
-                debug!("Failed to parse ScriptFile headers {}", e.to_string());
+                println!("Failed to parse ScriptFile headers {}", e.to_string());
                 None
             }
         }
