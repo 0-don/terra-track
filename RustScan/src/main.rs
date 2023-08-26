@@ -1,7 +1,3 @@
-#![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-#![allow(clippy::doc_markdown, clippy::if_not_else, clippy::non_ascii_literal)]
-
 mod input;
 use input::{Config, Opts, PortRange, ScanOrder, ScriptsRequired};
 
@@ -27,9 +23,6 @@ use trust_dns_resolver::{
     config::{ResolverConfig, ResolverOpts},
     Resolver,
 };
-
-extern crate colorful;
-extern crate dirs;
 
 // Average value for Ubuntu
 #[cfg(unix)]
