@@ -4,8 +4,6 @@
 
 extern crate shell_words;
 
-mod tui;
-
 mod input;
 use input::{Config, Opts, PortRange, ScanOrder, ScriptsRequired};
 
@@ -59,12 +57,8 @@ fn main() {
 
     let scripts_to_run: Vec<ScriptFile> = match init_scripts(opts.scripts) {
         Ok(scripts_to_run) => scripts_to_run,
-        Err(e) => {
-            warning!(
-                format!("Initiating scripts failed!\n{e}"),
-                opts.greppable,
-                opts.accessible
-            );
+        Err(_) => {
+            println!("Initiating scripts failed!");
             std::process::exit(1);
         }
     };
@@ -74,11 +68,7 @@ fn main() {
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
     if ips.is_empty() {
-        warning!(
-            "No IPs could be resolved, aborting scan.",
-            opts.greppable,
-            opts.accessible
-        );
+        println!("No IPs could be resolved, aborting scan.");
         std::process::exit(1);
     }
 
@@ -117,14 +107,6 @@ fn main() {
 
         // If we got here it means the IP was not found within the HashMap, this
         // means the scan couldn't find any open ports for it.
-
-        let x = format!("Looks like I didn't find any open ports for {:?}. This is usually caused by a high batch size.
-        \n*I used {} batch size, consider lowering it with {} or a comfortable number for your system.
-        \n Alternatively, increase the timeout if your ping is high. Rustscan -t 2000 for 2000 milliseconds (2s) timeout.\n",
-        ip,
-        opts.batch_size,
-        "'rustscan -b <batch_size> -a <ip address>'");
-        warning!(x, opts.greppable, opts.accessible);
     }
 
     for (ip, ports) in &ports_per_ip {
@@ -138,7 +120,7 @@ fn main() {
             println!("{} -> [{}]", &ip, ports_str);
             continue;
         }
-        detail!("Starting Script(s)", opts.greppable, opts.accessible);
+        println!("Starting Script(s)");
 
         // Run all the scripts we found and parsed based on the script config file tags field.
         for mut script_f in scripts_to_run.clone() {
@@ -150,11 +132,7 @@ fn main() {
                     let mut call_f = script_f.call_format.unwrap();
                     call_f.push(' ');
                     call_f.push_str(user_extra_args);
-                    output!(
-                        format!("Running script {:?} on ip {}\nDepending on the complexity of the script, results may take some time to appear.", call_f, &ip),
-                        opts.greppable,
-                        opts.accessible
-                    );
+                    println!("Running script {:?} on ip {}\nDepending on the complexity of the script, results may take some time to appear.", call_f, &ip);
                     debug!("Call format {}", call_f);
                     script_f.call_format = Some(call_f);
                 }
@@ -172,10 +150,10 @@ fn main() {
             );
             match script.run() {
                 Ok(script_result) => {
-                    detail!(script_result.to_string(), opts.greppable, opts.accessible);
+                    println!("Script result: {}", script_result);
                 }
                 Err(e) => {
-                    warning!(&format!("Error {e}"), opts.greppable, opts.accessible);
+                    println!("Error running script: {}", e);
                 }
             }
         }
@@ -207,11 +185,7 @@ fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
         let file_path = Path::new(file_path);
 
         if !file_path.is_file() {
-            warning!(
-                format!("Host {file_path:?} could not be resolved."),
-                input.greppable,
-                input.accessible
-            );
+            println!("{} is not a file.", file_path.display());
 
             continue;
         }
@@ -219,11 +193,7 @@ fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
         if let Ok(x) = read_ips_from_file(file_path, &backup_resolver) {
             ips.extend(x);
         } else {
-            warning!(
-                format!("Host {file_path:?} could not be resolved."),
-                input.greppable,
-                input.accessible
-            );
+            println!("{} is not a valid file.", file_path.display());
         }
     }
 
