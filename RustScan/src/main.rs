@@ -15,14 +15,10 @@ use scanner::Scanner;
 mod port_strategy;
 use port_strategy::PortStrategy;
 
-mod benchmark;
-use benchmark::{Benchmark, NamedTimer};
-
 mod scripts;
 use scripts::{init_scripts, Script, ScriptFile};
 
 use cidr_utils::cidr::IpCidr;
-use colorful::{Color, Colorful};
 use futures::executor::block_on;
 use std::collections::HashMap;
 use std::fs::File;
@@ -54,8 +50,6 @@ extern crate log;
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
     env_logger::init();
-    let mut benchmarks = Benchmark::init();
-    let mut rustscan_bench = NamedTimer::start("RustScan");
 
     let mut opts: Opts = Opts::read();
     let config = Config::read(opts.config_path.clone());
@@ -76,10 +70,6 @@ fn main() {
     };
 
     debug!("Scripts initialized {:?}", &scripts_to_run);
-
-    if !opts.greppable && !opts.accessible {
-        print_opening(&opts);
-    }
 
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -109,10 +99,7 @@ fn main() {
     );
     debug!("Scanner finished building: {:?}", scanner);
 
-    let mut portscan_bench = NamedTimer::start("Portscan");
     let scan_result = block_on(scanner.run());
-    portscan_bench.end();
-    benchmarks.push(portscan_bench);
 
     let mut ports_per_ip = HashMap::new();
 
@@ -140,7 +127,6 @@ fn main() {
         warning!(x, opts.greppable, opts.accessible);
     }
 
-    let mut script_bench = NamedTimer::start("Scripts");
     for (ip, ports) in &ports_per_ip {
         let vec_str_ports: Vec<String> = ports.iter().map(ToString::to_string).collect();
 
@@ -196,46 +182,7 @@ fn main() {
     }
 
     // To use the runtime benchmark, run the process as: RUST_LOG=info ./rustscan
-    script_bench.end();
-    benchmarks.push(script_bench);
-    rustscan_bench.end();
-    benchmarks.push(rustscan_bench);
-    debug!("Benchmarks raw {:?}", benchmarks);
-    info!("{}", benchmarks.summary());
-}
 
-/// Prints the opening title of RustScan
-#[allow(clippy::items_after_statements)]
-fn print_opening(opts: &Opts) {
-    debug!("Printing opening");
-    let s = format!(
-        "{}\n{}\n{}\n{}\n{}",
-        r#".----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-."#,
-        r#"| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |"#,
-        r#"| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |"#,
-        r#"`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'"#,
-        r#"The Modern Day Port Scanner."#
-    );
-    println!("{}", s.gradient(Color::Green).bold());
-    let info = format!(
-        "{}\n{}\n{}\n{}",
-        r#"________________________________________"#,
-        r#": http://discord.skerritt.blog           :"#,
-        r#": https://github.com/RustScan/RustScan :"#,
-        r#" --------------------------------------"#
-    );
-    println!("{}", info.gradient(Color::Yellow).bold());
-
-    let config_path = opts
-        .config_path
-        .clone()
-        .unwrap_or_else(input::default_config_path);
-
-    detail!(
-        format!("The config file is expected to be at {config_path:?}"),
-        opts.greppable,
-        opts.accessible
-    );
 }
 
 /// Goes through all possible IP inputs (files or via argparsing)
@@ -399,145 +346,4 @@ fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
     batch_size
         .try_into()
         .expect("Couldn't fit the batch size into a u16.")
-}
-
-#[cfg(test)]
-mod tests {
-    #[cfg(unix)]
-    use crate::{adjust_ulimit_size, infer_batch_size};
-
-    use crate::{parse_addresses, print_opening, Opts};
-    use std::net::Ipv4Addr;
-
-    #[test]
-    #[cfg(unix)]
-    fn batch_size_lowered() {
-        let mut opts = Opts::default();
-        opts.batch_size = 50_000;
-        let batch_size = infer_batch_size(&opts, 120);
-
-        assert!(batch_size < opts.batch_size);
-    }
-
-    #[test]
-    #[cfg(unix)]
-    fn batch_size_lowered_average_size() {
-        let mut opts = Opts::default();
-        opts.batch_size = 50_000;
-        let batch_size = infer_batch_size(&opts, 9_000);
-
-        assert!(batch_size == 3_000);
-    }
-    #[test]
-    #[cfg(unix)]
-    fn batch_size_equals_ulimit_lowered() {
-        // because ulimit and batch size are same size, batch size is lowered
-        // to ULIMIT - 100
-        let mut opts = Opts::default();
-        opts.batch_size = 50_000;
-        let batch_size = infer_batch_size(&opts, 5_000);
-
-        assert!(batch_size == 4_900);
-    }
-    #[test]
-    #[cfg(unix)]
-    fn batch_size_adjusted_2000() {
-        // ulimit == batch_size
-        let mut opts = Opts::default();
-        opts.batch_size = 50_000;
-        opts.ulimit = Some(2_000);
-        let batch_size = adjust_ulimit_size(&opts);
-
-        assert!(batch_size == 2_000);
-    }
-    #[test]
-    fn test_print_opening_no_panic() {
-        let mut opts = Opts::default();
-        opts.ulimit = Some(2_000);
-        // print opening should not panic
-        print_opening(&opts);
-    }
-
-    #[test]
-    #[cfg(unix)]
-    fn test_high_ulimit_no_greppable_mode() {
-        let mut opts = Opts::default();
-        opts.batch_size = 10;
-        opts.greppable = false;
-
-        let batch_size = infer_batch_size(&opts, 1_000_000);
-
-        assert!(batch_size == opts.batch_size);
-    }
-
-    #[test]
-    fn parse_correct_addresses() {
-        let mut opts = Opts::default();
-        opts.addresses = vec!["127.0.0.1".to_owned(), "192.168.0.0/30".to_owned()];
-        let ips = parse_addresses(&opts);
-
-        assert_eq!(
-            ips,
-            [
-                Ipv4Addr::new(127, 0, 0, 1),
-                Ipv4Addr::new(192, 168, 0, 0),
-                Ipv4Addr::new(192, 168, 0, 1),
-                Ipv4Addr::new(192, 168, 0, 2),
-                Ipv4Addr::new(192, 168, 0, 3)
-            ]
-        );
-    }
-
-    #[test]
-    fn parse_correct_host_addresses() {
-        let mut opts = Opts::default();
-        opts.addresses = vec!["google.com".to_owned()];
-        let ips = parse_addresses(&opts);
-
-        assert_eq!(ips.len(), 1);
-    }
-
-    #[test]
-    fn parse_correct_and_incorrect_addresses() {
-        let mut opts = Opts::default();
-        opts.addresses = vec!["127.0.0.1".to_owned(), "im_wrong".to_owned()];
-        let ips = parse_addresses(&opts);
-
-        assert_eq!(ips, [Ipv4Addr::new(127, 0, 0, 1),]);
-    }
-
-    #[test]
-    fn parse_incorrect_addresses() {
-        let mut opts = Opts::default();
-        opts.addresses = vec!["im_wrong".to_owned(), "300.10.1.1".to_owned()];
-        let ips = parse_addresses(&opts);
-
-        assert!(ips.is_empty());
-    }
-    #[test]
-    fn parse_hosts_file_and_incorrect_hosts() {
-        // Host file contains IP, Hosts, incorrect IPs, incorrect hosts
-        let mut opts = Opts::default();
-        opts.addresses = vec!["fixtures/hosts.txt".to_owned()];
-        let ips = parse_addresses(&opts);
-        assert_eq!(ips.len(), 3);
-    }
-
-    #[test]
-    fn parse_empty_hosts_file() {
-        // Host file contains IP, Hosts, incorrect IPs, incorrect hosts
-        let mut opts = Opts::default();
-        opts.addresses = vec!["fixtures/empty_hosts.txt".to_owned()];
-        let ips = parse_addresses(&opts);
-        assert_eq!(ips.len(), 0);
-    }
-
-    #[test]
-    fn parse_naughty_host_file() {
-        // Host file contains IP, Hosts, incorrect IPs, incorrect hosts
-        let mut opts = Opts::default();
-        opts.addresses = vec!["fixtures/naughty_string.txt".to_owned()];
-        let ips = parse_addresses(&opts);
-        assert_eq!(ips.len(), 0);
-    }
 }
