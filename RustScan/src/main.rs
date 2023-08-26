@@ -225,7 +225,6 @@ fn print_opening(opts: &Opts) {
         r#" --------------------------------------"#
     );
     println!("{}", info.gradient(Color::Yellow).bold());
-    funny_opening!();
 
     let config_path = opts
         .config_path
