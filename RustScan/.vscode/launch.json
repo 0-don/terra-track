@@ -9,36 +9,22 @@
       "request": "launch",
       "name": "Debug executable 'rustscan'",
       "cargo": {
-        "args": [
-          "build",
-          "--bin=rustscan",
-          "--package=rustscan"
-        ],
+        "args": ["build", "--bin=rustscan", "--package=rustscan"],
         "filter": {
           "name": "rustscan",
           "kind": "bin"
         }
       },
-      "args": [],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug unit tests in executable 'rustscan'",
-      "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--bin=rustscan",
-          "--package=rustscan"
-        ],
-        "filter": {
-          "name": "rustscan",
-          "kind": "bin"
-        }
-      },
-      "args": [],
+      "args": [
+        "-a",
+        "140.82.121.3",
+        "--",
+        "-A",
+        "-sC",
+        "-e",
+        "eth0",
+        "-Pn"
+      ],
       "cwd": "${workspaceFolder}"
     }
   ]
