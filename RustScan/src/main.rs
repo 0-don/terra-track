@@ -1,5 +1,5 @@
 mod input;
-use input::{Config, Opts, PortRange, ScanOrder, ScriptsRequired};
+use input::{Opts, PortRange, ScanOrder};
 
 mod scanner;
 use scanner::Scanner;
@@ -30,16 +30,14 @@ const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 // Safest batch size based on experimentation
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
-
 #[cfg(not(tarpaulin_include))]
 #[allow(clippy::too_many_lines)]
 /// Faster Nmap scanning with Rust
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
-
     let mut opts: Opts = Opts::read();
-    let config = Config::read(opts.config_path.clone());
-    opts.merge(&config);
+    // let config = Config::read(opts.config_path.clone());
+    // opts.merge(&config);
 
     println!("Main() `opts` arguments are {:?}", opts);
 
@@ -104,10 +102,10 @@ fn main() {
         let ports_str = vec_str_ports.join(",");
 
         // if option scripts is none, no script will be spawned
-        if opts.greppable || opts.scripts == ScriptsRequired::None {
-            println!("{} -> [{}]", &ip, ports_str);
-            continue;
-        }
+        // if opts.greppable || opts.scripts == ScriptsRequired::None {
+        //     println!("{} -> [{}]", &ip, ports_str);
+        //     continue;
+        // }
         println!("Starting Script(s)");
 
         // Run all the scripts we found and parsed based on the script config file tags field.
@@ -148,7 +146,6 @@ fn main() {
     }
 
     // To use the runtime benchmark, run the process as: RUST_LOG=info ./rustscan
-
 }
 
 /// Goes through all possible IP inputs (files or via argparsing)
