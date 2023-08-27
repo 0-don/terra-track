@@ -3,27 +3,26 @@ use std::path::PathBuf;
 const LOWEST_PORT_NUMBER: u16 = 1;
 const TOP_PORT_NUMBER: u16 = 65535;
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone, Copy)]
 pub enum ScanOrder {
     Serial,
     Random,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone, Copy)]
 pub enum ScriptsRequired {
     None,
     Default,
     Custom,
 }
 
-/// Represents the range of ports to be scanned.
-#[derive(Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct PortRange {
     pub start: u16,
     pub end: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Opts {
     /// A comma-delimited list or newline-delimited file of separated CIDRs, IPs, or hosts to be scanned.
     pub addresses: Vec<String>,
@@ -81,9 +80,8 @@ pub struct Opts {
     pub command: Vec<String>,
 }
 
-#[cfg(not(tarpaulin_include))]
 impl Opts {
-    pub fn create() -> Self {
+    pub fn read() -> Self {
         let mut opts = Opts {
             addresses: vec!["140.82.121.3".into()],
             ports: None,
