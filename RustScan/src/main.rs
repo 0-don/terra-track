@@ -26,21 +26,14 @@ const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 // Safest batch size based on experimentation
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
-#[cfg(not(tarpaulin_include))]
-#[allow(clippy::too_many_lines)]
 /// Faster Nmap scanning with Rust
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
-    let opts: Opts = Opts::read();
+    let opts: Opts = Opts::create();
 
     println!("Main() `opts` arguments are {:?}", opts);
 
     let ips: Vec<IpAddr> = parse_addresses(&opts);
-
-    if ips.is_empty() {
-        println!("No IPs could be resolved, aborting scan.");
-        std::process::exit(1);
-    }
 
     #[cfg(unix)]
     let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
@@ -149,7 +142,6 @@ fn resolve_ips_from_host(source: &str, backup_resolver: &Resolver) -> Vec<IpAddr
     ips
 }
 
-#[cfg(not(tarpaulin_include))]
 /// Parses an input file of IPs and uses those
 fn read_ips_from_file(
     ips: &std::path::Path,

@@ -1,35 +1,29 @@
-use serde_derive::Deserialize;
 use std::path::PathBuf;
-use structopt::{clap::arg_enum, StructOpt};
 
 const LOWEST_PORT_NUMBER: u16 = 1;
 const TOP_PORT_NUMBER: u16 = 65535;
 
-arg_enum! {
-    #[derive(Deserialize, Debug, StructOpt, Clone, Copy, PartialEq, Eq)]
-    pub enum ScanOrder {
-        Serial,
-        Random,
-    }
+#[derive(Debug)]
+pub enum ScanOrder {
+    Serial,
+    Random,
 }
 
-arg_enum! {
-    #[derive(Deserialize, Debug, StructOpt, Clone, PartialEq, Eq, Copy)]
-    pub enum ScriptsRequired {
-        None,
-        Default,
-        Custom,
-    }
+#[derive(Debug)]
+pub enum ScriptsRequired {
+    None,
+    Default,
+    Custom,
 }
 
 /// Represents the range of ports to be scanned.
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct PortRange {
     pub start: u16,
     pub end: u16,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Opts {
     /// A comma-delimited list or newline-delimited file of separated CIDRs, IPs, or hosts to be scanned.
     pub addresses: Vec<String>,
@@ -89,7 +83,7 @@ pub struct Opts {
 
 #[cfg(not(tarpaulin_include))]
 impl Opts {
-    pub fn read() -> Self {
+    pub fn create() -> Self {
         let mut opts = Opts {
             addresses: vec!["140.82.121.3".into()],
             ports: None,
@@ -124,4 +118,3 @@ impl Opts {
         opts
     }
 }
-
