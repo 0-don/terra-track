@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use serde_derive::Deserialize;
+
 const LOWEST_PORT_NUMBER: u16 = 1;
 const TOP_PORT_NUMBER: u16 = 65535;
 

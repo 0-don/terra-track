@@ -1,6 +1,7 @@
 mod input;
 use input::{Opts, PortRange, ScanOrder};
 
+mod scripts;
 mod scanner;
 use scanner::Scanner;
 
@@ -31,6 +32,8 @@ const AVERAGE_BATCH_SIZE: u16 = 3000;
 /// Faster Nmap scanning with Rust
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
+    use crate::scripts::{init_scripts, ScriptFile, Script};
+
     let mut opts: Opts = Opts::read();
     // let config = Config::read(opts.config_path.clone());
     // opts.merge(&config);
@@ -44,6 +47,15 @@ fn main() {
 
     #[cfg(not(unix))]
     let batch_size: u16 = AVERAGE_BATCH_SIZE;
+
+    
+    let scripts_to_run: Vec<ScriptFile> = match init_scripts(opts.scripts) {
+        Ok(scripts_to_run) => scripts_to_run,
+        Err(_) => {
+            println!("Initiating scripts failed!");
+            std::process::exit(1);
+        }
+    };
 
     let scanner = Scanner::new(
         &ips,
