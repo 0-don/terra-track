@@ -1,14 +1,11 @@
 mod input;
-use input::{Config, Opts, PortRange, ScanOrder, ScriptsRequired};
+use input::{Opts, PortRange, ScanOrder};
 
 mod scanner;
 use scanner::Scanner;
 
 mod port_strategy;
 use port_strategy::PortStrategy;
-
-mod scripts;
-use scripts::{init_scripts, Script, ScriptFile};
 
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
@@ -17,7 +14,6 @@ use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::Path;
-use std::string::ToString;
 use std::time::Duration;
 use trust_dns_resolver::{
     config::{ResolverConfig, ResolverOpts},
@@ -30,28 +26,14 @@ const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 // Safest batch size based on experimentation
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
-
 #[cfg(not(tarpaulin_include))]
 #[allow(clippy::too_many_lines)]
 /// Faster Nmap scanning with Rust
 /// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
-
-    let mut opts: Opts = Opts::read();
-    let config = Config::read(opts.config_path.clone());
-    opts.merge(&config);
+    let opts: Opts = Opts::read();
 
     println!("Main() `opts` arguments are {:?}", opts);
-
-    let scripts_to_run: Vec<ScriptFile> = match init_scripts(opts.scripts) {
-        Ok(scripts_to_run) => scripts_to_run,
-        Err(_) => {
-            println!("Initiating scripts failed!");
-            std::process::exit(1);
-        }
-    };
-
-    println!("Scripts initialized {:?}", &scripts_to_run);
 
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -96,59 +78,7 @@ fn main() {
         // If we got here it means the IP was not found within the HashMap, this
         // means the scan couldn't find any open ports for it.
     }
-
-    for (ip, ports) in &ports_per_ip {
-        let vec_str_ports: Vec<String> = ports.iter().map(ToString::to_string).collect();
-
-        // nmap port style is 80,443. Comma separated with no spaces.
-        let ports_str = vec_str_ports.join(",");
-
-        // if option scripts is none, no script will be spawned
-        if opts.greppable || opts.scripts == ScriptsRequired::None {
-            println!("{} -> [{}]", &ip, ports_str);
-            continue;
-        }
-        println!("Starting Script(s)");
-
-        // Run all the scripts we found and parsed based on the script config file tags field.
-        for mut script_f in scripts_to_run.clone() {
-            // This part allows us to add commandline arguments to the Script call_format, appending them to the end of the command.
-            if !opts.command.is_empty() {
-                let user_extra_args = &opts.command.join(" ");
-                println!("Extra args vec {:?}", user_extra_args);
-                if script_f.call_format.is_some() {
-                    let mut call_f = script_f.call_format.unwrap();
-                    call_f.push(' ');
-                    call_f.push_str(user_extra_args);
-                    println!("Running script {:?} on ip {}\nDepending on the complexity of the script, results may take some time to appear.", call_f, &ip);
-                    println!("Call format {}", call_f);
-                    script_f.call_format = Some(call_f);
-                }
-            }
-
-            // Building the script with the arguments from the ScriptFile, and ip-ports.
-            let script = Script::build(
-                script_f.path,
-                *ip,
-                ports.clone(),
-                script_f.port,
-                script_f.ports_separator,
-                script_f.tags,
-                script_f.call_format,
-            );
-            match script.run() {
-                Ok(script_result) => {
-                    println!("Script result: {}", script_result);
-                }
-                Err(e) => {
-                    println!("Error running script: {}", e);
-                }
-            }
-        }
-    }
-
     // To use the runtime benchmark, run the process as: RUST_LOG=info ./rustscan
-
 }
 
 /// Goes through all possible IP inputs (files or via argparsing)
