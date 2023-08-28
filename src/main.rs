@@ -7,10 +7,12 @@ use scanner::Scanner;
 
 mod port_strategy;
 use port_strategy::PortStrategy;
+use std::fs;
 
 use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
+use nmap_xml_parser::NmapResults;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
@@ -26,9 +28,14 @@ use trust_dns_resolver::{
 // const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
-#[cfg(not(tarpaulin_include))]
-#[allow(clippy::too_many_lines)]
 fn main() {
+    // read file as string ./nmap.xml
+
+    let mut file = File::open("./nmap.xml").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    let results = NmapResults::parse(&contents).unwrap();
+
     let opts: Opts = Opts::read();
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -98,7 +105,6 @@ fn main() {
             }
         }
     }
-
 }
 
 fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
@@ -216,7 +222,6 @@ fn read_ips_from_file(
 //         warning!("File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers",
 //             opts.greppable, opts.accessible
 //         );
-
 
 //         if ulimit < AVERAGE_BATCH_SIZE.into() {
 //             warning!("Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. ", opts.greppable, opts.accessible);

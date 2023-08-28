@@ -21,4 +21,4 @@ trust-dns-resolver = { version = "0", features = ["dns-over-rustls"] }
 anyhow = "1"
 subprocess = "0"
 text_placeholder = { version = "0", features = ["struct_context"] }
-
+nmap_xml_parser = "0"

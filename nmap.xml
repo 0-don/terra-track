@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE nmaprun>
 <?xml-stylesheet href="file:///C:/Program Files (x86)/Nmap/nmap.xsl" type="text/xsl"?>
-<!-- Nmap 7.94 scan initiated Mon Aug 28 21:45:20 2023 as: nmap -vvv -p 22,80,9929,31337 -sS -T2 -n -vv -sV -e unk1 -oX ./nmap.xml 45.33.32.156 -->
-<nmaprun scanner="nmap" args="nmap -vvv -p 22,80,9929,31337 -sS -T2 -n -vv -sV -e unk1 -oX ./nmap.xml 45.33.32.156" start="1693251920" startstr="Mon Aug 28 21:45:20 2023" version="7.94" xmloutputversion="1.05">
-<scaninfo type="syn" protocol="tcp" numservices="4" services="22,80,9929,31337"/>
-<verbose level="5"/>
-<debugging level="0"/>
-<taskbegin task="Ping Scan" time="1693251920"/>
-<runstats><finished time="1693251920" timestr="Mon Aug 28 21:45:20 2023" summary="Nmap done at Mon Aug 28 21:45:20 2023; 0 IP addresses (0 hosts up) scanned in 0.34 seconds" elapsed="0.34" exit="error" errormsg="Only ethernet devices can be used for raw scans on Windows, and&#xa;&quot;unk1&quot; is not an ethernet device. Use the -&#45;unprivileged option&#xa;for this scan."/><hosts up="0" down="0" total="0"/>
-</runstats>
+<!-- Nmap 7.94 scan initiated Mon Aug 28 22:10:53 2023 as: nmap -vvv -p 22,9929,31337 -T2 -n -vv -sV -Pn -oX ./nmap.xml -&#45;unprivileged 45.33.32.156 -->
+<nmaprun scanner="nmap" args="nmap -vvv -p 22,9929,31337 -T2 -n -vv -sV -Pn -oX ./nmap.xml -&#45;unprivileged 45.33.32.156" start="1693253453" startstr="Mon Aug 28 22:10:53 2023" version="7.94" xmloutputversion="1.05">
+  <scaninfo type="connect" protocol="tcp" numservices="3" services="22,9929,31337"/>
+  <verbose level="5"/>
+  <debugging level="0"/>
+  <taskbegin task="Connect Scan" time="1693253453"/>
+  <taskend task="Connect Scan" time="1693253455" extrainfo="3 total ports"/>
+  <taskbegin task="Service scan" time="1693253455"/>
+  <taskend task="Service scan" time="1693253457" extrainfo="3 services on 1 host"/>
+  <taskbegin task="NSE" time="1693253457"/>
+  <taskend task="NSE" time="1693253457"/>
+  <taskbegin task="NSE" time="1693253457"/>
+  <taskend task="NSE" time="1693253457"/>
+  <host starttime="1693253454" endtime="1693253457">
+    <status state="up" reason="user-set" reason_ttl="0"/>
+    <address addr="45.33.32.156" addrtype="ipv4"/>
+    <hostnames>
+</hostnames>
+    <ports>
+      <port protocol="tcp" portid="22">
+        <state state="open" reason="syn-ack" reason_ttl="0"/>
+        <service name="ssh" product="OpenSSH" version="6.6.1p1 Ubuntu 2ubuntu2.13" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10">
+          <cpe>cpe:/a:openbsd:openssh:6.6.1p1</cpe>
+          <cpe>cpe:/o:linux:linux_kernel</cpe>
+        </service>
+      </port>
+      <port protocol="tcp" portid="9929">
+        <state state="open" reason="syn-ack" reason_ttl="0"/>
+        <service name="nping-echo" product="Nping echo" method="probed" conf="10"/>
+      </port>
+      <port protocol="tcp" portid="31337">
+        <state state="open" reason="syn-ack" reason_ttl="0"/>
+        <service name="tcpwrapped" method="probed" conf="8"/>
+      </port>
+    </ports>
+    <times srtt="190109" rttvar="108031" to="622233"/>
+  </host>
+  <runstats>
+    <finished time="1693253457" timestr="Mon Aug 28 22:10:57 2023" summary="Nmap done at Mon Aug 28 22:10:57 2023; 1 IP address (1 host up) scanned in 4.09 seconds" elapsed="4.09" exit="success"/>
+    <hosts up="1" down="0" total="1"/>
+  </runstats>
 </nmaprun>
