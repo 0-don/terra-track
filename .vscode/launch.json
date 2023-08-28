@@ -1,8 +1,5 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
+  "version": "1.0.0",
   "configurations": [
     {
       "type": "lldb",
@@ -15,16 +12,6 @@
           "kind": "bin"
         }
       },
-      "args": [
-        "-a",
-        "140.82.121.3",
-        "--",
-        "-A",
-        "-sC",
-        "-e",
-        "eth0",
-        "-Pn"
-      ],
       "cwd": "${workspaceFolder}"
     }
   ]
