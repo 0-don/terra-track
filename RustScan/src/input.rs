@@ -85,7 +85,7 @@ pub struct Opts {
 impl Opts {
     pub fn read() -> Self {
         let mut opts = Opts {
-            addresses: vec!["140.82.121.3".into()],
+            addresses: vec!["scanme.nmap.org".into()],
             ports: None,
             range: None,
             no_config: false,
@@ -100,11 +100,15 @@ impl Opts {
             scripts: ScriptsRequired::Default,
             top: false,
             command: vec![
-                "-A".into(),
-                "-sC".into(),
-                "-e".into(),
-                "eth0".into(),
-                "-Pn".into(),
+                "-sS".into(),
+                "-T2".into(),
+                "-n".into(),
+                "-vv".into(),
+                "-sV".into(),
+                "-O".into(),
+                "-oX".into(),
+                "./nmap.xml".into(),
+                "--unprivileged".into(),
             ],
         };
 

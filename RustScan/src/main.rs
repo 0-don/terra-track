@@ -1,13 +1,14 @@
 mod input;
 use input::{Opts, PortRange, ScanOrder};
 
-mod scripts;
 mod scanner;
+mod scripts;
 use scanner::Scanner;
 
 mod port_strategy;
 use port_strategy::PortStrategy;
 
+use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
 use std::collections::HashMap;
@@ -21,41 +22,23 @@ use trust_dns_resolver::{
     Resolver,
 };
 
-// Average value for Ubuntu
-#[cfg(unix)]
-const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
-// Safest batch size based on experimentation
+// #[cfg(unix)]
+// const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
 const AVERAGE_BATCH_SIZE: u16 = 3000;
 
 #[cfg(not(tarpaulin_include))]
 #[allow(clippy::too_many_lines)]
-/// Faster Nmap scanning with Rust
-/// If you're looking for the actual scanning, check out the module Scanner
 fn main() {
-    use crate::scripts::{init_scripts, ScriptFile, Script};
-
-    let mut opts: Opts = Opts::read();
-    // let config = Config::read(opts.config_path.clone());
-    // opts.merge(&config);
-
-    println!("Main() `opts` arguments are {:?}", opts);
-
+    let opts: Opts = Opts::read();
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
-    #[cfg(unix)]
-    let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
+    // #[cfg(unix)]
+    // let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
 
     #[cfg(not(unix))]
     let batch_size: u16 = AVERAGE_BATCH_SIZE;
 
-    
-    let scripts_to_run: Vec<ScriptFile> = match init_scripts(opts.scripts) {
-        Ok(scripts_to_run) => scripts_to_run,
-        Err(_) => {
-            println!("Initiating scripts failed!");
-            std::process::exit(1);
-        }
-    };
+    let scripts_to_run: Vec<ScriptFile> = init_scripts(opts.scripts).unwrap();
 
     let scanner = Scanner::new(
         &ips,
@@ -66,7 +49,6 @@ fn main() {
         PortStrategy::pick(&opts.range, opts.ports, opts.scan_order),
         opts.accessible,
     );
-    println!("Scanner finished building: {:?}", scanner);
 
     let scan_result = block_on(scanner.run());
 
@@ -83,41 +65,20 @@ fn main() {
         if ports_per_ip.contains_key(&ip) {
             continue;
         }
-
-        // If we got here it means the IP was not found within the HashMap, this
-        // means the scan couldn't find any open ports for it.
+        println!("{} is not accessible", ip);
     }
 
     for (ip, ports) in &ports_per_ip {
-        let vec_str_ports: Vec<String> = ports.iter().map(ToString::to_string).collect();
-
-        // nmap port style is 80,443. Comma separated with no spaces.
-        let ports_str = vec_str_ports.join(",");
-
-        // if option scripts is none, no script will be spawned
-        // if opts.greppable || opts.scripts == ScriptsRequired::None {
-        //     println!("{} -> [{}]", &ip, ports_str);
-        //     continue;
-        // }
-        println!("Starting Script(s)");
-
-        // Run all the scripts we found and parsed based on the script config file tags field.
         for mut script_f in scripts_to_run.clone() {
-            // This part allows us to add commandline arguments to the Script call_format, appending them to the end of the command.
             if !opts.command.is_empty() {
                 let user_extra_args = &opts.command.join(" ");
-                println!("Extra args vec {:?}", user_extra_args);
                 if script_f.call_format.is_some() {
                     let mut call_f = script_f.call_format.unwrap();
                     call_f.push(' ');
                     call_f.push_str(user_extra_args);
-                    println!("Running script {:?} on ip {}\nDepending on the complexity of the script, results may take some time to appear.", call_f, &ip);
-                    println!("Call format {}", call_f);
                     script_f.call_format = Some(call_f);
                 }
             }
-
-            // Building the script with the arguments from the ScriptFile, and ip-ports.
             let script = Script::build(
                 script_f.path,
                 *ip,
@@ -138,11 +99,8 @@ fn main() {
         }
     }
 
-    // To use the runtime benchmark, run the process as: RUST_LOG=info ./rustscan
 }
 
-/// Goes through all possible IP inputs (files or via argparsing)
-/// Parses the string(s) into IPs
 fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
     let mut ips: Vec<IpAddr> = Vec::new();
     let mut unresolved_addresses: Vec<&str> = Vec::new();
@@ -158,7 +116,6 @@ fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
         }
     }
 
-    // If we got to this point this can only be a file path or the wrong input.
     for file_path in unresolved_addresses {
         let file_path = Path::new(file_path);
 
@@ -178,9 +135,6 @@ fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
     ips
 }
 
-/// Given a string, parse it as an host, IP address, or CIDR.
-/// This allows us to pass files as hosts or cidr or IPs easily
-/// Call this every time you have a possible IP_or_host
 fn parse_address(address: &str, resolver: &Resolver) -> Vec<IpAddr> {
     IpCidr::from_str(address)
         .map(|cidr| cidr.iter().collect())
@@ -194,7 +148,6 @@ fn parse_address(address: &str, resolver: &Resolver) -> Vec<IpAddr> {
         .unwrap_or_else(|| resolve_ips_from_host(address, resolver))
 }
 
-/// Uses DNS to get the IPS associated with host
 fn resolve_ips_from_host(source: &str, backup_resolver: &Resolver) -> Vec<IpAddr> {
     let mut ips: Vec<std::net::IpAddr> = Vec::new();
 
@@ -209,7 +162,6 @@ fn resolve_ips_from_host(source: &str, backup_resolver: &Resolver) -> Vec<IpAddr
     ips
 }
 
-/// Parses an input file of IPs and uses those
 fn read_ips_from_file(
     ips: &std::path::Path,
     backup_resolver: &Resolver,
@@ -230,67 +182,59 @@ fn read_ips_from_file(
     Ok(ips)
 }
 
-#[cfg(unix)]
-fn adjust_ulimit_size(opts: &Opts) -> u64 {
-    use rlimit::Resource;
+// #[cfg(unix)]
+// fn adjust_ulimit_size(opts: &Opts) -> u64 {
+//     use rlimit::Resource;
 
-    if let Some(limit) = opts.ulimit {
-        if Resource::NOFILE.set(limit, limit).is_ok() {
-            detail!(
-                format!("Automatically increasing ulimit value to {limit}."),
-                opts.greppable,
-                opts.accessible
-            );
-        } else {
-            warning!(
-                "ERROR. Failed to set ulimit value.",
-                opts.greppable,
-                opts.accessible
-            );
-        }
-    }
+//     if let Some(limit) = opts.ulimit {
+//         if Resource::NOFILE.set(limit, limit).is_ok() {
+//             detail!(
+//                 format!("Automatically increasing ulimit value to {limit}."),
+//                 opts.greppable,
+//                 opts.accessible
+//             );
+//         } else {
+//             warning!(
+//                 "ERROR. Failed to set ulimit value.",
+//                 opts.greppable,
+//                 opts.accessible
+//             );
+//         }
+//     }
 
-    let (soft, _) = Resource::NOFILE.get().unwrap();
-    soft
-}
+//     let (soft, _) = Resource::NOFILE.get().unwrap();
+//     soft
+// }
 
-#[cfg(unix)]
-fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
-    use std::convert::TryInto;
+// #[cfg(unix)]
+// fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
+//     use std::convert::TryInto;
 
-    let mut batch_size: u64 = opts.batch_size.into();
+//     let mut batch_size: u64 = opts.batch_size.into();
 
-    // Adjust the batch size when the ulimit value is lower than the desired batch size
-    if ulimit < batch_size {
-        warning!("File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers",
-            opts.greppable, opts.accessible
-        );
+//     if ulimit < batch_size {
+//         warning!("File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers",
+//             opts.greppable, opts.accessible
+//         );
 
-        // When the OS supports high file limits like 8000, but the user
-        // selected a batch size higher than this we should reduce it to
-        // a lower number.
-        if ulimit < AVERAGE_BATCH_SIZE.into() {
-            // ulimit is smaller than aveage batch size
-            // user must have very small ulimit
-            // decrease batch size to half of ulimit
-            warning!("Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. ", opts.greppable, opts.accessible);
-            info!("Halving batch_size because ulimit is smaller than average batch size");
-            batch_size = ulimit / 2;
-        } else if ulimit > DEFAULT_FILE_DESCRIPTORS_LIMIT {
-            info!("Batch size is now average batch size");
-            batch_size = AVERAGE_BATCH_SIZE.into();
-        } else {
-            batch_size = ulimit - 100;
-        }
-    }
-    // When the ulimit is higher than the batch size let the user know that the
-    // batch size can be increased unless they specified the ulimit themselves.
-    else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
-        detail!(format!("File limit higher than batch size. Can increase speed by increasing batch size '-b {}'.", ulimit - 100),
-        opts.greppable, opts.accessible);
-    }
 
-    batch_size
-        .try_into()
-        .expect("Couldn't fit the batch size into a u16.")
-}
+//         if ulimit < AVERAGE_BATCH_SIZE.into() {
+//             warning!("Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. ", opts.greppable, opts.accessible);
+//             info!("Halving batch_size because ulimit is smaller than average batch size");
+//             batch_size = ulimit / 2;
+//         } else if ulimit > DEFAULT_FILE_DESCRIPTORS_LIMIT {
+//             info!("Batch size is now average batch size");
+//             batch_size = AVERAGE_BATCH_SIZE.into();
+//         } else {
+//             batch_size = ulimit - 100;
+//         }
+//     }
+//     else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
+//         detail!(format!("File limit higher than batch size. Can increase speed by increasing batch size '-b {}'.", ulimit - 100),
+//         opts.greppable, opts.accessible);
+//     }
+
+//     batch_size
+//         .try_into()
+//         .expect("Couldn't fit the batch size into a u16.")
+// }
