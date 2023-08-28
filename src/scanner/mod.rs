@@ -14,12 +14,6 @@ use std::{
     time::Duration,
 };
 
-/// The class for the scanner
-/// IP is data type IpAddr and is the IP address
-/// start & end is where the port scan starts and ends
-/// batch_size is how many ports at a time should be scanned
-/// Timeout is the time RustScan should wait before declaring a port closed. As datatype Duration.
-/// greppable is whether or not RustScan should print things, or wait until the end to print only the ip and open ports.
 #[cfg(not(tarpaulin_include))]
 #[derive(Debug)]
 pub struct Scanner {
@@ -53,9 +47,6 @@ impl Scanner {
         }
     }
 
-    /// Runs scan_range with chunk sizes
-    /// If you want to run RustScan normally, this is the entry point used
-    /// Returns all open ports as Vec<u16>
     pub async fn run(&self) -> Vec<SocketAddr> {
         let ports: Vec<u16> = self.port_strategy.order();
         let mut socket_iterator: SocketIterator = SocketIterator::new(&self.ips, &ports);
@@ -70,12 +61,6 @@ impl Scanner {
                 break;
             }
         }
-
-        println!("Start scanning sockets. \nBatch size {}\nNumber of ip-s {}\nNumber of ports {}\nTargets all together {} ", 
-            self.batch_size,
-            self.ips.len(),
-            &ports.len(),
-            (self.ips.len() * ports.len()));
 
         while let Some(result) = ftrs.next().await {
             if let Some(socket) = socket_iterator.next() {
@@ -92,33 +77,17 @@ impl Scanner {
                 }
             }
         }
-        println!("Typical socket connection errors {:?}", errors);
+
         println!("Open Sockets found: {:?}", &open_sockets);
         open_sockets
     }
 
-    /// Given a socket, scan it self.tries times.
-    /// Turns the address into a SocketAddr
-    /// Deals with the <result> type
-    /// If it experiences error ErrorKind::Other then too many files are open and it Panics!
-    /// Else any other error, it returns the error in Result as a string
-    /// If no errors occur, it returns the port number in Result to signify the port is open.
-    /// This function mainly deals with the logic of Results handling.
-    /// # Example
-    ///
-    ///     self.scan_socket(socket)
-    ///
-    /// Note: `self` must contain `self.ip`.
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {
         let tries = self.tries.get();
 
         for nr_try in 1..=tries {
             match self.connect(socket).await {
                 Ok(x) => {
-                    println!(
-                        "Connection was successful, shutting down stream {}",
-                        &socket
-                    );
                     if let Err(e) = x.shutdown(Shutdown::Both) {
                         println!("Shutdown stream error {}", &e);
                     }
@@ -130,7 +99,6 @@ impl Scanner {
                         }
                     }
 
-                    println!("Return Ok after {} tries", nr_try);
                     return Ok(socket);
                 }
                 Err(e) => {
@@ -149,17 +117,6 @@ impl Scanner {
         unreachable!();
     }
 
-    /// Performs the connection to the socket with timeout
-    /// # Example
-    ///
-    ///     let port: u16 = 80
-    ///     // ip is an IpAddr type
-    ///     let ip = IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1));
-    ///     let socket = SocketAddr::new(ip, port);
-    ///     self.connect(socket)
-    ///     // returns Result which is either Ok(stream) for port is open, or Er for port is closed.
-    ///     // Timeout occurs after self.timeout seconds
-    ///
     async fn connect(&self, socket: SocketAddr) -> io::Result<TcpStream> {
         let stream = io::timeout(
             self.timeout,

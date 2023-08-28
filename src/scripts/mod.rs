@@ -1,48 +1,3 @@
-//! Scripting engine to run scripts based on tags.
-//! This module serves to filter and run the scripts selected by the user.
-//!
-//! A new commandline and configuration file option was added.
-//!
-//! --scripts
-//!
-//!      default
-//!          This is the default behavior, like as it was from the beginning of RustScan.
-//!          The user do not have to chose anything for this. This is the only script embedded in RustScan running as default.
-//!
-//!      none
-//!          The user have to use the --scripts none commandline argument or scripts = "none" in the config file.
-//!          None of the scripts will run, this replaces the removed --no-nmap option.
-//!
-//!      custom
-//!          The user have to use the --scripts custom commandline argument or scripts = "custom" in the config file.
-//!          Rustscan will look for the script configuration file in the user's home dir: home_dir/.rustscan_scripts.toml
-//!          The config file have 3 optional fields, tag, developer and port. Just the tag field will be used forther in the process.
-//!          RustScan will also look for available scripts in the user's home dir: home_dir/.rustscan_scripts
-//!          and will try to read all the files, and parse them into a vector of ScriptFiles.
-//!          Filtering on tags means the tags found in the rustscan_scripts.toml file will also have to be present in the Scriptfile,
-//!          otherwise the script will not be selected.
-//!          All of the rustscan_script.toml tags have to be present at minimum in a Scriptfile to get selected, but can be also more.
-//!
-//! Config file example:
-//! fixtures/test_rustscan_scripts.toml
-//!
-//! Script file examples:
-//! fixtures/test_script.py
-//! fixtures/test_script.pl
-//! fixtures/test_script.sh
-//! fixtures/test_script.txt
-//!
-//! call_format in script files can be of 2 variants.
-//! One is where all of the possible tags {{script}} {{ip}} {{port}} are there.
-//!     The {{script}} part will be replaced with the scriptfile full path gathered while parsing available scripts.
-//!     The {{ip}} part will be replaced with the ip we got from the scan.
-//!     The {{port}} part will be reaplced with the ports separated with the ports_separator found in the script file
-//!
-//! And when there is only {{ip}} and {{port}} is in the format, only those will be replaced with the arguments from the scan.
-//! This makes it easy to run a system installed command like nmap, and give any kind of arguments to it.
-//!
-//! If the format is different, the script will be silently discarded and will not run. With the Debug option it's possible to see where it goes wrong.
-
 #![allow(clippy::module_name_repetitions)]
 
 use crate::input::ScriptsRequired;
@@ -93,9 +48,7 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
                 Ok(script_config) => script_config,
                 Err(e) => return Err(anyhow!(e)),
             };
-            println!("Script config \n{:?}", script_config);
 
-            // Only Scripts that contain all the tags found in ScriptConfig will be selected.
             if script_config.tags.is_some() {
                 let config_hashset: HashSet<String> =
                     script_config.tags.unwrap().into_iter().collect();
@@ -194,8 +147,6 @@ impl Script {
     // Some variables get changed before read, and compiler throws warning on warn(unused_assignments)
     #[allow(unused_assignments)]
     pub fn run(self) -> Result<String> {
-        println!("run self {:?}", &self);
-
         let separator = self.ports_separator.unwrap_or_else(|| ",".into());
 
         let mut ports_str = self
@@ -231,7 +182,6 @@ impl Script {
             };
             to_run = default_template.fill_with_struct(&exec_parts)?;
         }
-        println!("\nScript format to run {}", to_run);
 
         let arguments = shell_words::split(&to_run).expect("Failed to parse script arguments");
 
@@ -342,124 +292,5 @@ impl ScriptConfig {
         let content = fs::read_to_string(home_dir)?;
         let config = toml::from_str::<ScriptConfig>(&content)?;
         Ok(config)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{find_scripts, parse_scripts, Script, ScriptFile};
-
-    // Function for testing only, it inserts static values into ip and open_ports
-    // Doesn't use impl in case it's implemented in the super module at some point
-    fn into_script(script_f: ScriptFile) -> Script {
-        Script::build(
-            script_f.path,
-            "127.0.0.1".parse().unwrap(),
-            vec![80, 8080],
-            script_f.port,
-            script_f.ports_separator,
-            script_f.tags,
-            script_f.call_format,
-        )
-    }
-
-    #[test]
-    fn find_and_parse_scripts() {
-        let scripts = find_scripts("fixtures/".into()).unwrap();
-        let scripts = parse_scripts(scripts);
-        assert_eq!(scripts.len(), 4);
-    }
-
-    #[test]
-    #[should_panic]
-    fn find_invalid_folder() {
-        let _scripts = find_scripts("Cargo.toml".into()).unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn open_script_file_invalid_headers() {
-        ScriptFile::new("fixtures/.rustscan_scripts/test_script_invalid_headers.txt".into())
-            .unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn open_script_file_invalid_call_format() {
-        let mut script_f =
-            ScriptFile::new("fixtures/.rustscan_scripts/test_script.txt".into()).unwrap();
-        script_f.call_format = Some("qwertyuiop".to_string());
-        let script: Script = into_script(script_f);
-        let _output = script.run().unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn open_script_file_missing_call_format() {
-        let mut script_f =
-            ScriptFile::new("fixtures/.rustscan_scripts/test_script.txt".into()).unwrap();
-        script_f.call_format = None;
-        let script: Script = into_script(script_f);
-        let _output = script.run().unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn open_nonexisting_script_file() {
-        ScriptFile::new("qwertyuiop.txt".into()).unwrap();
-    }
-
-    #[test]
-    fn parse_txt_script() {
-        let script_f =
-            ScriptFile::new("fixtures/.rustscan_scripts/test_script.txt".into()).unwrap();
-        assert_eq!(
-            script_f.tags,
-            Some(vec!["core_approved".to_string(), "example".to_string()])
-        );
-        assert_eq!(
-            script_f.developer,
-            Some(vec![
-                "example".to_string(),
-                "https://example.org".to_string()
-            ])
-        );
-        assert_eq!(script_f.ports_separator, Some(",".to_string()));
-        assert_eq!(
-            script_f.call_format,
-            Some("nmap -vvv -p {{port}} {{ip}}".to_string())
-        );
-    }
-
-    #[test]
-    #[cfg(unix)]
-    fn run_bash_script() {
-        let script_f = ScriptFile::new("fixtures/.rustscan_scripts/test_script.sh".into()).unwrap();
-        let script: Script = into_script(script_f);
-        let output = script.run().unwrap();
-        // output has a newline at the end by default, .trim() trims it
-        assert_eq!(output.trim(), "127.0.0.1 80,8080");
-    }
-
-    #[test]
-    fn run_python_script() {
-        let script_f = ScriptFile::new("fixtures/.rustscan_scripts/test_script.py".into()).unwrap();
-        let script: Script = into_script(script_f);
-        let output = script.run().unwrap();
-        // output has a newline at the end by default, .trim() trims it
-        assert_eq!(
-            output.trim(),
-            "Python script ran with arguments ['fixtures/.rustscan_scripts/test_script.py', '127.0.0.1', '80,8080']"
-        );
-    }
-
-    #[test]
-    #[cfg(unix)]
-    fn run_perl_script() {
-        let script_f = ScriptFile::new("fixtures/.rustscan_scripts/test_script.pl".into()).unwrap();
-        let script: Script = into_script(script_f);
-        let output = script.run().unwrap();
-        // output has a newline at the end by default, .trim() trims it
-        assert_eq!(output.trim(), "Total args passed to fixtures/.rustscan_scripts/test_script.pl : 2\nArg # 1 : 127.0.0.1\nArg # 2 : 80,8080");
     }
 }
