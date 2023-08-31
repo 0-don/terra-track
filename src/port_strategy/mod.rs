@@ -12,17 +12,15 @@ pub enum PortStrategy {
 }
 
 impl PortStrategy {
-    pub fn pick(range: &Option<PortRange>, ports: Option<Vec<u16>>, order: ScanOrder) -> Self {
+    pub fn pick(range: &PortRange, ports: Option<Vec<u16>>, order: ScanOrder) -> Self {
         match order {
             ScanOrder::Serial if ports.is_none() => {
-                let range = range.as_ref().unwrap();
                 PortStrategy::Serial(SerialRange {
                     start: range.start,
                     end: range.end,
                 })
             }
             ScanOrder::Random if ports.is_none() => {
-                let range = range.as_ref().unwrap();
                 PortStrategy::Random(RandomRange {
                     start: range.start,
                     end: range.end,

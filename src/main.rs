@@ -7,7 +7,6 @@ use scanner::Scanner;
 
 mod port_strategy;
 use port_strategy::PortStrategy;
-use std::fs;
 
 use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
@@ -34,13 +33,13 @@ fn main() {
     let mut file = File::open("./nmap.xml").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
-    let results = NmapResults::parse(&contents).unwrap();
+    let _results = NmapResults::parse(&contents).unwrap();
 
     let opts: Opts = Opts::read();
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
-    // #[cfg(unix)]
-    // let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
+    #[cfg(unix)]
+    let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
 
     #[cfg(not(unix))]
     let batch_size: u16 = AVERAGE_BATCH_SIZE;
@@ -188,58 +187,58 @@ fn read_ips_from_file(
     Ok(ips)
 }
 
-// #[cfg(unix)]
-// fn adjust_ulimit_size(opts: &Opts) -> u64 {
-//     use rlimit::Resource;
+#[cfg(unix)]
+fn adjust_ulimit_size(opts: &Opts) -> u64 {
+    use rlimit::Resource;
 
-//     if let Some(limit) = opts.ulimit {
-//         if Resource::NOFILE.set(limit, limit).is_ok() {
-//             detail!(
-//                 format!("Automatically increasing ulimit value to {limit}."),
-//                 opts.greppable,
-//                 opts.accessible
-//             );
-//         } else {
-//             warning!(
-//                 "ERROR. Failed to set ulimit value.",
-//                 opts.greppable,
-//                 opts.accessible
-//             );
-//         }
-//     }
+    if let Some(limit) = opts.ulimit {
+        if Resource::NOFILE.set(limit, limit).is_ok() {
+            detail!(
+                format!("Automatically increasing ulimit value to {limit}."),
+                opts.greppable,
+                opts.accessible
+            );
+        } else {
+            warning!(
+                "ERROR. Failed to set ulimit value.",
+                opts.greppable,
+                opts.accessible
+            );
+        }
+    }
 
-//     let (soft, _) = Resource::NOFILE.get().unwrap();
-//     soft
-// }
+    let (soft, _) = Resource::NOFILE.get().unwrap();
+    soft
+}
 
-// #[cfg(unix)]
-// fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
-//     use std::convert::TryInto;
+#[cfg(unix)]
+fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
+    use std::convert::TryInto;
 
-//     let mut batch_size: u64 = opts.batch_size.into();
+    let mut batch_size: u64 = opts.batch_size.into();
 
-//     if ulimit < batch_size {
-//         warning!("File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers",
-//             opts.greppable, opts.accessible
-//         );
+    if ulimit < batch_size {
+        warning!("File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers",
+            opts.greppable, opts.accessible
+        );
 
-//         if ulimit < AVERAGE_BATCH_SIZE.into() {
-//             warning!("Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. ", opts.greppable, opts.accessible);
-//             info!("Halving batch_size because ulimit is smaller than average batch size");
-//             batch_size = ulimit / 2;
-//         } else if ulimit > DEFAULT_FILE_DESCRIPTORS_LIMIT {
-//             info!("Batch size is now average batch size");
-//             batch_size = AVERAGE_BATCH_SIZE.into();
-//         } else {
-//             batch_size = ulimit - 100;
-//         }
-//     }
-//     else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
-//         detail!(format!("File limit higher than batch size. Can increase speed by increasing batch size '-b {}'.", ulimit - 100),
-//         opts.greppable, opts.accessible);
-//     }
+        if ulimit < AVERAGE_BATCH_SIZE.into() {
+            warning!("Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. ", opts.greppable, opts.accessible);
+            info!("Halving batch_size because ulimit is smaller than average batch size");
+            batch_size = ulimit / 2;
+        } else if ulimit > DEFAULT_FILE_DESCRIPTORS_LIMIT {
+            info!("Batch size is now average batch size");
+            batch_size = AVERAGE_BATCH_SIZE.into();
+        } else {
+            batch_size = ulimit - 100;
+        }
+    }
+    else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
+        detail!(format!("File limit higher than batch size. Can increase speed by increasing batch size '-b {}'.", ulimit - 100),
+        opts.greppable, opts.accessible);
+    }
 
-//     batch_size
-//         .try_into()
-//         .expect("Couldn't fit the batch size into a u16.")
-// }
+    batch_size
+        .try_into()
+        .expect("Couldn't fit the batch size into a u16.")
+}
