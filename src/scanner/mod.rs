@@ -15,7 +15,7 @@ use async_std::net::TcpStream;
 use async_std::prelude::*;
 use futures::stream::FuturesUnordered;
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     net::{IpAddr, Shutdown, SocketAddr},
     num::NonZeroU8,
     time::Duration,
@@ -49,7 +49,7 @@ impl Scanner {
         }
     }
 
-    pub async fn run(&self) -> Vec<SocketAddr> {
+    pub async fn run(&self) -> HashMap<IpAddr, Vec<u16>> {
         let ports: Vec<u16> = self.port_strategy.order();
         let mut socket_iterator: SocketIterator = SocketIterator::new(&self.ips, &ports);
         let mut open_sockets: Vec<SocketAddr> = Vec::new();
@@ -80,8 +80,25 @@ impl Scanner {
             }
         }
 
-        println!("Open Sockets found: {:?}", &open_sockets);
-        open_sockets
+        let mut ports_per_ip: HashMap<IpAddr, Vec<u16>> = HashMap::new();
+
+        for socket in open_sockets {
+            ports_per_ip
+                .entry(socket.ip())
+                .or_insert_with(Vec::new)
+                .push(socket.port());
+        }
+
+        for ip in &self.ips {
+            if ports_per_ip.contains_key(&ip) {
+                continue;
+            }
+            println!("{} is not accessible", ip);
+        }
+
+        println!("Open Sockets found: {:?}", &ports_per_ip);
+        
+        ports_per_ip
     }
 
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {

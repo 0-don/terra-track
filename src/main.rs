@@ -1,5 +1,5 @@
 mod input;
-use input::{Opts, PortRange, ScanOrder, LOWEST_PORT_NUMBER, TOP_PORT_NUMBER};
+use input::Opts;
 
 mod scanner;
 mod scripts;
@@ -12,7 +12,6 @@ use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
 use nmap_xml_parser::NmapResults;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::net::{IpAddr, ToSocketAddrs};
@@ -45,23 +44,7 @@ fn main() {
 
     let scanner = Scanner::new(&ips);
 
-    let scan_result = block_on(scanner.run());
-
-    let mut ports_per_ip = HashMap::new();
-
-    for socket in scan_result {
-        ports_per_ip
-            .entry(socket.ip())
-            .or_insert_with(Vec::new)
-            .push(socket.port());
-    }
-
-    for ip in ips {
-        if ports_per_ip.contains_key(&ip) {
-            continue;
-        }
-        println!("{} is not accessible", ip);
-    }
+    let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
         for mut script_f in scripts_to_run.clone() {

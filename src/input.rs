@@ -6,10 +6,6 @@ pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
 
 // CONFIG
-pub const RANGE: PortRange = PortRange {
-    start: LOWEST_PORT_NUMBER,
-    end: TOP_PORT_NUMBER,
-};
 pub const NO_CONFIG: bool = false;
 pub const CONFIG_PATH: Option<PathBuf> = None;
 pub const GREPPABLE: bool = false;
