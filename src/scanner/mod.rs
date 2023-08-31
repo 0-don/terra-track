@@ -1,3 +1,10 @@
+use crate::{
+    input::{
+        ACCESSIBLE, BATCH_SIZE, GREPPABLE, LOWEST_PORT_NUMBER, TIMEOUT, TOP_PORT_NUMBER, TRIES,
+    },
+    port_strategy::SerialRange,
+};
+
 use super::PortStrategy;
 
 mod socket_iterator;
@@ -27,23 +34,18 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    pub fn new(
-        ips: &[IpAddr],
-        batch_size: u16,
-        timeout: Duration,
-        tries: u8,
-        greppable: bool,
-        port_strategy: PortStrategy,
-        accessible: bool,
-    ) -> Self {
+    pub fn new(ips: &[IpAddr]) -> Self {
         Self {
-            batch_size,
-            timeout,
-            tries: NonZeroU8::new(std::cmp::max(tries, 1)).unwrap(),
-            greppable,
-            port_strategy,
+            batch_size: BATCH_SIZE,
+            timeout: Duration::from_millis(TIMEOUT.into()),
+            tries: NonZeroU8::new(std::cmp::max(TRIES, 1)).unwrap(),
+            greppable: GREPPABLE,
+            port_strategy: PortStrategy::Serial(SerialRange {
+                start: LOWEST_PORT_NUMBER,
+                end: TOP_PORT_NUMBER,
+            }),
             ips: ips.iter().map(ToOwned::to_owned).collect(),
-            accessible,
+            accessible: ACCESSIBLE,
         }
     }
 

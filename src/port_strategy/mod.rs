@@ -1,7 +1,7 @@
 mod range_iterator;
-use super::{PortRange, ScanOrder};
-use rand::seq::SliceRandom;
-use rand::thread_rng;
+use crate::input::{LOWEST_PORT_NUMBER, TOP_PORT_NUMBER};
+
+use super::PortRange;
 use range_iterator::RangeIterator;
 
 #[derive(Debug)]
@@ -12,29 +12,6 @@ pub enum PortStrategy {
 }
 
 impl PortStrategy {
-    pub fn pick(range: &PortRange, ports: Option<Vec<u16>>, order: ScanOrder) -> Self {
-        match order {
-            ScanOrder::Serial if ports.is_none() => {
-                PortStrategy::Serial(SerialRange {
-                    start: range.start,
-                    end: range.end,
-                })
-            }
-            ScanOrder::Random if ports.is_none() => {
-                PortStrategy::Random(RandomRange {
-                    start: range.start,
-                    end: range.end,
-                })
-            }
-            ScanOrder::Serial => PortStrategy::Manual(ports.unwrap()),
-            ScanOrder::Random => {
-                let mut rng = thread_rng();
-                let mut ports = ports.unwrap();
-                ports.shuffle(&mut rng);
-                PortStrategy::Manual(ports)
-            }
-        }
-    }
 
     pub fn order(&self) -> Vec<u16> {
         match self {
@@ -51,8 +28,8 @@ trait RangeOrder {
 
 #[derive(Debug)]
 pub struct SerialRange {
-    start: u16,
-    end: u16,
+    pub(crate) start: u16,
+    pub(crate) end: u16,
 }
 
 impl RangeOrder for SerialRange {

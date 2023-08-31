@@ -6,7 +6,6 @@ pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
 
 // CONFIG
-pub const PORTS: Option<Vec<u16>> = None;
 pub const RANGE: PortRange = PortRange {
     start: LOWEST_PORT_NUMBER,
     end: TOP_PORT_NUMBER,
@@ -56,12 +55,6 @@ pub struct PortRange {
 pub struct Opts {
     /// A comma-delimited list or newline-delimited file of separated CIDRs, IPs, or hosts to be scanned.
     pub addresses: Vec<String>,
-
-    /// A list of comma separated ports to be scanned. Example: 80,443,8080.
-    // pub ports: Option<Vec<u16>>,
-
-    // /// A range of ports with format start-end. Example: 1-1000.
-    // pub range: PortRange,
 
     /// Whether to ignore the configuration file or not.
     pub no_config: bool,
@@ -114,8 +107,6 @@ impl Opts {
     pub fn read() -> Self {
         Opts {
             addresses: vec!["scanme.nmap.org".into()],
-            // ports: PORTS,
-            // range: RANGE,
             no_config: NO_CONFIG,
             config_path: CONFIG_PATH,
             greppable: GREPPABLE,

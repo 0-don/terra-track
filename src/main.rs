@@ -1,5 +1,5 @@
 mod input;
-use input::{Opts, PortRange, ScanOrder};
+use input::{Opts, PortRange, ScanOrder, LOWEST_PORT_NUMBER, TOP_PORT_NUMBER};
 
 mod scanner;
 mod scripts;
@@ -17,15 +17,15 @@ use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::Path;
-use std::time::Duration;
 use trust_dns_resolver::{
     config::{ResolverConfig, ResolverOpts},
     Resolver,
 };
 
-// #[cfg(unix)]
-// const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
-const AVERAGE_BATCH_SIZE: u16 = 3000;
+#[cfg(unix)]
+const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
+#[cfg(not(unix))]
+const _AVERAGE_BATCH_SIZE: u16 = 3000;
 
 fn main() {
     // read file as string ./nmap.xml
@@ -41,20 +41,9 @@ fn main() {
     #[cfg(unix)]
     let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
 
-    #[cfg(not(unix))]
-    let batch_size: u16 = AVERAGE_BATCH_SIZE;
-
     let scripts_to_run: Vec<ScriptFile> = init_scripts(opts.scripts).unwrap();
 
-    let scanner = Scanner::new(
-        &ips,
-        batch_size,
-        Duration::from_millis(opts.timeout.into()),
-        opts.tries,
-        opts.greppable,
-        PortStrategy::pick(&opts.range, opts.ports, opts.scan_order),
-        opts.accessible,
-    );
+    let scanner = Scanner::new(&ips);
 
     let scan_result = block_on(scanner.run());
 
@@ -232,8 +221,7 @@ fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
         } else {
             batch_size = ulimit - 100;
         }
-    }
-    else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
+    } else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
         detail!(format!("File limit higher than batch size. Can increase speed by increasing batch size '-b {}'.", ulimit - 100),
         opts.greppable, opts.accessible);
     }
