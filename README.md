@@ -1,7 +1,6 @@
 
 # TerraTrack: World Port Scanner Database
 
-![TerraTrack Logo](https://github.com/don-cryptus/terra-track/assets/logo.png)
 <!-- You can replace this URL with the actual logo URL if you have one. -->
 
 TerraTrack is a comprehensive world port scanner database. We gather, aggregate, and provide details on open ports, services, countries, and much more. With TerraTrack, users can obtain insights into the global distribution of open ports and services, aiding in threat intelligence, research, and network monitoring.
