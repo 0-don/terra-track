@@ -22,7 +22,7 @@ cd terra-track
 ## Usage:
 
 ```
-python terratrack.py --port 80 --country US
+cargo run
 ```
 
 This command will display all open instances of port 80 in the US.
