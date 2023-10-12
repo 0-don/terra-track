@@ -17,7 +17,6 @@ TerraTrack is a comprehensive world port scanner database. We gather, aggregate,
 ```bash
 git clone https://github.com/don-cryptus/terra-track.git
 cd terra-track
-pip install -r requirements.txt
 ```
 
 ## Usage:
