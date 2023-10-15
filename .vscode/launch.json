@@ -1,17 +1,44 @@
 {
-  "version": "1.0.0",
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
   "configurations": [
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'rustscan'",
+      "name": "Debug executable 'terra-track'",
       "cargo": {
-        "args": ["build", "--bin=rustscan", "--package=rustscan"],
+        "args": [
+          "build",
+          "--bin=terra-track",
+          "--package=terra-track"
+        ],
         "filter": {
-          "name": "rustscan",
+          "name": "terra-track",
           "kind": "bin"
         }
       },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'terra-track'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=terra-track",
+          "--package=terra-track"
+        ],
+        "filter": {
+          "name": "terra-track",
+          "kind": "bin"
+        }
+      },
+      "args": [],
       "cwd": "${workspaceFolder}"
     }
   ]

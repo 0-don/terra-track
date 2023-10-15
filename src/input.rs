@@ -1,32 +1,10 @@
-use std::path::PathBuf;
-
 use serde_derive::Deserialize;
+use std::path::PathBuf;
 
 pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
 
 // CONFIG
-pub const NO_CONFIG: bool = false;
-pub const CONFIG_PATH: Option<PathBuf> = None;
-pub const GREPPABLE: bool = false;
-pub const ACCESSIBLE: bool = false;
-pub const BATCH_SIZE: u16 = 4500;
-pub const TIMEOUT: u32 = 1000;
-pub const TRIES: u8 = 1;
-pub const ULIMIT: Option<u64> = None;
-pub const SCAN_ORDER: ScanOrder = ScanOrder::Serial;
-pub const SCRIPTS: ScriptsRequired = ScriptsRequired::Default;
-pub const TOP: bool = false;
-pub const COMMAND: [&str; 8] = [
-    "-T2",
-    "-n",
-    "-vv",
-    "-sV",
-    "-Pn",
-    "-oX",
-    "./nmap.xml",
-    "--unprivileged",
-];
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum ScanOrder {
@@ -103,18 +81,30 @@ impl Opts {
     pub fn read() -> Self {
         Opts {
             addresses: vec!["scanme.nmap.org".into()],
-            no_config: NO_CONFIG,
-            config_path: CONFIG_PATH,
-            greppable: GREPPABLE,
-            accessible: ACCESSIBLE,
-            batch_size: BATCH_SIZE,
-            timeout: TIMEOUT,
-            tries: TRIES,
-            ulimit: ULIMIT,
-            scan_order: SCAN_ORDER,
-            scripts: SCRIPTS,
-            top: TOP,
-            command: COMMAND.iter().map(|s| s.to_string()).collect(),
+            no_config: false,
+            config_path: None,
+            greppable: false,
+            accessible: false,
+            batch_size: 4500,
+            timeout: 100,
+            tries: 1,
+            ulimit: None,
+            scan_order: ScanOrder::Serial,
+            scripts: ScriptsRequired::Default,
+            top: false,
+            command: vec![
+                "-T2",
+                "-n",
+                "-vv",
+                "-sV",
+                "-Pn",
+                "-oX",
+                "./nmap.xml",
+                "--unprivileged",
+            ]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
         }
     }
 }

@@ -1,19 +1,14 @@
+use super::PortStrategy;
 use crate::{
-    input::{
-        ACCESSIBLE, BATCH_SIZE, GREPPABLE, LOWEST_PORT_NUMBER, TIMEOUT, TOP_PORT_NUMBER, TRIES,
-    },
+    input::{LOWEST_PORT_NUMBER, TOP_PORT_NUMBER},
     port_strategy::SerialRange,
 };
-
-use super::PortStrategy;
-
 mod socket_iterator;
-use socket_iterator::SocketIterator;
-
 use async_std::io;
 use async_std::net::TcpStream;
 use async_std::prelude::*;
 use futures::stream::FuturesUnordered;
+use socket_iterator::SocketIterator;
 use std::{
     collections::{HashMap, HashSet},
     net::{IpAddr, Shutdown, SocketAddr},
@@ -36,16 +31,16 @@ pub struct Scanner {
 impl Scanner {
     pub fn new(ips: &[IpAddr]) -> Self {
         Self {
-            batch_size: BATCH_SIZE,
-            timeout: Duration::from_millis(TIMEOUT.into()),
-            tries: NonZeroU8::new(std::cmp::max(TRIES, 1)).unwrap(),
-            greppable: GREPPABLE,
+            batch_size: 4500,
+            timeout: Duration::from_millis(1000),
+            tries: NonZeroU8::new(std::cmp::max(1, 1)).unwrap(),
+            greppable: false,
             port_strategy: PortStrategy::Serial(SerialRange {
                 start: LOWEST_PORT_NUMBER,
                 end: TOP_PORT_NUMBER,
             }),
             ips: ips.iter().map(ToOwned::to_owned).collect(),
-            accessible: ACCESSIBLE,
+            accessible: false,
         }
     }
 
@@ -97,7 +92,7 @@ impl Scanner {
         }
 
         println!("Open Sockets found: {:?}", &ports_per_ip);
-        
+
         ports_per_ip
     }
 

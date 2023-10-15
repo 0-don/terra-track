@@ -4,14 +4,11 @@ mod scanner;
 mod scripts;
 use scanner::Scanner;
 mod port_strategy;
-use port_strategy::PortStrategy;
 use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
-use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use port_strategy::PortStrategy;
 use std::net::{IpAddr, ToSocketAddrs};
-use std::path::Path;
 use trust_dns_resolver::{
     config::{ResolverConfig, ResolverOpts},
     Resolver,
@@ -81,22 +78,6 @@ fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
         }
     }
 
-    for file_path in unresolved_addresses {
-        let file_path = Path::new(file_path);
-
-        if !file_path.is_file() {
-            println!("{} is not a file.", file_path.display());
-
-            continue;
-        }
-
-        if let Ok(x) = read_ips_from_file(file_path, &backup_resolver) {
-            ips.extend(x);
-        } else {
-            println!("{} is not a valid file.", file_path.display());
-        }
-    }
-
     ips
 }
 
@@ -125,24 +106,4 @@ fn resolve_ips_from_host(source: &str, backup_resolver: &Resolver) -> Vec<IpAddr
     }
 
     ips
-}
-
-fn read_ips_from_file(
-    ips: &std::path::Path,
-    backup_resolver: &Resolver,
-) -> Result<Vec<std::net::IpAddr>, std::io::Error> {
-    let file = File::open(ips)?;
-    let reader = BufReader::new(file);
-
-    let mut ips: Vec<std::net::IpAddr> = Vec::new();
-
-    for address_line in reader.lines() {
-        if let Ok(address) = address_line {
-            ips.extend(parse_address(&address, backup_resolver));
-        } else {
-            println!("Line in file is not valid");
-        }
-    }
-
-    Ok(ips)
 }
