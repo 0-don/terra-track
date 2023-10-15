@@ -155,6 +155,7 @@ fn execute_script(mut arguments: Vec<String>) -> Result<String> {
 #[derive(Debug, Clone, Deserialize)]
 pub struct ScriptFile {
     pub path: Option<PathBuf>,
+
     pub port: Option<String>,
     pub ports_separator: Option<String>,
     pub call_format: Option<String>,
