@@ -1,10 +1,11 @@
 mod config;
-use config::Opts;
+use config::{Opts, ScanOrder, ScriptsRequired};
 mod scanner;
 mod scripts;
 use scanner::Scanner;
+use scripts::DEFAULT;
 mod port_strategy;
-use crate::scripts::{init_scripts, Script, ScriptFile};
+use crate::scripts::{Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
 use port_strategy::PortStrategy;
@@ -22,41 +23,66 @@ fn main() {
     // file.read_to_string(&mut contents).unwrap();
     // let _results = NmapResults::parse(&contents).unwrap();
 
-    let opts: Opts = Opts::read();
+    let opts: Opts =   Opts {
+        addresses: vec!["scanme.nmap.org".into()],
+        no_config: false,
+        config_path: None,
+        greppable: false,
+        accessible: false,
+        batch_size: 4500,
+        timeout: 100,
+        tries: 1,
+        ulimit: None,
+        scan_order: ScanOrder::Serial,
+        scripts: ScriptsRequired::Default,
+        top: false,
+        command: vec![
+            "-T2",
+            "-n",
+            "-vv",
+            "-sV",
+            "-Pn",
+            "-oX",
+            "./nmap.xml",
+            "--unprivileged",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+    };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
-    let scripts_to_run: Vec<ScriptFile> = init_scripts(opts.scripts).unwrap();
+    let mut script_f: ScriptFile =
+        toml::from_str::<ScriptFile>(DEFAULT).expect("Failed to parse Script file.");
 
     let scanner = Scanner::new(&ips);
 
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
-        for mut script_f in scripts_to_run.clone() {
-            if !opts.command.is_empty() {
-                let user_extra_args = &opts.command.join(" ");
-                if script_f.call_format.is_some() {
-                    let mut call_f = script_f.call_format.unwrap();
-                    call_f.push(' ');
-                    call_f.push_str(user_extra_args);
-                    script_f.call_format = Some(call_f);
-                }
+        if !opts.command.is_empty() {
+            let user_extra_args = &opts.command.join(" ");
+            if script_f.clone().call_format.is_some() {
+                let mut call_f = script_f.clone().call_format.unwrap();
+                call_f.push(' ');
+                call_f.push_str(user_extra_args);
+                script_f.call_format = Some(call_f);
             }
-            let script = Script::build(
-                script_f.path,
-                *ip,
-                ports.clone(),
-                script_f.port,
-                script_f.ports_separator,
-                script_f.call_format,
-            );
-            match script.run() {
-                Ok(script_result) => {
-                    println!("Script result: {}", script_result);
-                }
-                Err(e) => {
-                    println!("Error running script: {}", e);
-                }
+        }
+        let script = Script::build(
+            script_f.clone().path,
+            *ip,
+            ports.clone(),
+            script_f.clone().port,
+            script_f.clone().ports_separator,
+            script_f.clone().call_format,
+        );
+        match script.run() {
+            Ok(script_result) => {
+                println!("Script result: {}", script_result);
+            }
+            Err(e) => {
+                println!("Error running script: {}", e);
             }
         }
     }

@@ -4,8 +4,6 @@ use std::path::PathBuf;
 pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
 
-// CONFIG
-
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum ScanOrder {
     Serial,
@@ -73,36 +71,4 @@ pub struct Opts {
     /// This command adds -Pn -vvv -p $PORTS automatically to nmap.
     /// For things like --script '(safe and vuln)' enclose it in quotations marks \"'(safe and vuln)'\"")
     pub command: Vec<String>,
-}
-
-impl Opts {
-    pub fn read() -> Self {
-        Opts {
-            addresses: vec!["scanme.nmap.org".into()],
-            no_config: false,
-            config_path: None,
-            greppable: false,
-            accessible: false,
-            batch_size: 4500,
-            timeout: 100,
-            tries: 1,
-            ulimit: None,
-            scan_order: ScanOrder::Serial,
-            scripts: ScriptsRequired::Default,
-            top: false,
-            command: vec![
-                "-T2",
-                "-n",
-                "-vv",
-                "-sV",
-                "-Pn",
-                "-oX",
-                "./nmap.xml",
-                "--unprivileged",
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-        }
-    }
 }

@@ -1,6 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
 
-use crate::config::ScriptsRequired;
 use anyhow::{anyhow, Result};
 use serde_derive::{Deserialize, Serialize};
 use std::convert::TryInto;
@@ -15,22 +14,6 @@ ports_separator = ","
 call_format = "nmap -vvv -p {{port}} {{ip}}"
 "#;
 
-#[cfg(not(tarpaulin_include))]
-pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
-    let mut scripts_to_run: Vec<ScriptFile> = Vec::new();
-
-    match scripts {
-        ScriptsRequired::Default => {
-            let default_script =
-                toml::from_str::<ScriptFile>(DEFAULT).expect("Failed to parse Script file.");
-            scripts_to_run.push(default_script);
-            Ok(scripts_to_run)
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-#[allow(dead_code)]
 pub struct Script {
     // Path to the script itself.
     path: Option<PathBuf>,
@@ -159,9 +142,4 @@ pub struct ScriptFile {
     pub port: Option<String>,
     pub ports_separator: Option<String>,
     pub call_format: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct ScriptConfig {
-    pub ports: Option<Vec<String>>,
 }
