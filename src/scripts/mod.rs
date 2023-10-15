@@ -1,20 +1,16 @@
 #![allow(clippy::module_name_repetitions)]
 
-use crate::input::ScriptsRequired;
+use crate::config::ScriptsRequired;
 use anyhow::{anyhow, Result};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::convert::TryInto;
-use std::fs::{self, File};
-use std::io::{self, prelude::*};
 use std::net::IpAddr;
 use std::path::PathBuf;
 use std::string::ToString;
 use subprocess::{Exec, ExitStatus};
 use text_placeholder::Template;
 
-static DEFAULT: &str = r#"tags = ["core_approved", "RustScan", "default"]
-developer = [ "RustScan", "https://github.com/RustScan" ]
+pub static DEFAULT: &str = r#"
 ports_separator = ","
 call_format = "nmap -vvv -p {{port}} {{ip}}"
 "#;
@@ -24,65 +20,13 @@ pub fn init_scripts(scripts: ScriptsRequired) -> Result<Vec<ScriptFile>> {
     let mut scripts_to_run: Vec<ScriptFile> = Vec::new();
 
     match scripts {
-        ScriptsRequired::None => Ok(scripts_to_run),
         ScriptsRequired::Default => {
             let default_script =
                 toml::from_str::<ScriptFile>(DEFAULT).expect("Failed to parse Script file.");
             scripts_to_run.push(default_script);
             Ok(scripts_to_run)
         }
-        ScriptsRequired::Custom => {
-            let Some(scripts_dir_base) = dirs::home_dir() else {
-                return Err(anyhow!("Could not infer scripts path."));
-            };
-            let script_paths = match find_scripts(scripts_dir_base) {
-                Ok(script_paths) => script_paths,
-                Err(e) => return Err(anyhow!(e)),
-            };
-            println!("Scripts paths \n{:?}", script_paths);
-
-            let parsed_scripts = parse_scripts(script_paths);
-            println!("Scripts parsed \n{:?}", parsed_scripts);
-
-            let script_config = match ScriptConfig::read_config() {
-                Ok(script_config) => script_config,
-                Err(e) => return Err(anyhow!(e)),
-            };
-
-            if script_config.tags.is_some() {
-                let config_hashset: HashSet<String> =
-                    script_config.tags.unwrap().into_iter().collect();
-                for script in &parsed_scripts {
-                    if script.tags.is_some() {
-                        let script_hashset: HashSet<String> =
-                            script.tags.clone().unwrap().into_iter().collect();
-                        if config_hashset.is_subset(&script_hashset) {
-                            scripts_to_run.push(script.clone());
-                        } else {
-                            println!(
-                                "\nScript tags does not match config tags {:?} {}",
-                                &script_hashset,
-                                script.path.clone().unwrap().display()
-                            );
-                        }
-                    }
-                }
-            }
-            println!("\nScript(s) to run {:?}", scripts_to_run);
-            Ok(scripts_to_run)
-        }
     }
-}
-
-pub fn parse_scripts(scripts: Vec<PathBuf>) -> Vec<ScriptFile> {
-    let mut parsed_scripts: Vec<ScriptFile> = Vec::with_capacity(scripts.len());
-    for script in scripts {
-        println!("Parsing script {}", &script.display());
-        if let Some(script_file) = ScriptFile::new(script) {
-            parsed_scripts.push(script_file);
-        }
-    }
-    parsed_scripts
 }
 
 #[derive(Clone, Debug)]
@@ -102,9 +46,6 @@ pub struct Script {
 
     // Character to join ports in case we want to use a string format of them, for example nmap -p.
     ports_separator: Option<String>,
-
-    // Tags found in ScriptFile.
-    tags: Option<Vec<String>>,
 
     // The format how we want the script to run.
     call_format: Option<String>,
@@ -130,7 +71,6 @@ impl Script {
         open_ports: Vec<u16>,
         trigger_port: Option<String>,
         ports_separator: Option<String>,
-        tags: Option<Vec<String>>,
         call_format: Option<String>,
     ) -> Self {
         Self {
@@ -139,7 +79,6 @@ impl Script {
             open_ports,
             trigger_port,
             ports_separator,
-            tags,
             call_format,
         }
     }
@@ -213,84 +152,15 @@ fn execute_script(mut arguments: Vec<String>) -> Result<String> {
     }
 }
 
-pub fn find_scripts(mut path: PathBuf) -> Result<Vec<PathBuf>> {
-    path.push(".rustscan_scripts");
-    if path.is_dir() {
-        println!("Scripts folder found {}", &path.display());
-        let mut files_vec: Vec<PathBuf> = Vec::new();
-        for entry in fs::read_dir(path)? {
-            let entry = entry?;
-            files_vec.push(entry.path());
-        }
-        Ok(files_vec)
-    } else {
-        Err(anyhow!("Can't find scripts folder {}", path.display()))
-    }
-}
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct ScriptFile {
     pub path: Option<PathBuf>,
-    pub tags: Option<Vec<String>>,
-    pub developer: Option<Vec<String>>,
     pub port: Option<String>,
     pub ports_separator: Option<String>,
     pub call_format: Option<String>,
 }
 
-impl ScriptFile {
-    fn new(script: PathBuf) -> Option<ScriptFile> {
-        let real_path = script.clone();
-        let mut lines_buf = String::new();
-        if let Ok(file) = File::open(script) {
-            for mut line in io::BufReader::new(file).lines().skip(1).flatten() {
-                if line.starts_with('#') {
-                    line.retain(|c| c != '#');
-                    line = line.trim().to_string();
-                    line.push('\n');
-                    lines_buf.push_str(&line);
-                } else {
-                    break;
-                }
-            }
-        } else {
-            println!("Failed to read file: {}", &real_path.display());
-            return None;
-        }
-        println!("ScriptFile {} lines\n{}", &real_path.display(), &lines_buf);
-
-        match toml::from_str::<ScriptFile>(&lines_buf) {
-            Ok(mut parsed) => {
-                println!("Parsed ScriptFile{} \n{:?}", &real_path.display(), &parsed);
-                parsed.path = Some(real_path);
-                // parsed_scripts.push(parsed);
-                Some(parsed)
-            }
-            Err(e) => {
-                println!("Failed to parse ScriptFile headers {}", e.to_string());
-                None
-            }
-        }
-    }
-}
-
 #[derive(Debug, Deserialize, Clone)]
 pub struct ScriptConfig {
-    pub tags: Option<Vec<String>>,
     pub ports: Option<Vec<String>>,
-    pub developer: Option<Vec<String>>,
-}
-
-#[cfg(not(tarpaulin_include))]
-impl ScriptConfig {
-    pub fn read_config() -> Result<ScriptConfig> {
-        let Some(mut home_dir) = dirs::home_dir() else {
-            return Err(anyhow!("Could not infer ScriptConfig path."));
-        };
-        home_dir.push(".rustscan_scripts.toml");
-
-        let content = fs::read_to_string(home_dir)?;
-        let config = toml::from_str::<ScriptConfig>(&content)?;
-        Ok(config)
-    }
 }

@@ -1,5 +1,5 @@
-mod input;
-use input::Opts;
+mod config;
+use config::Opts;
 mod scanner;
 mod scripts;
 use scanner::Scanner;
@@ -48,7 +48,6 @@ fn main() {
                 ports.clone(),
                 script_f.port,
                 script_f.ports_separator,
-                script_f.tags,
                 script_f.call_format,
             );
             match script.run() {

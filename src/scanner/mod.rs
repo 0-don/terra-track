@@ -1,6 +1,6 @@
 use super::PortStrategy;
 use crate::{
-    input::{LOWEST_PORT_NUMBER, TOP_PORT_NUMBER},
+    config::{LOWEST_PORT_NUMBER, TOP_PORT_NUMBER},
     port_strategy::SerialRange,
 };
 mod socket_iterator;

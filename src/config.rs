@@ -14,9 +14,7 @@ pub enum ScanOrder {
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum ScriptsRequired {
-    None,
     Default,
-    Custom,
 }
 
 #[derive(Deserialize, Debug, Clone)]
