@@ -1,17 +1,13 @@
 mod input;
 use input::Opts;
-
 mod scanner;
 mod scripts;
 use scanner::Scanner;
-
 mod port_strategy;
 use port_strategy::PortStrategy;
-
 use crate::scripts::{init_scripts, Script, ScriptFile};
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
-use nmap_xml_parser::NmapResults;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::net::{IpAddr, ToSocketAddrs};
@@ -20,10 +16,6 @@ use trust_dns_resolver::{
     config::{ResolverConfig, ResolverOpts},
     Resolver,
 };
-
-#[cfg(unix)]
-const DEFAULT_FILE_DESCRIPTORS_LIMIT: u64 = 8000;
-const AVERAGE_BATCH_SIZE: u16 = 3000;
 
 fn main() {
     // read file as string ./nmap.xml
@@ -35,9 +27,6 @@ fn main() {
 
     let opts: Opts = Opts::read();
     let ips: Vec<IpAddr> = parse_addresses(&opts);
-
-    #[cfg(unix)]
-    let batch_size: u16 = infer_batch_size(&opts, adjust_ulimit_size(&opts));
 
     let scripts_to_run: Vec<ScriptFile> = init_scripts(opts.scripts).unwrap();
 
@@ -156,36 +145,4 @@ fn read_ips_from_file(
     }
 
     Ok(ips)
-}
-
-#[cfg(unix)]
-fn adjust_ulimit_size(opts: &Opts) -> u64 {
-    use rlimit::Resource;
-
-    if let Some(limit) = opts.ulimit {
-        if Resource::NOFILE.set(limit, limit).is_ok() {}
-    }
-
-    let (soft, _) = Resource::NOFILE.get().unwrap();
-    soft
-}
-
-#[cfg(unix)]
-fn infer_batch_size(opts: &Opts, ulimit: u64) -> u16 {
-    let mut batch_size: u64 = opts.batch_size.into();
-
-    if ulimit < batch_size {
-        if ulimit < AVERAGE_BATCH_SIZE.into() {
-            batch_size = ulimit / 2;
-        } else if ulimit > DEFAULT_FILE_DESCRIPTORS_LIMIT {
-            batch_size = AVERAGE_BATCH_SIZE.into();
-        } else {
-            batch_size = ulimit - 100;
-        }
-    } else if ulimit + 2 > batch_size && (opts.ulimit.is_none()) {
-    }
-
-    batch_size
-        .try_into()
-        .expect("Couldn't fit the batch size into a u16.")
 }
