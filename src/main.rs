@@ -23,7 +23,7 @@ fn main() {
     // file.read_to_string(&mut contents).unwrap();
     // let _results = NmapResults::parse(&contents).unwrap();
 
-    let opts: Opts =   Opts {
+    let opts: Opts = Opts {
         addresses: vec!["scanme.nmap.org".into()],
         no_config: false,
         config_path: None,
@@ -36,19 +36,6 @@ fn main() {
         scan_order: ScanOrder::Serial,
         scripts: ScriptsRequired::Default,
         top: false,
-        command: vec![
-            "-T2",
-            "-n",
-            "-vv",
-            "-sV",
-            "-Pn",
-            "-oX",
-            "./nmap.xml",
-            "--unprivileged",
-        ]
-        .iter()
-        .map(|s| s.to_string())
-        .collect(),
     };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -60,22 +47,18 @@ fn main() {
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
-        if !opts.command.is_empty() {
-            let user_extra_args = &opts.command.join(" ");
-            if script_f.clone().call_format.is_some() {
-                let mut call_f = script_f.clone().call_format.unwrap();
-                call_f.push(' ');
-                call_f.push_str(user_extra_args);
-                script_f.call_format = Some(call_f);
-            }
-        }
+        let mut call_f = script_f.clone().call_format.unwrap();
+        call_f.push(' ');
+        call_f.push_str("-T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged");
+        script_f.call_format = Some(call_f);
+
         let script = Script::build(
             script_f.clone().path,
             *ip,
             ports.clone(),
             script_f.clone().port,
             script_f.clone().ports_separator,
-            script_f.clone().call_format,
+            script_f.clone().call_format.unwrap(),
         );
         match script.run() {
             Ok(script_result) => {

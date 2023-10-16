@@ -64,11 +64,4 @@ pub struct Opts {
 
     /// Use the top 1000 ports.
     pub top: bool,
-
-    /// The Script arguments to run.
-    /// To use the argument -A, end RustScan's args with '-- -A'.
-    /// Example: 'rustscan -T 1500 -a 127.0.0.1 -- -A -sC'.
-    /// This command adds -Pn -vvv -p $PORTS automatically to nmap.
-    /// For things like --script '(safe and vuln)' enclose it in quotations marks \"'(safe and vuln)'\"")
-    pub command: Vec<String>,
 }

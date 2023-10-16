@@ -31,7 +31,7 @@ pub struct Script {
     ports_separator: Option<String>,
 
     // The format how we want the script to run.
-    call_format: Option<String>,
+    call_format: String,
 }
 
 #[derive(Serialize)]
@@ -54,7 +54,7 @@ impl Script {
         open_ports: Vec<u16>,
         trigger_port: Option<String>,
         ports_separator: Option<String>,
-        call_format: Option<String>,
+        call_format: String,
     ) -> Self {
         Self {
             path,
@@ -82,11 +82,9 @@ impl Script {
         }
 
         let mut final_call_format = String::new();
-        if let Some(call_format) = self.call_format {
-            final_call_format = call_format;
-        } else {
-            return Err(anyhow!("Failed to parse execution format."));
-        }
+
+        final_call_format = self.call_format;
+
         let default_template: Template = Template::new(&final_call_format);
         let mut to_run = String::new();
 
