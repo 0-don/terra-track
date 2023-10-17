@@ -23,20 +23,14 @@ fn main() {
         addresses: vec!["scanme.nmap.org".into()],
     };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
-
     let scanner = Scanner::new(&ips);
-
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
         let script = Script::build(*ip, ports.clone());
         match script.run() {
-            Ok(script_result) => {
-                println!("Script result: {}", script_result);
-            }
-            Err(e) => {
-                println!("Error running script: {}", e);
-            }
+            Ok(script_result) => println!("Script result: {}", script_result),
+            Err(e) => println!("Error running script: {}", e),
         }
     }
 }
