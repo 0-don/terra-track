@@ -1,15 +1,12 @@
 mod config;
-use config::Opts;
 mod scanner;
 mod scripts;
 use scanner::Scanner;
-use utils::dns_resolver::parse_addresses;
 mod port_strategy;
 use crate::scripts::Script;
 use futures::executor::block_on;
 use port_strategy::PortStrategy;
 use std::net::IpAddr;
-mod utils;
 
 fn main() {
     // read file as string ./nmap.xml
@@ -19,10 +16,7 @@ fn main() {
     // file.read_to_string(&mut contents).unwrap();
     // let _results = NmapResults::parse(&contents).unwrap();
 
-    let opts: Opts = Opts {
-        addresses: vec!["scanme.nmap.org".into()],
-    };
-    let ips: Vec<IpAddr> = parse_addresses(&opts);
+    let ips: Vec<IpAddr> = vec!["45.33.32.156".parse().unwrap()];
     let scanner = Scanner::new(&ips);
     let ports_per_ip = block_on(scanner.run());
 
