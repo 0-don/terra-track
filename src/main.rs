@@ -1,5 +1,5 @@
 mod config;
-use config::{Opts, ScanOrder, ScriptsRequired};
+use config::Opts;
 mod scanner;
 mod scripts;
 use scanner::Scanner;
@@ -24,17 +24,9 @@ fn main() {
 
     let opts: Opts = Opts {
         addresses: vec!["scanme.nmap.org".into()],
-        no_config: false,
-        config_path: None,
-        greppable: false,
-        accessible: false,
         batch_size: 4500,
         timeout: 100,
         tries: 1,
-        ulimit: None,
-        scan_order: ScanOrder::Serial,
-        scripts: ScriptsRequired::Default,
-        top: false,
     };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
@@ -43,12 +35,7 @@ fn main() {
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
-        let script = Script::build(
-            *ip,
-            ports.clone(),
-            "nmap -vvv -p {{port}} {{ip}} -T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged"
-                .to_string(),
-        );
+        let script = Script::build(*ip, ports.clone());
         match script.run() {
             Ok(script_result) => {
                 println!("Script result: {}", script_result);

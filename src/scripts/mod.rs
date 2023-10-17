@@ -15,9 +15,6 @@ pub struct Script {
 
     // Ports found with portscan.
     open_ports: Vec<u16>,
-
-    // The format how we want the script to run.
-    call_format: String,
 }
 
 #[derive(Serialize)]
@@ -34,13 +31,8 @@ struct ExecParts {
 }
 
 impl Script {
-    pub fn build(ip: IpAddr, open_ports: Vec<u16>, call_format: String) -> Self {
-        Self {
-            ip,
-            open_ports,
-
-            call_format,
-        }
+    pub fn build(ip: IpAddr, open_ports: Vec<u16>) -> Self {
+        Self { ip, open_ports }
     }
 
     // Some variables get changed before read, and compiler throws warning on warn(unused_assignments)
@@ -55,9 +47,9 @@ impl Script {
             .collect::<Vec<String>>()
             .join(&separator);
 
-        let mut final_call_format = String::new();
-
-        final_call_format = self.call_format;
+        let final_call_format =
+            "nmap -vvv -p {{port}} {{ip}} -T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged"
+                .to_string();
 
         let default_template: Template = Template::new(&final_call_format);
         let mut to_run = String::new();
