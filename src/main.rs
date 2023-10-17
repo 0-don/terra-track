@@ -44,11 +44,8 @@ fn main() {
 
     for (ip, ports) in &ports_per_ip {
         let script = Script::build(
-            None,
             *ip,
             ports.clone(),
-            None,
-            Some(",".to_string()),
             "nmap -vvv -p {{port}} {{ip}} -T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged"
                 .to_string(),
         );
