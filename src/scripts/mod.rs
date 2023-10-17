@@ -9,11 +9,6 @@ use std::string::ToString;
 use subprocess::{Exec, ExitStatus};
 use text_placeholder::Template;
 
-pub static DEFAULT: &str = r#"
-ports_separator = ","
-call_format = "nmap -vvv -p {{port}} {{ip}}"
-"#;
-
 pub struct Script {
     // Path to the script itself.
     path: Option<PathBuf>,

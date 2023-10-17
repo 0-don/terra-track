@@ -3,9 +3,8 @@ use config::{Opts, ScanOrder, ScriptsRequired};
 mod scanner;
 mod scripts;
 use scanner::Scanner;
-use scripts::DEFAULT;
 mod port_strategy;
-use crate::scripts::{Script, ScriptFile};
+use crate::scripts::Script;
 use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
 use port_strategy::PortStrategy;
@@ -39,26 +38,19 @@ fn main() {
     };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
-    let mut script_f: ScriptFile =
-        toml::from_str::<ScriptFile>(DEFAULT).expect("Failed to parse Script file.");
-
     let scanner = Scanner::new(&ips);
 
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
-        let mut call_f = script_f.clone().call_format.unwrap();
-        call_f.push(' ');
-        call_f.push_str("-T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged");
-        script_f.call_format = Some(call_f);
-
         let script = Script::build(
-            script_f.clone().path,
+            None,
             *ip,
             ports.clone(),
-            script_f.clone().port,
-            script_f.clone().ports_separator,
-            script_f.clone().call_format.unwrap(),
+            None,
+            Some(",".to_string()),
+            "nmap -vvv -p {{port}} {{ip}} -T2 -n -vv -sV -Pn -oX ./nmap.xml --unprivileged"
+                .to_string(),
         );
         match script.run() {
             Ok(script_result) => {
