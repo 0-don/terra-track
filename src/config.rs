@@ -1,24 +1,5 @@
-use serde_derive::Deserialize;
-
 pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
-
-#[derive(Deserialize, Debug, Clone, Copy)]
-pub enum ScanOrder {
-    Serial,
-    Random,
-}
-
-#[derive(Deserialize, Debug, Clone, Copy)]
-pub enum ScriptsRequired {
-    Default,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct PortRange {
-    pub start: u16,
-    pub end: u16,
-}
 
 #[derive(Debug, Clone)]
 pub struct Opts {

@@ -3,16 +3,14 @@ use config::Opts;
 mod scanner;
 mod scripts;
 use scanner::Scanner;
+use utils::dns_resolver::parse_addresses;
 mod port_strategy;
 use crate::scripts::Script;
-use cidr_utils::cidr::IpCidr;
 use futures::executor::block_on;
 use port_strategy::PortStrategy;
-use std::net::{IpAddr, ToSocketAddrs};
-use trust_dns_resolver::{
-    config::{ResolverConfig, ResolverOpts},
-    Resolver,
-};
+use std::net::IpAddr;
+
+mod utils;
 
 fn main() {
     // read file as string ./nmap.xml
@@ -45,49 +43,4 @@ fn main() {
             }
         }
     }
-}
-
-fn parse_addresses(input: &Opts) -> Vec<IpAddr> {
-    let mut ips: Vec<IpAddr> = Vec::new();
-    let mut unresolved_addresses: Vec<&str> = Vec::new();
-    let backup_resolver =
-        Resolver::new(ResolverConfig::cloudflare_tls(), ResolverOpts::default()).unwrap();
-
-    for address in &input.addresses {
-        let parsed_ips = parse_address(address, &backup_resolver);
-        if !parsed_ips.is_empty() {
-            ips.extend(parsed_ips);
-        } else {
-            unresolved_addresses.push(address);
-        }
-    }
-
-    ips
-}
-
-fn parse_address(address: &str, resolver: &Resolver) -> Vec<IpAddr> {
-    IpCidr::from_str(address)
-        .map(|cidr| cidr.iter().collect())
-        .ok()
-        .or_else(|| {
-            format!("{}:{}", &address, 80)
-                .to_socket_addrs()
-                .ok()
-                .map(|mut iter| vec![iter.next().unwrap().ip()])
-        })
-        .unwrap_or_else(|| resolve_ips_from_host(address, resolver))
-}
-
-fn resolve_ips_from_host(source: &str, backup_resolver: &Resolver) -> Vec<IpAddr> {
-    let mut ips: Vec<std::net::IpAddr> = Vec::new();
-
-    if let Ok(addrs) = source.to_socket_addrs() {
-        for ip in addrs {
-            ips.push(ip.ip());
-        }
-    } else if let Ok(addrs) = backup_resolver.lookup_ip(source) {
-        ips.extend(addrs.iter());
-    }
-
-    ips
 }

@@ -16,16 +16,13 @@ use std::{
     time::Duration,
 };
 
-#[cfg(not(tarpaulin_include))]
 #[derive(Debug)]
 pub struct Scanner {
     ips: Vec<IpAddr>,
     batch_size: u16,
     timeout: Duration,
     tries: NonZeroU8,
-    greppable: bool,
     port_strategy: PortStrategy,
-    accessible: bool,
 }
 
 impl Scanner {
@@ -34,13 +31,11 @@ impl Scanner {
             batch_size: 4500,
             timeout: Duration::from_millis(1000),
             tries: NonZeroU8::new(std::cmp::max(1, 1)).unwrap(),
-            greppable: false,
             port_strategy: PortStrategy::Serial(SerialRange {
                 start: LOWEST_PORT_NUMBER,
                 end: TOP_PORT_NUMBER,
             }),
             ips: ips.iter().map(ToOwned::to_owned).collect(),
-            accessible: false,
         }
     }
 
@@ -105,20 +100,11 @@ impl Scanner {
                     if let Err(e) = x.shutdown(Shutdown::Both) {
                         println!("Shutdown stream error {}", &e);
                     }
-                    if !self.greppable {
-                        if self.accessible {
-                            println!("Open {socket}");
-                        } else {
-                            println!("Open {}", socket.to_string());
-                        }
-                    }
-
+                    println!("Open {}", socket.to_string());
                     return Ok(socket);
                 }
                 Err(e) => {
                     let mut error_string = e.to_string();
-
-                    assert!(!error_string.to_lowercase().contains("too many open files"), "Too many open files. Please reduce batch size. The default is 5000. Try -b 2500.");
 
                     if nr_try == tries {
                         error_string.push(' ');
