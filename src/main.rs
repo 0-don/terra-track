@@ -9,7 +9,6 @@ use crate::scripts::Script;
 use futures::executor::block_on;
 use port_strategy::PortStrategy;
 use std::net::IpAddr;
-
 mod utils;
 
 fn main() {
@@ -22,9 +21,6 @@ fn main() {
 
     let opts: Opts = Opts {
         addresses: vec!["scanme.nmap.org".into()],
-        batch_size: 4500,
-        timeout: 100,
-        tries: 1,
     };
     let ips: Vec<IpAddr> = parse_addresses(&opts);
 
