@@ -1,5 +1,4 @@
 mod range_iterator;
-
 use range_iterator::RangeIterator;
 
 #[derive(Debug)]
