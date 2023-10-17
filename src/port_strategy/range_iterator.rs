@@ -1,5 +1,3 @@
-use gcd::Gcd;
-use rand::Rng;
 use std::convert::TryInto;
 
 pub struct RangeIterator {
@@ -14,10 +12,9 @@ pub struct RangeIterator {
 impl RangeIterator {
     pub fn new(start: u32, end: u32) -> Self {
         let normalized_end = end - start;
-        let step = pick_random_coprime(normalized_end);
+        let step = pick_coprime(normalized_end);
 
-        let mut rng = rand::thread_rng();
-        let normalized_first_pick = rng.gen_range(0..normalized_end);
+        let normalized_first_pick = (normalized_end / 2) % normalized_end; // A deterministic pick, replace with actual randomness if needed.
 
         Self {
             active: true,
@@ -54,18 +51,23 @@ impl Iterator for RangeIterator {
     }
 }
 
-fn pick_random_coprime(end: u32) -> u32 {
-    let range_boundary = end / 4;
-    let lower_range = range_boundary;
-    let upper_range = end - range_boundary;
-    let mut rng = rand::thread_rng();
-    let mut candidate = rng.gen_range(lower_range..upper_range);
+fn gcd(mut a: u32, mut b: u32) -> u32 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    a
+}
+
+fn pick_coprime(end: u32) -> u32 {
+    let mut candidate = (end / 2) % end; // A deterministic pick, replace with actual randomness if needed.
 
     for _ in 0..10 {
-        if end.gcd(candidate) == 1 {
+        if gcd(end, candidate) == 1 {
             return candidate;
         }
-        candidate = rng.gen_range(lower_range..upper_range);
+        candidate = (candidate + 1) % end; // Simply incrementing, replace with actual randomness if needed.
     }
 
     end - 1

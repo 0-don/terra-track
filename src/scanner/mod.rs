@@ -1,8 +1,5 @@
 use super::PortStrategy;
-use crate::{
-    config::{LOWEST_PORT_NUMBER, TOP_PORT_NUMBER},
-    port_strategy::SerialRange,
-};
+use crate::port_strategy::SerialRange;
 mod socket_iterator;
 use async_std::io;
 use async_std::net::TcpStream;
@@ -16,6 +13,9 @@ use std::{
     time::Duration,
 };
 
+pub const LOWEST_PORT_NUMBER: u16 = 1;
+pub const TOP_PORT_NUMBER: u16 = 65535;
+
 #[derive(Debug)]
 pub struct Scanner {
     ips: Vec<IpAddr>,
@@ -26,7 +26,7 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    pub fn new(ips: &[IpAddr]) -> Self {
+    pub fn new(ips: Vec<IpAddr>) -> Self {
         Self {
             batch_size: 4500,
             timeout: Duration::from_millis(1000),
@@ -35,7 +35,7 @@ impl Scanner {
                 start: LOWEST_PORT_NUMBER,
                 end: TOP_PORT_NUMBER,
             }),
-            ips: ips.iter().map(ToOwned::to_owned).collect(),
+            ips,
         }
     }
 

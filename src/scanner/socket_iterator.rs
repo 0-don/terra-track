@@ -1,17 +1,19 @@
-use itertools::{iproduct, Product};
 use std::net::{IpAddr, SocketAddr};
 
 pub struct SocketIterator<'s> {
-    product_it:
-        Product<Box<std::slice::Iter<'s, u16>>, Box<std::slice::Iter<'s, std::net::IpAddr>>>,
+    ips: &'s [IpAddr],
+    ports: &'s [u16],
+    ip_idx: usize,
+    port_idx: usize,
 }
 
 impl<'s> SocketIterator<'s> {
     pub fn new(ips: &'s [IpAddr], ports: &'s [u16]) -> Self {
-        let ports_it = Box::new(ports.iter());
-        let ips_it = Box::new(ips.iter());
         Self {
-            product_it: iproduct!(ports_it, ips_it),
+            ips,
+            ports,
+            ip_idx: 0,
+            port_idx: 0,
         }
     }
 }
@@ -20,8 +22,16 @@ impl<'s> Iterator for SocketIterator<'s> {
     type Item = SocketAddr;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.product_it
-            .next()
-            .map(|(port, ip)| SocketAddr::new(*ip, *port))
+        if self.ip_idx < self.ips.len() && self.port_idx < self.ports.len() {
+            let result = SocketAddr::new(self.ips[self.ip_idx], self.ports[self.port_idx]);
+            self.port_idx += 1;
+            if self.port_idx == self.ports.len() {
+                self.port_idx = 0;
+                self.ip_idx += 1;
+            }
+            Some(result)
+        } else {
+            None
+        }
     }
 }

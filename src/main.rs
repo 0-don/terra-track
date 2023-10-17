@@ -1,4 +1,3 @@
-mod config;
 mod scanner;
 mod scripts;
 use scanner::Scanner;
@@ -17,7 +16,7 @@ fn main() {
     // let _results = NmapResults::parse(&contents).unwrap();
 
     let ips: Vec<IpAddr> = vec!["45.33.32.156".parse().unwrap()];
-    let scanner = Scanner::new(&ips);
+    let scanner = Scanner::new(ips);
     let ports_per_ip = block_on(scanner.run());
 
     for (ip, ports) in &ports_per_ip {
