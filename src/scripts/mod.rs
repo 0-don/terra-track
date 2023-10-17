@@ -1,7 +1,5 @@
-#![allow(clippy::module_name_repetitions)]
-
 use anyhow::{anyhow, Result};
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Serialize;
 use std::convert::TryInto;
 use std::net::IpAddr;
 use std::path::PathBuf;
@@ -66,7 +64,6 @@ impl Script {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 fn execute_script(mut arguments: Vec<String>) -> Result<String> {
     println!("\nScript arguments vec: {:?}", &arguments);
     let process = Exec::cmd(arguments.remove(0)).args(&arguments);
@@ -90,7 +87,7 @@ fn execute_script(mut arguments: Vec<String>) -> Result<String> {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ScriptFile {
     pub path: Option<PathBuf>,
 

@@ -5,14 +5,11 @@ edition = "2021"
 
 
 [dependencies]
-structopt = "0"
 async-std = "1"
 futures = "0"
 shell-words = "1"
-dirs = "5"
 gcd = "2"
 rand = "0"
-toml = "0"
 serde = "1"
 serde_derive = "1"
 cidr-utils = "0"
@@ -22,4 +19,4 @@ anyhow = "1"
 subprocess = "0"
 text_placeholder = { version = "0", features = ["struct_context"] }
 nmap_xml_parser = "0"
-rlimit = "0"
+
