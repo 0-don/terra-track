@@ -1,5 +1,3 @@
-use super::PortStrategy;
-use crate::port_strategy::SerialRange;
 use async_std::io;
 use async_std::net::TcpStream;
 use async_std::prelude::*;
@@ -20,34 +18,47 @@ pub struct Scanner {
     batch_size: u16,
     timeout: Duration,
     tries: NonZeroU8,
-    port_strategy: PortStrategy,
 }
 
 impl Scanner {
     pub fn new(ip: IpAddr) -> Self {
         Self {
-            batch_size: 500,
-            timeout: Duration::from_millis(5000),
+            batch_size: 4500,
+            timeout: Duration::from_millis(1000),
             tries: NonZeroU8::new(std::cmp::max(1, 1)).unwrap(),
-            port_strategy: PortStrategy::Serial(SerialRange {
-                start: LOWEST_PORT_NUMBER,
-                end: TOP_PORT_NUMBER,
-            }),
             ip,
         }
     }
 
     pub async fn run(&self) -> HashMap<IpAddr, Vec<u16>> {
-        let ports: Vec<u16> = self.port_strategy.order();
+        let mut ports: Vec<u16> = (LOWEST_PORT_NUMBER..=TOP_PORT_NUMBER).collect();
+        Self::fisher_yates_shuffle(&mut ports);
+
         let mut open_ports: Vec<u16> = Vec::new();
         let mut ftrs = FuturesUnordered::new();
         let mut errors: HashSet<String> = HashSet::with_capacity(1000);
 
-        for &port in &ports[0..std::cmp::min(self.batch_size as usize, ports.len())] {
+        for &port in &ports {
             let socket = SocketAddr::new(self.ip, port);
             ftrs.push(self.scan_socket(socket));
+
+            // Check if we've reached the batch size
+            if ftrs.len() == self.batch_size as usize {
+                while let Some(result) = ftrs.next().await {
+                    match result {
+                        Ok(socket) => open_ports.push(socket.port()),
+                        Err(e) => {
+                            let error_string = e.to_string();
+                            if errors.len() < 1000 {
+                                errors.insert(error_string);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
+        // Process remaining futures if any
         while let Some(result) = ftrs.next().await {
             match result {
                 Ok(socket) => open_ports.push(socket.port()),
@@ -69,6 +80,19 @@ impl Scanner {
         );
 
         ports_per_ip
+    }
+
+    fn fisher_yates_shuffle<T>(items: &mut [T]) {
+        let mut i = items.len();
+        while i > 1 {
+            i -= 1;
+            let j = (std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_micros() as usize)
+                % (i + 1);
+            items.swap(i, j);
+        }
     }
 
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {

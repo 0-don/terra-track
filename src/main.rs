@@ -1,10 +1,8 @@
 mod scanner;
 mod scripts;
 use scanner::Scanner;
-mod port_strategy;
 use crate::scripts::Script;
 use futures::executor::block_on;
-use port_strategy::PortStrategy;
 use std::net::IpAddr;
 
 fn main() {
@@ -15,9 +13,8 @@ fn main() {
     // file.read_to_string(&mut contents).unwrap();
     // let _results = NmapResults::parse(&contents).unwrap();
 
-    let ips: IpAddr = "45.33.32.156".parse().unwrap();
-    let scanner = Scanner::new(ips);
-    let ports_per_ip = block_on(scanner.run());
+    let ip: IpAddr = "45.33.32.156".parse().unwrap();
+    let ports_per_ip = block_on(Scanner::new(ip).run());
 
     for (ip, ports) in &ports_per_ip {
         let script = Script::build(*ip, ports.clone());
