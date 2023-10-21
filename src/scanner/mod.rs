@@ -1,11 +1,9 @@
 use super::PortStrategy;
 use crate::port_strategy::SerialRange;
-mod socket_iterator;
 use async_std::io;
 use async_std::net::TcpStream;
 use async_std::prelude::*;
 use futures::stream::FuturesUnordered;
-use socket_iterator::SocketIterator;
 use std::{
     collections::{HashMap, HashSet},
     net::{IpAddr, Shutdown, SocketAddr},
@@ -18,7 +16,7 @@ pub const TOP_PORT_NUMBER: u16 = 65535;
 
 #[derive(Debug)]
 pub struct Scanner {
-    ips: Vec<IpAddr>,
+    ip: IpAddr,
     batch_size: u16,
     timeout: Duration,
     tries: NonZeroU8,
@@ -26,44 +24,36 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    pub fn new(ips: Vec<IpAddr>) -> Self {
+    pub fn new(ip: IpAddr) -> Self {
         Self {
-            batch_size: 4500,
-            timeout: Duration::from_millis(1000),
+            batch_size: 500,
+            timeout: Duration::from_millis(5000),
             tries: NonZeroU8::new(std::cmp::max(1, 1)).unwrap(),
             port_strategy: PortStrategy::Serial(SerialRange {
                 start: LOWEST_PORT_NUMBER,
                 end: TOP_PORT_NUMBER,
             }),
-            ips,
+            ip,
         }
     }
 
     pub async fn run(&self) -> HashMap<IpAddr, Vec<u16>> {
         let ports: Vec<u16> = self.port_strategy.order();
-        let mut socket_iterator: SocketIterator = SocketIterator::new(&self.ips, &ports);
-        let mut open_sockets: Vec<SocketAddr> = Vec::new();
+        let mut open_ports: Vec<u16> = Vec::new();
         let mut ftrs = FuturesUnordered::new();
-        let mut errors: HashSet<String> = HashSet::with_capacity(self.ips.len() * 1000);
+        let mut errors: HashSet<String> = HashSet::with_capacity(1000);
 
-        for _ in 0..self.batch_size {
-            if let Some(socket) = socket_iterator.next() {
-                ftrs.push(self.scan_socket(socket));
-            } else {
-                break;
-            }
+        for &port in &ports[0..std::cmp::min(self.batch_size as usize, ports.len())] {
+            let socket = SocketAddr::new(self.ip, port);
+            ftrs.push(self.scan_socket(socket));
         }
 
         while let Some(result) = ftrs.next().await {
-            if let Some(socket) = socket_iterator.next() {
-                ftrs.push(self.scan_socket(socket));
-            }
-
             match result {
-                Ok(socket) => open_sockets.push(socket),
+                Ok(socket) => open_ports.push(socket.port()),
                 Err(e) => {
                     let error_string = e.to_string();
-                    if errors.len() < self.ips.len() * 1000 {
+                    if errors.len() < 1000 {
                         errors.insert(error_string);
                     }
                 }
@@ -71,22 +61,12 @@ impl Scanner {
         }
 
         let mut ports_per_ip: HashMap<IpAddr, Vec<u16>> = HashMap::new();
+        ports_per_ip.insert(self.ip, open_ports);
 
-        for socket in open_sockets {
-            ports_per_ip
-                .entry(socket.ip())
-                .or_insert_with(Vec::new)
-                .push(socket.port());
-        }
-
-        for ip in &self.ips {
-            if ports_per_ip.contains_key(&ip) {
-                continue;
-            }
-            println!("{} is not accessible", ip);
-        }
-
-        println!("Open Sockets found: {:?}", &ports_per_ip);
+        println!(
+            "Open ports found for {}: {:?}",
+            self.ip, ports_per_ip[&self.ip]
+        );
 
         ports_per_ip
     }
