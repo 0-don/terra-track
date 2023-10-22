@@ -1,4 +1,6 @@
 use futures::{stream::FuturesUnordered, StreamExt};
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::{
     collections::HashSet,
     net::{IpAddr, SocketAddr},
@@ -32,7 +34,7 @@ impl Scanner {
 
     pub async fn run(&self) -> Vec<u16> {
         let mut ports: Vec<u16> = (LOWEST_PORT_NUMBER..=TOP_PORT_NUMBER).collect();
-        Self::fisher_yates_shuffle(&mut ports);
+        ports.shuffle(&mut thread_rng());
 
         let mut open_ports: Vec<u16> = Vec::new();
         let mut ftrs = FuturesUnordered::new();
@@ -72,19 +74,6 @@ impl Scanner {
         }
 
         open_ports
-    }
-
-    fn fisher_yates_shuffle<T>(items: &mut [T]) {
-        let mut i = items.len();
-        while i > 1 {
-            i -= 1;
-            let j = (std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_micros() as usize)
-                % (i + 1);
-            items.swap(i, j);
-        }
     }
 
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {

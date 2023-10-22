@@ -1299,6 +1299,7 @@ dependencies = [
  "futures",
  "mongodb",
  "nmap_xml_parser",
+ "rand",
  "serde",
  "tokio",
 ]

@@ -12,3 +12,4 @@ tokio = {version = "1", features = ["full"]}
 mongodb = {version = "2", features = ["bson-chrono-0_4"]}
 chrono = "0"
 nmap_xml_parser = "0"
+rand = "0"
