@@ -1,13 +1,13 @@
 mod scanner;
 mod scripts;
 use crate::scripts::Script;
-use futures::executor::block_on;
 use scanner::Scanner;
 use std::net::IpAddr;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let ip: IpAddr = "45.33.32.156".parse().unwrap();
-    let ports = block_on(Scanner::new(ip).run());
+    let ports = Scanner::new(ip).run().await;
     
     let script = Script::build(ip, ports);
     match script.run() {

@@ -1,13 +1,13 @@
-use async_std::io;
-use async_std::net::TcpStream;
-use async_std::prelude::*;
-use futures::stream::FuturesUnordered;
+use futures::{stream::FuturesUnordered, StreamExt};
 use std::{
     collections::HashSet,
-    net::{IpAddr, Shutdown, SocketAddr},
+    net::{IpAddr, SocketAddr},
     num::NonZeroU8,
     time::Duration,
 };
+use tokio::io::{self, AsyncWriteExt};
+use tokio::net::TcpStream;
+use tokio::time::timeout;
 
 pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
@@ -92,8 +92,8 @@ impl Scanner {
 
         for nr_try in 1..=tries {
             match self.connect(socket).await {
-                Ok(x) => {
-                    if let Err(e) = x.shutdown(Shutdown::Both) {
+                Ok(mut x) => {
+                    if let Err(e) = x.shutdown().await {
                         println!("Shutdown stream error {}", &e);
                     }
                     println!("Open {}", socket.to_string());
@@ -114,11 +114,7 @@ impl Scanner {
     }
 
     async fn connect(&self, socket: SocketAddr) -> io::Result<TcpStream> {
-        let stream = io::timeout(
-            self.timeout,
-            async move { TcpStream::connect(socket).await },
-        )
-        .await?;
+        let stream = timeout(self.timeout, TcpStream::connect(socket)).await??;
         Ok(stream)
     }
 }
