@@ -8,7 +8,9 @@ use std::net::IpAddr;
 async fn main() -> anyhow::Result<()> {
     let ip: IpAddr = "45.33.32.156".parse()?;
     let ports = Scanner::new(ip).run().await?;
-    
+
+    println!("IP {:?} Open ports: {:?}", ip.to_string(), ports);
+
     let script = Script::build(ip, ports);
     match script.run() {
         Ok(script_result) => println!("Script result: {}", script_result),

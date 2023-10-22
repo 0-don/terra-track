@@ -27,7 +27,7 @@ impl Scanner {
             ip,
             batch_size: 4500,
             timeout: Duration::from_millis(1000),
-            tries: 1,
+            tries: 2,
         }
     }
 
