@@ -1,13 +1,11 @@
+use anyhow::{Result, Error};
 use futures::Future;
 use futures::{stream::FuturesUnordered, StreamExt};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use std::{
-    collections::HashSet,
-    io::Error,
-    net::{IpAddr, SocketAddr},
-    time::Duration,
-};
+use std::collections::HashSet;
+use std::net::{IpAddr, SocketAddr};
+use std::time::Duration;
 use tokio::io::{self, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
@@ -34,7 +32,7 @@ impl Scanner {
     }
 
     // Main scanning function
-    pub async fn run(&self) -> Vec<u16> {
+    pub async fn run(&self) -> Result<Vec<u16>> {
         let mut ports: Vec<u16> = (LOWEST_PORT_NUMBER..=TOP_PORT_NUMBER).collect();
         ports.shuffle(&mut thread_rng());
 
@@ -48,15 +46,15 @@ impl Scanner {
 
             if futures.len() == self.batch_size as usize {
                 self.process_futures(&mut futures, &mut open_ports, &mut errors)
-                    .await;
+                    .await?;
             }
         }
 
         // Process any remaining futures
         self.process_futures(&mut futures, &mut open_ports, &mut errors)
-            .await;
+            .await?;
 
-        open_ports
+        Ok(open_ports)
     }
 
     // Process a batch of futures
@@ -65,7 +63,7 @@ impl Scanner {
         futures: &mut FuturesUnordered<impl Future<Output = Result<SocketAddr, Error>>>,
         open_ports: &mut Vec<u16>,
         errors: &mut HashSet<String>,
-    ) {
+    ) -> Result<()> {
         while let Some(result) = futures.next().await {
             match result {
                 Ok(socket) => open_ports.push(socket.port()),
@@ -74,10 +72,11 @@ impl Scanner {
                 }
             }
         }
+        Ok(())
     }
 
     // Scan a single socket
-    async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {
+    async fn scan_socket(&self, socket: SocketAddr) -> Result<SocketAddr> {
         for _ in 1..=self.tries {
             if let Ok(mut stream) = self.connect(socket).await {
                 println!("Open {}", socket.to_string());
@@ -87,10 +86,7 @@ impl Scanner {
                 return Ok(socket);
             }
         }
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("Failed to connect to {}", socket.ip()),
-        ))
+        Err(Error::msg(format!("Failed to connect to {}", socket.ip())))
     }
 
     // Attempt to connect to a socket with a timeout

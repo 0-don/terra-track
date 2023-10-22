@@ -5,15 +5,17 @@ use scanner::Scanner;
 use std::net::IpAddr;
 
 #[tokio::main]
-async fn main() {
-    let ip: IpAddr = "45.33.32.156".parse().unwrap();
-    let ports = Scanner::new(ip).run().await;
+async fn main() -> anyhow::Result<()> {
+    let ip: IpAddr = "45.33.32.156".parse()?;
+    let ports = Scanner::new(ip).run().await?;
     
     let script = Script::build(ip, ports);
     match script.run() {
         Ok(script_result) => println!("Script result: {}", script_result),
         Err(e) => println!("Error running script: {}", e),
     }
+
+    Ok(())
 }
 
 // read file as string ./nmap.xml
