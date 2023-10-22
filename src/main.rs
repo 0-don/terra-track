@@ -11,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
 
     println!("IP {:?} Open ports: {:?}", ip.to_string(), ports);
 
-    let script = Script::build(ip, ports);
+    let script = Script::new(ip, ports);
     match script.run() {
         Ok(script_result) => println!("Script result: {}", script_result),
         Err(e) => println!("Error running script: {}", e),
