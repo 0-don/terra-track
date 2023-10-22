@@ -26,21 +26,21 @@ impl Script {
 
         let arguments: Vec<String> = to_run.split_whitespace().map(String::from).collect();
 
-        execute_script(arguments)
+        Self::execute_script(arguments)
     }
-}
 
-fn execute_script(arguments: Vec<String>) -> anyhow::Result<String> {
-    let mut iter = arguments.iter();
-    let command = iter.next().expect("No command provided");
-    let process = Command::new(command).args(iter).output()?;
+    pub fn execute_script(arguments: Vec<String>) -> anyhow::Result<String> {
+        let mut iter = arguments.iter();
+        let command = iter.next().expect("No command provided");
+        let process = Command::new(command).args(iter).output()?;
 
-    if process.status.success() {
-        Ok(String::from_utf8_lossy(&process.stdout).into_owned())
-    } else {
-        Err(anyhow::anyhow!(
-            "Exit code = {}",
-            process.status.code().unwrap_or(-1)
-        ))
+        if process.status.success() {
+            Ok(String::from_utf8_lossy(&process.stdout).into_owned())
+        } else {
+            Err(anyhow::anyhow!(
+                "Exit code = {}",
+                process.status.code().unwrap_or(-1)
+            ))
+        }
     }
 }
