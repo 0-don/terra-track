@@ -3,7 +3,7 @@ use async_std::net::TcpStream;
 use async_std::prelude::*;
 use futures::stream::FuturesUnordered;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     net::{IpAddr, Shutdown, SocketAddr},
     num::NonZeroU8,
     time::Duration,
@@ -30,7 +30,7 @@ impl Scanner {
         }
     }
 
-    pub async fn run(&self) -> HashMap<IpAddr, Vec<u16>> {
+    pub async fn run(&self) -> Vec<u16> {
         let mut ports: Vec<u16> = (LOWEST_PORT_NUMBER..=TOP_PORT_NUMBER).collect();
         Self::fisher_yates_shuffle(&mut ports);
 
@@ -71,15 +71,7 @@ impl Scanner {
             }
         }
 
-        let mut ports_per_ip: HashMap<IpAddr, Vec<u16>> = HashMap::new();
-        ports_per_ip.insert(self.ip, open_ports);
-
-        println!(
-            "Open ports found for {}: {:?}",
-            self.ip, ports_per_ip[&self.ip]
-        );
-
-        ports_per_ip
+        open_ports
     }
 
     fn fisher_yates_shuffle<T>(items: &mut [T]) {
