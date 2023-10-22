@@ -7,13 +7,12 @@ pub struct Script {
 }
 
 impl Script {
-    // A more conventional naming would be `new` instead of `build`
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
         Self { ip, open_ports }
     }
 
     pub fn run(self) -> anyhow::Result<String> {
-        // Format the ports as a comma-separated string
+        // Convert ports to string and join with commas
         let ports_str = self
             .open_ports
             .iter()
@@ -21,28 +20,32 @@ impl Script {
             .collect::<Vec<_>>()
             .join(",");
 
-        // Construct the nmap command
-        let to_run = format!(
-            "nmap -vvv -p {} {} -T2 -n -sV -Pn -oX ./nmap.xml --unprivileged",
-            ports_str, self.ip
-        );
-
-        // Split the command string into arguments
-        let arguments = to_run.split_whitespace().map(String::from).collect();
+        // Construct the list of arguments with the IP and ports
+        let binding = self.ip.to_string();
+        let arguments = vec![
+            "nmap",
+            "-vvv",
+            "-T2",
+            "-n",
+            "-sV",
+            "-Pn",
+            "-oX",
+            "./nmap.xml",
+            "--unprivileged",
+            "-p",
+            &ports_str,
+            &binding,
+        ];
 
         Self::execute_script(arguments)
     }
 
-    fn execute_script(arguments: Vec<String>) -> anyhow::Result<String> {
-        let mut iter = arguments.iter();
-
-        // Expect a command to be provided
-        let command = iter
-            .next()
-            .ok_or_else(|| anyhow::anyhow!("No command provided"))?;
+    fn execute_script(arguments: Vec<&str>) -> anyhow::Result<String> {
+        // The first argument is always the command
+        let command = arguments[0];
 
         // Execute the command with the given arguments
-        let process = Command::new(command).args(iter).output()?;
+        let process = Command::new(command).args(&arguments[1..]).output()?;
 
         // Check if the process was successful and return the output or an error
         if process.status.success() {
