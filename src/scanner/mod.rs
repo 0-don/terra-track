@@ -4,7 +4,6 @@ use rand::thread_rng;
 use std::{
     collections::HashSet,
     net::{IpAddr, SocketAddr},
-    num::NonZeroU8,
     time::Duration,
 };
 use tokio::io::{self, AsyncWriteExt};
@@ -19,7 +18,7 @@ pub struct Scanner {
     ip: IpAddr,
     batch_size: u16,
     timeout: Duration,
-    tries: NonZeroU8,
+    tries: u8,
 }
 
 impl Scanner {
@@ -27,7 +26,7 @@ impl Scanner {
         Self {
             batch_size: 4500,
             timeout: Duration::from_millis(1000),
-            tries: NonZeroU8::new(std::cmp::max(1, 1)).unwrap(),
+            tries: 1,
             ip,
         }
     }
@@ -38,7 +37,7 @@ impl Scanner {
 
         let mut open_ports: Vec<u16> = Vec::new();
         let mut ftrs = FuturesUnordered::new();
-        let mut errors: HashSet<String> = HashSet::with_capacity(1000);
+        let mut errors: HashSet<String> = HashSet::with_capacity(65535);
 
         for &port in &ports {
             let socket = SocketAddr::new(self.ip, port);
@@ -50,10 +49,7 @@ impl Scanner {
                     match result {
                         Ok(socket) => open_ports.push(socket.port()),
                         Err(e) => {
-                            let error_string = e.to_string();
-                            if errors.len() < 1000 {
-                                errors.insert(error_string);
-                            }
+                            errors.insert(e.to_string());
                         }
                     }
                 }
@@ -65,10 +61,7 @@ impl Scanner {
             match result {
                 Ok(socket) => open_ports.push(socket.port()),
                 Err(e) => {
-                    let error_string = e.to_string();
-                    if errors.len() < 1000 {
-                        errors.insert(error_string);
-                    }
+                    errors.insert(e.to_string());
                 }
             }
         }
@@ -77,7 +70,7 @@ impl Scanner {
     }
 
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {
-        let tries = self.tries.get();
+        let tries = self.tries;
 
         for nr_try in 1..=tries {
             match self.connect(socket).await {
