@@ -1,8 +1,9 @@
-use futures::{stream::FuturesUnordered, StreamExt};
+use futures::{stream::FuturesUnordered, Future, StreamExt};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use std::{
     collections::HashSet,
+    io::Error,
     net::{IpAddr, SocketAddr},
     time::Duration,
 };
@@ -45,18 +46,21 @@ impl Scanner {
 
             // Check if we've reached the batch size
             if ftrs.len() == self.batch_size as usize {
-                while let Some(result) = ftrs.next().await {
-                    match result {
-                        Ok(socket) => open_ports.push(socket.port()),
-                        Err(e) => {
-                            errors.insert(e.to_string());
-                        }
-                    }
-                }
+                Self::process_future(&mut ftrs, &mut open_ports, &mut errors).await;
             }
         }
 
         // Process remaining futures if any
+        Self::process_future(&mut ftrs, &mut open_ports, &mut errors).await;
+
+        open_ports
+    }
+
+    pub async fn process_future(
+        ftrs: &mut FuturesUnordered<impl Future<Output = Result<SocketAddr, Error>>>,
+        open_ports: &mut Vec<u16>,
+        errors: &mut HashSet<String>,
+    ) {
         while let Some(result) = ftrs.next().await {
             match result {
                 Ok(socket) => open_ports.push(socket.port()),
@@ -65,8 +69,6 @@ impl Scanner {
                 }
             }
         }
-
-        open_ports
     }
 
     async fn scan_socket(&self, socket: SocketAddr) -> io::Result<SocketAddr> {
