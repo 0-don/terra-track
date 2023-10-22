@@ -20,9 +20,3 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-// read file as string ./nmap.xml
-
-// let mut file = File::open("./nmap.xml").unwrap();
-// let mut contents = String::new();
-// file.read_to_string(&mut contents).unwrap();
-// let _results = NmapResults::parse(&contents).unwrap();

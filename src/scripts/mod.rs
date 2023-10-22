@@ -21,6 +21,7 @@ impl Script {
             .join(",");
 
         // Construct the list of arguments with the IP and ports
+
         let binding = self.ip.to_string();
         let arguments = vec![
             "nmap",
@@ -34,7 +35,7 @@ impl Script {
             "--unprivileged",
             "-p",
             &ports_str,
-            &binding,
+            binding.as_str(),
         ];
 
         Self::execute_script(arguments)
