@@ -1,8 +1,9 @@
 mod scanner;
 mod scripts;
 use crate::scripts::Script;
+use nmap_xml_parser::NmapResults;
 use scanner::Scanner;
-use std::net::IpAddr;
+use std::{fs::File, io::Read, net::IpAddr};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -12,11 +13,21 @@ async fn main() -> anyhow::Result<()> {
     println!("IP {:?} Open ports: {:?}", ip.to_string(), ports);
 
     let script = Script::new(ip, ports);
-    match script.run() {
-        Ok(script_result) => println!("Script result: {}", script_result),
-        Err(e) => println!("Error running script: {}", e),
+    let result = script.run();
+    if let Ok(result) = result {
+        println!("Script result: {:?}", result);
+
+        // read file as string ./nmap.xml
+
+        let mut file = File::open(format!("./{}.xml", ip.to_string())).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let nmap: NmapResults = NmapResults::parse(&contents).unwrap();
+
+        return Ok(());
     }
+
+    println!("Script result: {:?}", result.err());
 
     Ok(())
 }
-

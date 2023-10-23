@@ -1,17 +1,27 @@
+use std::fs::{File, create_dir_all};
+use std::io::Read;
 use std::net::IpAddr;
+use std::path::Path;
 use std::process::Command;
+
+use nmap_xml_parser::NmapResults;
 
 pub struct Script {
     ip: IpAddr,
     open_ports: Vec<u16>,
+    xml: String,
 }
 
 impl Script {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
-        Self { ip, open_ports }
+        Self {
+            ip,
+            open_ports,
+            xml: format!("./{}.xml", ip.to_string()),
+        }
     }
 
-    pub fn run(self) -> anyhow::Result<String> {
+    pub fn run(self) -> anyhow::Result<NmapResults> {
         // Convert ports to string and join with commas
         let ports_str = self
             .open_ports
@@ -31,17 +41,30 @@ impl Script {
             "-sV",
             "-Pn",
             "-oX",
-            "./nmap.xml",
+            self.xml.as_str(),
             "--unprivileged",
             "-p",
             &ports_str,
             binding.as_str(),
         ];
 
-        Self::execute_script(arguments)
+        let script = self.execute_script(arguments);
+        match script {
+            Ok(_) => self.parse_nmap_xml(),
+            Err(_) => Err(anyhow::anyhow!("Script failed")),
+        }
     }
 
-    fn execute_script(arguments: Vec<&str>) -> anyhow::Result<String> {
+    // Separate method to create directory based on the XML path
+    fn create_directory(&self) {
+        if let Some(parent) = Path::new(&self.xml).parent() {
+            if !parent.exists() {
+                create_dir_all(parent).expect("Failed to create directory");
+            }
+        }
+    }
+
+    fn execute_script(&self, arguments: Vec<&str>) -> anyhow::Result<String> {
         // The first argument is always the command
         let command = arguments[0];
 
@@ -57,5 +80,17 @@ impl Script {
                 process.status.code().unwrap_or(-1)
             ))
         }
+    }
+
+    fn parse_nmap_xml(&self) -> anyhow::Result<NmapResults> {
+        self.create_directory();
+        
+        let mut file = File::open(self.xml.clone())?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+
+        let nmap: NmapResults = NmapResults::parse(&contents).unwrap();
+
+        Ok(nmap)
     }
 }

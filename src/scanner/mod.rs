@@ -25,9 +25,9 @@ impl Scanner {
     pub fn new(ip: IpAddr) -> Self {
         Self {
             ip,
-            batch_size: 4500,
+            batch_size: 5000,
             timeout: Duration::from_millis(1000),
-            tries: 2,
+            tries: 1,
         }
     }
 
