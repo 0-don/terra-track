@@ -1,15 +1,30 @@
+mod db;
+mod ip_iterator;
 mod scanner;
 mod scripts;
 use crate::scripts::Script;
+use ip_iterator::public_ips;
 use nmap_xml_parser::NmapResults;
 use scanner::Scanner;
 use std::{fs::File, io::Read, net::IpAddr};
 
+#[macro_export]
+macro_rules! printlog {
+    ($($arg:tt)*) => {
+        {
+            use chrono::{Local, DateTime};
+            let now: DateTime<Local> = Local::now();
+            let millis = now.timestamp_subsec_millis();
+            println!("{}.{:03}: {}", now.format("%Y-%m-%d %H:%M:%S"), millis, format!($($arg)*));
+        }
+    };
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let res = scan("45.33.32.156").await?;
-
-    println!("Result: {:?}", res);
+    // let res = scan("45.33.32.156").await?;
+    public_ips();
+    // println!("Result: {:?}", res);
 
     Ok(())
 }
