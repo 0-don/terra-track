@@ -13,9 +13,7 @@ async fn main() -> anyhow::Result<()> {
     connect_db().await?;
 
     let cursor = "0.0.0.0"; // Start from this IP
-    let offset = 100;
-
-    let mut ip_iter = Ipv4Iter::new(cursor, offset);
+    let mut ip_iter = Ipv4Iter::new(cursor);
 
     for _ in 0..10 {
         if let Some(ip) = ip_iter.next() {

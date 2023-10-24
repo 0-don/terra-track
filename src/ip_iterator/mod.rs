@@ -1,5 +1,7 @@
 use std::net::Ipv4Addr;
 
+const BATCH_SIZE: u16 = 4500;
+
 #[rustfmt::skip]
 const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
     (Ipv4Addr::new(0, 0, 0, 0), Ipv4Addr::new(0, 255, 255, 255)),
@@ -21,12 +23,12 @@ const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
 
 pub struct Ipv4Iter {
     current: u32,
-    batch_size: u32,
+    batch_size: u16,
     count: u32,
 }
 
 impl Ipv4Iter {
-    pub fn new(cursor: &str, batch_size: u32) -> Self {
+    pub fn new(cursor: &str) -> Self {
         let ip = cursor
             .parse::<Ipv4Addr>()
             .expect("Invalid IP address provided");
@@ -34,7 +36,7 @@ impl Ipv4Iter {
 
         Self {
             current,
-            batch_size,
+            batch_size: BATCH_SIZE,
             count: 0,
         }
     }
@@ -46,16 +48,10 @@ impl Ipv4Iter {
     }
 
     fn next_ip(&mut self) {
-        self.current = self.current.wrapping_add(100_000_000) ^ 0xAABBCCDD;
-    }
-
-    fn to_ipv4(&self, num: u32) -> Ipv4Addr {
-        Ipv4Addr::new(
-            ((num >> 24) & 0xFF) as u8,
-            ((num >> 16) & 0xFF) as u8,
-            ((num >> 8) & 0xFF) as u8,
-            (num & 0xFF) as u8,
-        )
+        // LCG parameters
+        let a: u32 = 1664525;
+        let c: u32 = 1013904223;
+        self.current = (a.wrapping_mul(self.current).wrapping_add(c)) & u32::MAX;
     }
 }
 
@@ -63,22 +59,18 @@ impl Iterator for Ipv4Iter {
     type Item = Ipv4Addr;
 
     fn next(&mut self) -> Option<Ipv4Addr> {
-        if self.count >= self.batch_size {
+        if self.count >= self.batch_size as u32 {
             return None;
         }
 
-        let mut ip = self.to_ipv4(self.current);
+        let mut ip = Ipv4Addr::from(self.current);
         while self.is_reserved(&ip) {
             self.next_ip();
-            ip = self.to_ipv4(self.current);
+            ip = Ipv4Addr::from(self.current);
         }
 
-        // Increment the count after finding a valid IP
         self.count += 1;
-
-        // Generate the next IP for the next iteration
         self.next_ip();
-
         Some(ip)
     }
 }
