@@ -15,11 +15,13 @@ async fn main() -> anyhow::Result<()> {
     let cursor = "0.0.0.0"; // Start from this IP
     let mut ip_iter = Ipv4Iter::new(cursor);
 
-    for _ in 0..10 {
-        if let Some(ip) = ip_iter.next() {
-            println!("{}", ip);
-        }
+    printlog!("Starting scan...");
+
+    while let Some(ip) = ip_iter.next() {
+        // println!("{}", ip);
     }
+
+    printlog!("Scan complete");
 
     Ok(())
 }

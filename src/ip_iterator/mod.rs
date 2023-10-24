@@ -1,29 +1,13 @@
 use std::net::Ipv4Addr;
 
-const BATCH_SIZE: u16 = 4500;
-
-#[rustfmt::skip]
-const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
-    (Ipv4Addr::new(0, 0, 0, 0), Ipv4Addr::new(0, 255, 255, 255)),
-    (Ipv4Addr::new(10, 0, 0, 0), Ipv4Addr::new(10, 255, 255, 255)),
-    (Ipv4Addr::new(100, 64, 0, 0), Ipv4Addr::new(100, 127, 255, 255)),
-    (Ipv4Addr::new(127, 0, 0, 0), Ipv4Addr::new(127, 255, 255, 255)),
-    (Ipv4Addr::new(169, 254, 0, 0), Ipv4Addr::new(169, 254, 255, 255)),
-    (Ipv4Addr::new(172, 16, 0, 0), Ipv4Addr::new(172, 31, 255, 255)),
-    (Ipv4Addr::new(192, 0, 0, 0), Ipv4Addr::new(192, 0, 0, 255)),
-    (Ipv4Addr::new(192, 0, 2, 0), Ipv4Addr::new(192, 0, 2, 255)),
-    (Ipv4Addr::new(192, 88, 99, 0), Ipv4Addr::new(192, 88, 99, 255)),
-    (Ipv4Addr::new(192, 168, 0, 0), Ipv4Addr::new(192, 168, 255, 255)),
-    (Ipv4Addr::new(198, 18, 0, 0), Ipv4Addr::new(198, 19, 255, 255)),
-    (Ipv4Addr::new(198, 51, 100, 0), Ipv4Addr::new(198, 51, 100, 255)),
-    (Ipv4Addr::new(203, 0, 113, 0), Ipv4Addr::new(203, 0, 113, 255)),
-    (Ipv4Addr::new(224, 0, 0, 0), Ipv4Addr::new(239, 255, 255, 255)),
-    (Ipv4Addr::new(240, 0, 0, 0), Ipv4Addr::new(255, 255, 255, 255)),
-];
+// LCG parameters
+pub const A: u32 = 1664525;
+pub const C: u32 = 1013904223;
+pub const BATCH_SIZE: u32 = 1000000;
 
 pub struct Ipv4Iter {
     current: u32,
-    batch_size: u16,
+    batch_size: u32,
     count: u32,
 }
 
@@ -32,26 +16,34 @@ impl Ipv4Iter {
         let ip = cursor
             .parse::<Ipv4Addr>()
             .expect("Invalid IP address provided");
-        let current = u32::from_be_bytes(ip.octets());
-
         Self {
-            current,
+            current: u32::from_be_bytes(ip.octets()),
             batch_size: BATCH_SIZE,
             count: 0,
         }
     }
 
-    fn is_reserved(&self, ip: &Ipv4Addr) -> bool {
-        RESERVED_RANGES
-            .iter()
-            .any(|&(start, end)| *ip >= start && *ip <= end)
+    #[inline]
+    fn is_reserved(&self, ip_as_u32: u32) -> bool {
+        // Binary search on the flattened boundaries
+        let pos = match RESERVED_BOUNDARIES.binary_search(&ip_as_u32) {
+            Ok(_) => return true, // Exact match means it's a boundary, hence reserved
+            Err(pos) => pos,      // Position where it would be inserted
+        };
+
+        // Check if the position is odd, which means the IP is within a range
+        pos % 2 != 0
     }
 
     fn next_ip(&mut self) {
-        // LCG parameters
-        let a: u32 = 1664525;
-        let c: u32 = 1013904223;
-        self.current = (a.wrapping_mul(self.current).wrapping_add(c)) & u32::MAX;
+        #[cfg(debug_assertions)]
+        {
+            self.current = (A.wrapping_mul(self.current).wrapping_add(C)) & u32::MAX;
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            self.current = (A * self.current + C) & u32::MAX;
+        }
     }
 }
 
@@ -59,18 +51,81 @@ impl Iterator for Ipv4Iter {
     type Item = Ipv4Addr;
 
     fn next(&mut self) -> Option<Ipv4Addr> {
-        if self.count >= self.batch_size as u32 {
+        if self.count >= self.batch_size {
             return None;
         }
 
-        let mut ip = Ipv4Addr::from(self.current);
-        while self.is_reserved(&ip) {
+        while self.is_reserved(self.current) {
             self.next_ip();
-            ip = Ipv4Addr::from(self.current);
         }
 
+        let ip = Ipv4Addr::from(self.current);
         self.count += 1;
         self.next_ip();
+
         Some(ip)
     }
 }
+
+#[rustfmt::skip]
+pub const RESERVED_BOUNDARIES: [u32; 30] = [
+    // (0.0.0.0, 0.255.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(0, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(0, 255, 255, 255).octets()),
+
+    // (10.0.0.0, 10.255.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(10, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(10, 255, 255, 255).octets()),
+
+    // (100.64.0.0, 100.127.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(100, 64, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(100, 127, 255, 255).octets()),
+
+    // (127.0.0.0, 127.255.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(127, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(127, 255, 255, 255).octets()),
+
+    // (169.254.0.0, 169.254.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(169, 254, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(169, 254, 255, 255).octets()),
+
+    // (172.16.0.0, 172.31.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(172, 16, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(172, 31, 255, 255).octets()),
+
+    // (192.0.0.0, 192.0.0.255)
+    u32::from_be_bytes(Ipv4Addr::new(192, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(192, 0, 0, 255).octets()),
+
+    // (192.0.2.0, 192.0.2.255)
+    u32::from_be_bytes(Ipv4Addr::new(192, 0, 2, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(192, 0, 2, 255).octets()),
+
+    // (192.88.99.0, 192.88.99.255)
+    u32::from_be_bytes(Ipv4Addr::new(192, 88, 99, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(192, 88, 99, 255).octets()),
+
+    // (192.168.0.0, 192.168.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(192, 168, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(192, 168, 255, 255).octets()),
+
+    // (198.18.0.0, 198.19.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(198, 18, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(198, 19, 255, 255).octets()),
+
+    // (198.51.100.0, 198.51.100.255)
+    u32::from_be_bytes(Ipv4Addr::new(198, 51, 100, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(198, 51, 100, 255).octets()),
+
+    // (203.0.113.0, 203.0.113.255)
+    u32::from_be_bytes(Ipv4Addr::new(203, 0, 113, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(203, 0, 113, 255).octets()),
+
+    // (224.0.0.0, 239.255.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(224, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(239, 255, 255, 255).octets()),
+
+    // (240.0.0.0, 255.255.255.255)
+    u32::from_be_bytes(Ipv4Addr::new(240, 0, 0, 0).octets()),
+    u32::from_be_bytes(Ipv4Addr::new(255, 255, 255, 255).octets()),
+];
