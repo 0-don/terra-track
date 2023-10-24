@@ -5,6 +5,8 @@
 
 TerraTrack is a comprehensive world port scanner database. We gather, aggregate, and provide details on open ports, services, countries, and much more. With TerraTrack, users can obtain insights into the global distribution of open ports and services, aiding in threat intelligence, research, and network monitoring.
 
+<!-- sea-orm-cli migrate fresh -v -d migration  -->
+
 ## Features:
 
 - **Port Information**: Discover which ports are most commonly open worldwide.
