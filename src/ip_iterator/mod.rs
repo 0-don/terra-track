@@ -1,5 +1,4 @@
 use std::net::Ipv4Addr;
-use sha2::{Sha256, Digest};
 
 #[rustfmt::skip]
 const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
@@ -19,19 +18,25 @@ const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
     (Ipv4Addr::new(224, 0, 0, 0), Ipv4Addr::new(239, 255, 255, 255)),
     (Ipv4Addr::new(240, 0, 0, 0), Ipv4Addr::new(255, 255, 255, 255)),
 ];
+
 pub struct Ipv4Iter {
     current: u32,
-    offset: u32,
+    batch_size: u32,
+    count: u32,
 }
 
 impl Ipv4Iter {
-    pub fn new(cursor: &str, offset: u32) -> Self {
+    pub fn new(cursor: &str, batch_size: u32) -> Self {
         let ip = cursor
             .parse::<Ipv4Addr>()
             .expect("Invalid IP address provided");
         let current = u32::from_be_bytes(ip.octets());
 
-        Self { current, offset }
+        Self {
+            current,
+            batch_size,
+            count: 0,
+        }
     }
 
     fn is_reserved(&self, ip: &Ipv4Addr) -> bool {
@@ -40,14 +45,8 @@ impl Ipv4Iter {
             .any(|&(start, end)| *ip >= start && *ip <= end)
     }
 
-    fn permute_ip(&self, ip: u32) -> u32 {
-        let hash = Sha256::digest(&ip.to_be_bytes());
-        u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
-    }
-
     fn next_ip(&mut self) {
-        // Increment by the offset
-        self.current = self.current.wrapping_add(self.offset);
+        self.current = self.current.wrapping_add(100_000_000) ^ 0xAABBCCDD;
     }
 
     fn to_ipv4(&self, num: u32) -> Ipv4Addr {
@@ -64,13 +63,22 @@ impl Iterator for Ipv4Iter {
     type Item = Ipv4Addr;
 
     fn next(&mut self) -> Option<Ipv4Addr> {
-        let mut ip = self.to_ipv4(self.permute_ip(self.current));
+        if self.count >= self.batch_size {
+            return None;
+        }
+
+        let mut ip = self.to_ipv4(self.current);
         while self.is_reserved(&ip) {
             self.next_ip();
-            ip = self.to_ipv4(self.permute_ip(self.current));
+            ip = self.to_ipv4(self.current);
         }
-        // Increment the current IP by the offset after confirming it's not reserved
+
+        // Increment the count after finding a valid IP
+        self.count += 1;
+
+        // Generate the next IP for the next iteration
         self.next_ip();
+
         Some(ip)
     }
 }

@@ -5,14 +5,15 @@ edition = "2021"
 
 
 [dependencies]
+tokio = { version = "1", features = ["full"] }
+mongodb = { version = "2", features = ["bson-chrono-0_4"] }
 futures = "0"
+
 serde = "1"
 anyhow = "1"
-tokio = {version = "1", features = ["full"]}
-mongodb = {version = "2", features = ["bson-chrono-0_4"]}
+dotenvy = "0"
+
 chrono = "0"
 nmap_xml_parser = "0"
 rand = "0"
-aes = "0"
-block-modes = "0"
 sha2 = "0"
