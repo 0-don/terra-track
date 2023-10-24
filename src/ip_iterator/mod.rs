@@ -4,6 +4,7 @@ use std::net::Ipv4Addr;
 pub const A: u32 = 1664525;
 pub const C: u32 = 1013904223;
 pub const BATCH_SIZE: u32 = 1000000;
+pub const U32_MAX: u32 = std::u32::MAX;
 
 pub struct Ipv4Iter {
     current: u32,
@@ -13,9 +14,7 @@ pub struct Ipv4Iter {
 
 impl Ipv4Iter {
     pub fn new(cursor: &str) -> Self {
-        let ip = cursor
-            .parse::<Ipv4Addr>()
-            .expect("Invalid IP address provided");
+        let ip = cursor.parse::<Ipv4Addr>().expect("Invalid IP address provided");
         Self {
             current: u32::from_be_bytes(ip.octets()),
             batch_size: BATCH_SIZE,
@@ -25,25 +24,16 @@ impl Ipv4Iter {
 
     #[inline]
     fn is_reserved(&self, ip_as_u32: u32) -> bool {
-        // Binary search on the flattened boundaries
-        let pos = match RESERVED_BOUNDARIES.binary_search(&ip_as_u32) {
-            Ok(_) => return true, // Exact match means it's a boundary, hence reserved
-            Err(pos) => pos,      // Position where it would be inserted
-        };
-
-        // Check if the position is odd, which means the IP is within a range
-        pos % 2 != 0
+        for &(start, end) in RESERVED_RANGES.iter() {
+            if ip_as_u32 >= start && ip_as_u32 <= end {
+                return true;
+            }
+        }
+        false
     }
 
     fn next_ip(&mut self) {
-        #[cfg(debug_assertions)]
-        {
-            self.current = (A.wrapping_mul(self.current).wrapping_add(C)) & u32::MAX;
-        }
-        #[cfg(not(debug_assertions))]
-        {
-            self.current = (A * self.current + C) & u32::MAX;
-        }
+        self.current = (A.wrapping_mul(self.current).wrapping_add(C)) & U32_MAX;
     }
 }
 
@@ -54,78 +44,43 @@ impl Iterator for Ipv4Iter {
         if self.count >= self.batch_size {
             return None;
         }
-
-        while self.is_reserved(self.current) {
+        
+        let mut ip;
+        
+        loop {
+            ip = Ipv4Addr::from(self.current);
             self.next_ip();
+
+            if !self.is_reserved(u32::from_be_bytes(ip.octets())) {
+                break;
+            }
         }
 
-        let ip = Ipv4Addr::from(self.current);
         self.count += 1;
-        self.next_ip();
-
         Some(ip)
     }
 }
 
-#[rustfmt::skip]
-pub const RESERVED_BOUNDARIES: [u32; 30] = [
-    // (0.0.0.0, 0.255.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(0, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(0, 255, 255, 255).octets()),
+macro_rules! ip_to_u32 {
+    ($a:expr, $b:expr, $c:expr, $d:expr) => {
+        u32::from_be_bytes(Ipv4Addr::new($a, $b, $c, $d).octets())
+    };
+}
 
-    // (10.0.0.0, 10.255.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(10, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(10, 255, 255, 255).octets()),
-
-    // (100.64.0.0, 100.127.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(100, 64, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(100, 127, 255, 255).octets()),
-
-    // (127.0.0.0, 127.255.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(127, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(127, 255, 255, 255).octets()),
-
-    // (169.254.0.0, 169.254.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(169, 254, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(169, 254, 255, 255).octets()),
-
-    // (172.16.0.0, 172.31.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(172, 16, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(172, 31, 255, 255).octets()),
-
-    // (192.0.0.0, 192.0.0.255)
-    u32::from_be_bytes(Ipv4Addr::new(192, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(192, 0, 0, 255).octets()),
-
-    // (192.0.2.0, 192.0.2.255)
-    u32::from_be_bytes(Ipv4Addr::new(192, 0, 2, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(192, 0, 2, 255).octets()),
-
-    // (192.88.99.0, 192.88.99.255)
-    u32::from_be_bytes(Ipv4Addr::new(192, 88, 99, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(192, 88, 99, 255).octets()),
-
-    // (192.168.0.0, 192.168.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(192, 168, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(192, 168, 255, 255).octets()),
-
-    // (198.18.0.0, 198.19.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(198, 18, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(198, 19, 255, 255).octets()),
-
-    // (198.51.100.0, 198.51.100.255)
-    u32::from_be_bytes(Ipv4Addr::new(198, 51, 100, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(198, 51, 100, 255).octets()),
-
-    // (203.0.113.0, 203.0.113.255)
-    u32::from_be_bytes(Ipv4Addr::new(203, 0, 113, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(203, 0, 113, 255).octets()),
-
-    // (224.0.0.0, 239.255.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(224, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(239, 255, 255, 255).octets()),
-
-    // (240.0.0.0, 255.255.255.255)
-    u32::from_be_bytes(Ipv4Addr::new(240, 0, 0, 0).octets()),
-    u32::from_be_bytes(Ipv4Addr::new(255, 255, 255, 255).octets()),
+pub const RESERVED_RANGES: [(u32, u32); 15] = [
+    (ip_to_u32!(0, 0, 0, 0), ip_to_u32!(0, 255, 255, 255)),
+    (ip_to_u32!(10, 0, 0, 0), ip_to_u32!(10, 255, 255, 255)),
+    (ip_to_u32!(100, 64, 0, 0), ip_to_u32!(100, 127, 255, 255)),
+    (ip_to_u32!(127, 0, 0, 0), ip_to_u32!(127, 255, 255, 255)),
+    (ip_to_u32!(169, 254, 0, 0), ip_to_u32!(169, 254, 255, 255)),
+    (ip_to_u32!(172, 16, 0, 0), ip_to_u32!(172, 31, 255, 255)),
+    (ip_to_u32!(192, 0, 0, 0), ip_to_u32!(192, 0, 0, 255)),
+    (ip_to_u32!(192, 0, 2, 0), ip_to_u32!(192, 0, 2, 255)),
+    (ip_to_u32!(192, 88, 99, 0), ip_to_u32!(192, 88, 99, 255)),
+    (ip_to_u32!(192, 168, 0, 0), ip_to_u32!(192, 168, 255, 255)),
+    (ip_to_u32!(198, 18, 0, 0), ip_to_u32!(198, 19, 255, 255)),
+    (ip_to_u32!(198, 51, 100, 0), ip_to_u32!(198, 51, 100, 255)),
+    (ip_to_u32!(203, 0, 113, 0), ip_to_u32!(203, 0, 113, 255)),
+    (ip_to_u32!(224, 0, 0, 0), ip_to_u32!(239, 255, 255, 255)),
+    (ip_to_u32!(240, 0, 0, 0), ip_to_u32!(255, 255, 255, 255)),
 ];
