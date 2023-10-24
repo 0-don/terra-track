@@ -1,9 +1,5 @@
-use std::net::IpAddr;
 use std::net::Ipv4Addr;
-
-use chrono::Utc;
-
-use crate::printlog;
+use sha2::{Sha256, Digest};
 
 #[rustfmt::skip]
 const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
@@ -23,36 +19,58 @@ const RESERVED_RANGES: [(Ipv4Addr, Ipv4Addr); 15] = [
     (Ipv4Addr::new(224, 0, 0, 0), Ipv4Addr::new(239, 255, 255, 255)),
     (Ipv4Addr::new(240, 0, 0, 0), Ipv4Addr::new(255, 255, 255, 255)),
 ];
+pub struct Ipv4Iter {
+    current: u32,
+    offset: u32,
+}
 
-pub fn public_ips() -> Vec<IpAddr> {
-    // Convert from u32 to Ipv4Addr
-    printlog!("Start");
+impl Ipv4Iter {
+    pub fn new(cursor: &str, offset: u32) -> Self {
+        let ip = cursor
+            .parse::<Ipv4Addr>()
+            .expect("Invalid IP address provided");
+        let current = u32::from_be_bytes(ip.octets());
 
-    let to_ipv4 = |num: u32| -> Ipv4Addr {
+        Self { current, offset }
+    }
+
+    fn is_reserved(&self, ip: &Ipv4Addr) -> bool {
+        RESERVED_RANGES
+            .iter()
+            .any(|&(start, end)| *ip >= start && *ip <= end)
+    }
+
+    fn permute_ip(&self, ip: u32) -> u32 {
+        let hash = Sha256::digest(&ip.to_be_bytes());
+        u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+    }
+
+    fn next_ip(&mut self) {
+        // Increment by the offset
+        self.current = self.current.wrapping_add(self.offset);
+    }
+
+    fn to_ipv4(&self, num: u32) -> Ipv4Addr {
         Ipv4Addr::new(
             ((num >> 24) & 0xFF) as u8,
             ((num >> 16) & 0xFF) as u8,
             ((num >> 8) & 0xFF) as u8,
             (num & 0xFF) as u8,
         )
-    };
-
-    printlog!("created all ips");
-
-    let res: Vec<IpAddr> = (0..=4294967295u32) // Iterate over the entire IPv4 address space as integers
-        .map(to_ipv4) // Convert each integer to an Ipv4Addr
-        .filter(|&ip| !is_reserved(ip, &RESERVED_RANGES)) // Filter out reserved IPs
-        .map(IpAddr::V4)
-         // Convert to IpAddr enum variant
-        .collect();
-
-    printlog!("finished");
-
-    res
+    }
 }
 
-pub fn is_reserved(ip: Ipv4Addr, reserved_ranges: &[(Ipv4Addr, Ipv4Addr)]) -> bool {
-    reserved_ranges
-        .iter()
-        .any(|&(start, end)| ip >= start && ip <= end)
+impl Iterator for Ipv4Iter {
+    type Item = Ipv4Addr;
+
+    fn next(&mut self) -> Option<Ipv4Addr> {
+        let mut ip = self.to_ipv4(self.permute_ip(self.current));
+        while self.is_reserved(&ip) {
+            self.next_ip();
+            ip = self.to_ipv4(self.permute_ip(self.current));
+        }
+        // Increment the current IP by the offset after confirming it's not reserved
+        self.next_ip();
+        Some(ip)
+    }
 }
