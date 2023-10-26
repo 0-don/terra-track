@@ -5,7 +5,7 @@ edition = "2021"
 
 
 [workspace]
-members = [".", "migration"]
+members = [".", "migration", "entity"]
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -18,8 +18,3 @@ dotenvy = "0"
 chrono = "0"
 nmap_xml_parser = "0"
 rand = "0"
-sea-orm = { version = "^0.12.0", features = [
-  "sqlx-postgres",
-  "runtime-tokio-rustls",
-  "macros",
-] }
