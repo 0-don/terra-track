@@ -15,10 +15,9 @@ tokio = { version = "1", features = ["full"] }
 futures = "0"
 
 serde = "1"
+serde-xml-rs = "0"
 anyhow = "1"
 dotenvy = "0"
 
 chrono = "0"
-nmap_xml_parser = "0"
 rand = "0"
-serde-xml-rs = "0.6.0"

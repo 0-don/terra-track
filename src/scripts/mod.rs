@@ -1,14 +1,11 @@
 use std::fs::{create_dir_all, File};
-
-use nmap_xml_parser::NmapResults;
-use serde::{Deserialize, Serialize};
 use serde_xml_rs::from_str;
 use std::io::Read;
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::Command;
 
-use crate::types::NmapRun;
+use crate::types::NmapXML;
 
 pub struct Script {
     ip: IpAddr,
@@ -25,7 +22,7 @@ impl Script {
         }
     }
 
-    pub fn run(self) -> anyhow::Result<NmapResults> {
+    pub fn run(self) -> anyhow::Result<NmapXML> {
         // Convert ports to string and join with commas
         let ports_str = self
             .open_ports
@@ -89,15 +86,13 @@ impl Script {
         }
     }
 
-    fn parse_nmap_xml(&self) -> anyhow::Result<NmapResults> {
+    fn parse_nmap_xml(&self) -> anyhow::Result<NmapXML> {
         self.create_directory();
         let mut file = File::open(self.xml.clone())?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
-        let nmap: NmapResults = NmapResults::parse(&contents).unwrap();
-        let nmap_run: NmapRun = from_str(&contents).unwrap();
-        println!("{:#?}", nmap_run);
+        let nmap: NmapXML = from_str(&contents).unwrap();
         Ok(nmap)
     }
 }
