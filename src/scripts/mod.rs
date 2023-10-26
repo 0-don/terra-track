@@ -1,10 +1,14 @@
-use std::fs::{File, create_dir_all};
+use std::fs::{create_dir_all, File};
+
+use nmap_xml_parser::NmapResults;
+use serde::{Deserialize, Serialize};
+use serde_xml_rs::from_str;
 use std::io::Read;
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::Command;
 
-use nmap_xml_parser::NmapResults;
+use crate::types::NmapRun;
 
 pub struct Script {
     ip: IpAddr,
@@ -35,7 +39,7 @@ impl Script {
         let binding = self.ip.to_string();
         let arguments = vec![
             "nmap",
-            "-vvv",
+            "-vvvvvv",
             "-T2",
             "-n",
             "-sV",
@@ -50,7 +54,10 @@ impl Script {
 
         let script = self.execute_script(arguments);
         match script {
-            Ok(_) => self.parse_nmap_xml(),
+            Ok(x) => {
+                println!("{}", x);
+                self.parse_nmap_xml()
+            }
             Err(_) => Err(anyhow::anyhow!("Script failed")),
         }
     }
@@ -84,13 +91,13 @@ impl Script {
 
     fn parse_nmap_xml(&self) -> anyhow::Result<NmapResults> {
         self.create_directory();
-        
         let mut file = File::open(self.xml.clone())?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
         let nmap: NmapResults = NmapResults::parse(&contents).unwrap();
-
+        let nmap_run: NmapRun = from_str(&contents).unwrap();
+        println!("{:#?}", nmap_run);
         Ok(nmap)
     }
 }

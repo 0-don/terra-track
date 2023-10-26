@@ -1,13 +1,8 @@
 use std::{fs::File, io::Read, net::IpAddr};
-
 use nmap_xml_parser::NmapResults;
-
 use crate::{scanner::Scanner, scripts::Script};
-
 pub mod macros;
 
-// let res = scan("45.33.32.156").await?;
-// println!("Result: {:?}", res);
 
 //ignore linting
 #[allow(dead_code)]

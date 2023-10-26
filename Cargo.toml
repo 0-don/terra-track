@@ -8,6 +8,9 @@ edition = "2021"
 members = [".", "migration", "entity"]
 
 [dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" }
+
 tokio = { version = "1", features = ["full"] }
 futures = "0"
 
@@ -18,3 +21,4 @@ dotenvy = "0"
 chrono = "0"
 nmap_xml_parser = "0"
 rand = "0"
+serde-xml-rs = "0.6.0"
