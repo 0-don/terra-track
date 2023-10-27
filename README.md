@@ -1,18 +1,18 @@
-
 # TerraTrack: World Port Scanner Database
 
-<!-- You can replace this URL with the actual logo URL if you have one. -->
+<!-- ![TerraTrack Logo](https://path-to-your-logo-if-you-have-one.png) -->
 
-TerraTrack is a comprehensive world port scanner database. We gather, aggregate, and provide details on open ports, services, countries, and much more. With TerraTrack, users can obtain insights into the global distribution of open ports and services, aiding in threat intelligence, research, and network monitoring.
-
-<!-- sea-orm-cli migrate fresh -v -d migration  -->
+Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our comprehensive global port scanner database offers an exhaustive breakdown of open ports, the services they run, operating system details, and so much more. Gain unparalleled insights to bolster your threat intelligence, research, and network monitoring capabilities.
 
 ## Features:
 
-- **Port Information**: Discover which ports are most commonly open worldwide.
-- **Service Mapping**: Understand which services are running on specific ports.
-- **Geographical Distribution**: Determine where specific ports and services are most commonly located.
-- **Regular Updates**: Our database is updated regularly to offer the most current snapshot of the internet.
+- **Detailed Port Information**: Go beyond simply identifying open ports; understand the intricate details of the services operating on them.
+- **Service Mapping**: Decode the specific services running on each identified port.
+- **Operating System Identification**: Uncover the OS versions associated with these open ports, giving you a holistic view of potential vulnerabilities.
+- **Geographical Distribution**: Geotag the global distribution of specific ports, services, and OS versions.
+- **Time-Stamped Historical Data**: Track the chronological appearances of specific ports and services, allowing for trend analysis and historical assessments.
+- **Regular Updates**: Stay updated with our continuously refreshed database that mirrors the ever-evolving landscape of the internet's open ports.
+- **Exhaustive Scan Data**: For each scan, we ensure you have a comprehensive breakdown, leaving no detail overlooked.
 
 ## Installation:
 
@@ -27,28 +27,18 @@ cd terra-track
 cargo run
 ```
 
-This command will display all open instances of port 80 in the US.
-
-For detailed usage guidance, please refer to our [documentation](https://github.com/don-cryptus/terra-track/docs).
-
 ## Contributing:
 
-Contributions from the community are welcome! Whether it's a bug report, feature suggestion, or code contribution, every bit helps improve TerraTrack.
+Join us in refining TerraTrack! Be it bug reports, feature suggestions, or direct code contributions, we highly value and appreciate the community's involvement.
 
 1. Fork the repository.
 2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
+3. Commit your enhancements: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin my-new-feature`
-5. Open a pull request.
+5. Submit a pull request.
 
-For detailed contribution guidelines, see our [CONTRIBUTING.md](https://github.com/don-cryptus/terra-track/CONTRIBUTING.md).
+For a detailed walkthrough on contributing, please refer to our [CONTRIBUTING.md](https://github.com/don-cryptus/terra-track/CONTRIBUTING.md).
 
 ## License:
 
-This project is under the MIT License - view the [LICENSE.md](https://github.com/don-cryptus/terra-track/LICENSE.md) file for specifics.
-
-## Acknowledgments:
-
-- [Name of Contributor 1]
-- [Name of Contributor 2]
-- Thanks to all community members who have contributed to this initiative.
+TerraTrack is licensed under the MIT License. Dive into the specifics in our [LICENSE.md](https://github.com/don-cryptus/terra-track/LICENSE.md) file.
