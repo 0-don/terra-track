@@ -1,7 +1,6 @@
+use crate::m_000013_ip_metadata::IpMetadata;
 use sea_orm_migration::prelude::*;
 use sea_query::{ForeignKey, ForeignKeyAction, Keyword, SimpleExpr};
-
-use crate::m_000013_ip_metadata::IpMetadata;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

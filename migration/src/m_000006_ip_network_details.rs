@@ -1,6 +1,5 @@
-use sea_orm_migration::prelude::*;
-
 use crate::m_000002_ip_main::IpMain;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -21,14 +20,6 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpNetworkDetails::IpMainId).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_ip_network_details_ip_main")
-                            .from(IpNetworkDetails::Table, IpNetworkDetails::IpMainId)
-                            .to(IpMain::Table, IpMain::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
                     .col(ColumnDef::new(IpNetworkDetails::PtrRecord).text())
                     .col(ColumnDef::new(IpNetworkDetails::AsnNumber).integer())
                     .col(ColumnDef::new(IpNetworkDetails::AsnName).text())
@@ -42,6 +33,14 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(IpNetworkDetails::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_ip_network_details_ip_main")
+                            .from(IpNetworkDetails::Table, IpNetworkDetails::IpMainId)
+                            .to(IpMain::Table, IpMain::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )

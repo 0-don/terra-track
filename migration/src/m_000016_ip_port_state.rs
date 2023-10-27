@@ -1,10 +1,6 @@
+use crate::m_000015_ip_port::IpPort;
 use sea_orm_migration::prelude::*;
 use sea_query::{Keyword, SimpleExpr};
-
-use crate::m_000015_ip_port::IpPort;
-
-// Ensure IpPort is accessible and properly imported
-// You might need to adjust this import based on where IpPort is defined.
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

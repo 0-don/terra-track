@@ -20,14 +20,6 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpConnection::IpMainId).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_ip_connection_ip_main")
-                            .from(IpConnection::Table, IpConnection::IpMainId)
-                            .to(IpMain::Table, IpMain::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
                     .col(ColumnDef::new(IpConnection::Asn).integer())
                     .col(ColumnDef::new(IpConnection::Org).text())
                     .col(ColumnDef::new(IpConnection::Isp).text())
@@ -41,6 +33,14 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(IpConnection::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_ip_connection_ip_main")
+                            .from(IpConnection::Table, IpConnection::IpMainId)
+                            .to(IpMain::Table, IpMain::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )

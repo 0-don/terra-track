@@ -1,8 +1,6 @@
+use crate::m_000002_ip_main::IpMain;
 use sea_orm_migration::prelude::*;
 use sea_query::{ForeignKey, ForeignKeyAction, SimpleExpr};
-
-// Ensure IpMain is accessible and properly imported
-use crate::m_000002_ip_main::IpMain;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -23,14 +21,6 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpLocation::IpMainId).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_ip_location_ip_main")
-                            .from(IpLocation::Table, IpLocation::IpMainId)
-                            .to(IpMain::Table, IpMain::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
                     .col(ColumnDef::new(IpLocation::Continent).text())
                     .col(ColumnDef::new(IpLocation::Country).text())
                     .col(ColumnDef::new(IpLocation::CountryCode).text())
@@ -49,6 +39,14 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(IpLocation::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_ip_location_ip_main")
+                            .from(IpLocation::Table, IpLocation::IpMainId)
+                            .to(IpMain::Table, IpMain::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )

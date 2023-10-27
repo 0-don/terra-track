@@ -1,5 +1,4 @@
 use sea_orm_migration::prelude::*;
-
 use crate::m_000002_ip_main::IpMain;
 
 #[derive(DeriveMigrationName)]

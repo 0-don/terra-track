@@ -1,8 +1,6 @@
+use crate::m_000002_ip_main::IpMain;
 use sea_orm_migration::prelude::*;
 use sea_query::{ForeignKey, ForeignKeyAction, Keyword, SimpleExpr};
-
-// Ensure IpMain is accessible and properly imported
-use crate::m_000002_ip_main::IpMain;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

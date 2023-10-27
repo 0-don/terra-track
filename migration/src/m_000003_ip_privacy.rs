@@ -1,3 +1,4 @@
+use crate::m_000002_ip_main::IpMain;
 use sea_orm_migration::prelude::*;
 use sea_query::{ForeignKey, ForeignKeyAction};
 
@@ -20,14 +21,6 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpPrivacy::IpMainId).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_ip_privacy_ip_main")
-                            .from(IpPrivacy::Table, IpPrivacy::IpMainId)
-                            .to(IpMain::Table, IpMain::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
                     .col(ColumnDef::new(IpPrivacy::IsTor).boolean())
                     .col(ColumnDef::new(IpPrivacy::IsProxy).boolean())
                     .col(ColumnDef::new(IpPrivacy::IsVpn).boolean())
@@ -44,6 +37,14 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(IpPrivacy::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_ip_privacy_ip_main")
+                            .from(IpPrivacy::Table, IpPrivacy::IpMainId)
+                            .to(IpMain::Table, IpMain::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )
@@ -72,6 +73,3 @@ enum IpPrivacy {
     CreatedAt,
     UpdatedAt,
 }
-
-// Ensure IpMain is accessible and properly imported
-use crate::m_000002_ip_main::IpMain;

@@ -1,10 +1,6 @@
+use crate::m_000014_ip_address::IpAddress;
 use sea_orm_migration::prelude::*;
 use sea_query::{Keyword, SimpleExpr};
-
-use crate::m_000014_ip_address::IpAddress;
-
-// Ensure IpAddress is accessible and properly imported
-// You might need to adjust this import based on where IpAddress is defined.
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
