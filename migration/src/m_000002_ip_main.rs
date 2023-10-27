@@ -9,23 +9,31 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(ScanBatch::Table)
+                    .table(IpMain::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(ScanBatch::Id)
+                        ColumnDef::new(IpMain::Id)
                             .integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(ScanBatch::Size).integer().not_null())
                     .col(
-                        ColumnDef::new(ScanBatch::Start)
+                        ColumnDef::new(IpMain::IpAddress)
+                            .text()
+                            .not_null()
+                            .unique_key(),
+                    )
+                    .col(ColumnDef::new(IpMain::IsBogon).boolean())
+                    .col(ColumnDef::new(IpMain::IsMobile).boolean())
+                    .col(ColumnDef::new(IpMain::IsDatacenter).boolean())
+                    .col(
+                        ColumnDef::new(IpMain::CreatedAt)
                             .timestamp_with_time_zone()
-                            .not_null(),
+                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
                     .col(
-                        ColumnDef::new(ScanBatch::End)
+                        ColumnDef::new(IpMain::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
@@ -36,16 +44,19 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(ScanBatch::Table).to_owned())
+            .drop_table(Table::drop().table(IpMain::Table).to_owned())
             .await
     }
 }
 
 #[derive(DeriveIden)]
-enum ScanBatch {
+pub(crate) enum IpMain {
     Table,
     Id,
-    Size,
-    Start,
-    End,
+    IpAddress,
+    IsBogon,
+    IsMobile,
+    IsDatacenter,
+    CreatedAt,
+    UpdatedAt,
 }
