@@ -5,11 +5,12 @@ edition = "2021"
 
 
 [workspace]
-members = [".", "migration", "entity"]
+members = [".", "migration", "entity", "service"]
 
 [dependencies]
 entity = { path = "entity" }
 migration = { path = "migration" }
+service = { path = "service" }
 
 tokio = { version = "1", features = ["full"] }
 futures = "0"
