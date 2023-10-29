@@ -1,5 +1,5 @@
 [package]
-name = "terra-track"
+name = "terra_track"
 version = "1.0.0"
 edition = "2021"
 

@@ -2052,6 +2052,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "entity",
+ "migration",
  "sea-orm",
  "serde",
  "serde_json",
@@ -2479,7 +2480,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "terra-track"
+name = "terra_track"
 version = "1.0.0"
 dependencies = [
  "anyhow",
