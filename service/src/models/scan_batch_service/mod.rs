@@ -1,6 +1,8 @@
 use crate::db::get_db_connection;
 use ::entity::scan_batch;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set, TryIntoModel,
+};
 
 pub struct Mutation;
 pub struct Query;
@@ -51,7 +53,18 @@ impl Query {
 
         Ok(model)
     }
-    pub async fn find_open_scans() -> anyhow::Result<Vec<scan_batch::Model>> {
+
+    pub async fn find_last_scan_batch() -> anyhow::Result<Option<scan_batch::Model>> {
+        let db = get_db_connection().await?;
+        let model = scan_batch::Entity::find()
+            .order_by_desc(scan_batch::Column::Id)
+            .one(&db)
+            .await?;
+
+        Ok(model)
+    }
+
+    pub async fn find_open_scan_batch() -> anyhow::Result<Vec<scan_batch::Model>> {
         let db = get_db_connection().await?;
         let models = scan_batch::Entity::find()
             .filter(scan_batch::Column::End.is_null())
@@ -59,5 +72,19 @@ impl Query {
             .await?;
 
         Ok(models)
+    }
+
+    pub async fn next_scan_batch() -> anyhow::Result<bool> {
+        let db = get_db_connection().await?;
+        let scans = Self::find_open_scan_batch().await?;
+
+        if scans.len() == 0 {
+            let last_scan = Self::find_last_scan_batch().await?;
+            if last_scan.is_none() {
+                
+            }
+        }
+
+        Ok(true)
     }
 }

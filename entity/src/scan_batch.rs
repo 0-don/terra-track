@@ -15,6 +15,8 @@ impl EntityName for Entity {
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
 pub struct Model {
     pub id: i32,
+    pub ip: String,
+    pub cursor: i32,
     pub size: i32,
     pub start: DateTimeWithTimeZone,
     pub end: Option<DateTimeWithTimeZone>,
@@ -23,6 +25,8 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
     Id,
+    Ip,
+    Cursor,
     Size,
     Start,
     End,
@@ -48,6 +52,8 @@ impl ColumnTrait for Column {
     fn def(&self) -> ColumnDef {
         match self {
             Self::Id => ColumnType::Integer.def(),
+            Self::Ip => ColumnType::String(None).def(),
+            Self::Cursor => ColumnType::Integer.def(),
             Self::Size => ColumnType::Integer.def(),
             Self::Start => ColumnType::TimestampWithTimeZone.def(),
             Self::End => ColumnType::TimestampWithTimeZone.def().null(),

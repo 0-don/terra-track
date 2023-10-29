@@ -18,6 +18,8 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(ScanBatch::Ip).string().not_null())
+                    .col(ColumnDef::new(ScanBatch::Cursor).integer().not_null())
                     .col(ColumnDef::new(ScanBatch::Size).integer().not_null())
                     .col(
                         ColumnDef::new(ScanBatch::Start)
@@ -45,6 +47,8 @@ impl MigrationTrait for Migration {
 enum ScanBatch {
     Table,
     Id,
+    Ip,
+    Cursor,
     Size,
     Start,
     End,
