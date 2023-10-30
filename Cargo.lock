@@ -2068,6 +2068,7 @@ dependencies = [
  "chrono",
  "entity",
  "migration",
+ "scanner",
  "sea-orm",
  "serde",
  "serde_json",

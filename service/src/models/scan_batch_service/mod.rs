@@ -1,5 +1,9 @@
-use crate::{db::get_db_connection, utils::convert_i32_to_ipv4_string};
+use crate::{
+    db::get_db_connection,
+    utils::{convert_i32_to_ipv4_string, convert_ipv4_string_to_i32},
+};
 use ::entity::scan_batch;
+use scanner::ip_iterator::Ipv4Iter;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set, TryIntoModel,
 };
@@ -85,9 +89,10 @@ impl Query {
         if scans.len() == 0 {
             scan = Self::find_last_scan_batch().await?;
             if scan.is_none() {
+                let ip_iter = Ipv4Iter::new("0.0.0.0").next().unwrap();
                 scan = Some(
                     Mutation::create_scan_batch(scan_batch::ActiveModel {
-                        ip: Set("0.0.0.0".to_string()),
+                        ip: Set(ip_iter.to_string()),
                         cursor: Set(0),
                         start: Set(date),
                         size: Set(BATCH_SIZE),
@@ -97,10 +102,15 @@ impl Query {
                 );
             } else {
                 let new_cursor = scan.as_ref().unwrap().cursor + scan.as_ref().unwrap().size;
+                let ip_iter = Ipv4Iter::new(&convert_i32_to_ipv4_string(new_cursor))
+                    .skip_batch(BATCH_SIZE as u32);
+
                 scan = Some(
                     Mutation::create_scan_batch(scan_batch::ActiveModel {
-                        ip: Set(convert_i32_to_ipv4_string(new_cursor)),
-                        cursor: Set(new_cursor),
+                        ip: Set(ip_iter.unwrap().to_string()),
+                        cursor: Set(convert_ipv4_string_to_i32(
+                            ip_iter.unwrap().to_string().as_str(),
+                        )),
                         start: Set(date),
                         size: Set(BATCH_SIZE),
                         ..Default::default()

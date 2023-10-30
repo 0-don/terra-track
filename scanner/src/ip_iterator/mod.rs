@@ -3,8 +3,8 @@ use std::net::Ipv4Addr;
 // LCG parameters determenistic random number generator
 pub const A: u32 = 1664525;
 pub const C: u32 = 1013904223;
-pub const BATCH_SIZE: u32 = 1000000;
 pub const U32_MAX: u32 = std::u32::MAX;
+pub const BATCH_SIZE: u32 = U32_MAX;
 
 pub struct Ipv4Iter {
     current: u32,
@@ -24,6 +24,17 @@ impl Ipv4Iter {
         }
     }
 
+    pub fn batched(cursor: &str, batch_size: u32) -> Self {
+        let ip = cursor
+            .parse::<Ipv4Addr>()
+            .expect("Invalid IP address provided");
+        Self {
+            current: u32::from_be_bytes(ip.octets()),
+            batch_size,
+            count: 0,
+        }
+    }
+
     #[inline]
     fn is_reserved(&self, ip_as_u32: u32) -> bool {
         // Binary search on the flattened boundaries
@@ -34,6 +45,17 @@ impl Ipv4Iter {
 
         // Check if the position is odd, which means the IP is within a range
         pos % 2 != 0
+    }
+
+    pub fn skip_batch(&mut self, batches_to_skip: u32) -> Option<Ipv4Addr> {
+        let total_to_skip = batches_to_skip * self.batch_size;
+        let mut last_ip: Option<Ipv4Addr> = None;
+
+        for _ in 0..total_to_skip {
+            last_ip = self.next();
+        }
+
+        last_ip
     }
 
     fn next_ip(&mut self) {
