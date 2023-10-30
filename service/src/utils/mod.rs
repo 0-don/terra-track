@@ -1,3 +1,5 @@
+use chrono::{DateTime, FixedOffset};
+
 pub fn convert_ipv4_string_to_i32(ipv4_string: &str) -> i32 {
     let octets: Vec<&str> = ipv4_string.split('.').collect();
     let mut result = 0;
@@ -16,4 +18,8 @@ pub fn convert_i32_to_ipv4_string(ipv4_int: i32) -> String {
         .collect();
 
     octets.join(".")
+}
+
+pub fn date() -> DateTime<FixedOffset> {
+    chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
 }

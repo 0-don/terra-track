@@ -1,6 +1,7 @@
 use dotenvy::dotenv;
-use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner};
-use service::models::scan_batch_service;
+use migration::sea_orm::Set;
+use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
+use service::{models::scan_batch_service, utils::date};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -14,11 +15,21 @@ async fn main() -> anyhow::Result<()> {
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
 
-        let res = Scanner::new(ip.into()).run().await?;
-        println!("Result: {:?}", res);
-        // let res = scan(ip.to_string().as_str()).await?;
-        // println!("Result: {:?}", res);
+        let ports = Scanner::new(ip.into()).run().await?;
+        printlog!("Open ports: {:?}", ports);
+        let script = Script::new(ip.into(), ports);
+        let result = script.run();
+        if let Ok(result) = result {
+            printlog!("Script result: {:?}", result);
+        }
     }
+
+    scan_batch_service::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
+        id: Set(scan.id),
+        end: Set(Some(date())),
+        ..Default::default()
+    })
+    .await?;
 
     // printlog!("Scan complete");
 
