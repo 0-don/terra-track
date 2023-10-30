@@ -11,7 +11,6 @@ static INIT: Once = Once::new();
 
 pub async fn get_db_connection() -> anyhow::Result<DatabaseConnection> {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-    println!("Connecting to database: {db_url}", db_url = db_url);
 
     let conn = Database::connect(db_url)
         .await

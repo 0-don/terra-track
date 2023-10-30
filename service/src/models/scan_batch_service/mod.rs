@@ -78,6 +78,7 @@ impl Query {
 
     pub async fn next_scan_batch() -> anyhow::Result<scan_batch::Model> {
         let scans = Self::find_open_scan_batch().await?;
+        let date = chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap());
 
         #[allow(unused_assignments)]
         let mut scan: Option<scan_batch::Model> = None;
@@ -88,6 +89,7 @@ impl Query {
                     Mutation::create_scan_batch(scan_batch::ActiveModel {
                         ip: Set("0.0.0.0".to_string()),
                         cursor: Set(0),
+                        start: Set(date),
                         size: Set(BATCH_SIZE),
                         ..Default::default()
                     })
@@ -99,6 +101,7 @@ impl Query {
                     Mutation::create_scan_batch(scan_batch::ActiveModel {
                         ip: Set(convert_i32_to_ipv4_string(new_cursor)),
                         cursor: Set(new_cursor),
+                        start: Set(date),
                         size: Set(BATCH_SIZE),
                         ..Default::default()
                     })
@@ -109,9 +112,7 @@ impl Query {
             scan = Some(scans[0].clone());
             Mutation::update_scan_batch(scan_batch::ActiveModel {
                 id: Set(scan.as_ref().unwrap().id),
-                updated_at: Set(Some(
-                    chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap()),
-                )),
+                updated_at: Set(Some(date)),
                 ..Default::default()
             })
             .await?;

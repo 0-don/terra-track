@@ -24,13 +24,10 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(ScanBatch::Start)
                             .timestamp_with_time_zone()
+                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp))
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(ScanBatch::End)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
+                    .col(ColumnDef::new(ScanBatch::End).timestamp_with_time_zone())
                     .col(
                         ColumnDef::new(ScanBatch::CreatedAt)
                             .timestamp_with_time_zone()

@@ -5,20 +5,16 @@ edition = "2021"
 
 
 [workspace]
-members = [".", "migration", "entity", "service"]
+members = [".", "migration", "entity", "service", "scanner"]
 
 [dependencies]
 entity = { path = "entity" }
 migration = { path = "migration" }
 service = { path = "service" }
+scanner = { path = "scanner" }
 
 tokio = { version = "1", features = ["full"] }
-futures = "0"
-
-serde = "1"
-serde-xml-rs = "0"
 anyhow = "1"
 dotenvy = "0"
-
 chrono = "0"
-rand = "0"
+

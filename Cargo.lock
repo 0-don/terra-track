@@ -1822,6 +1822,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
+name = "scanner"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "entity",
+ "futures",
+ "rand",
+ "sea-orm",
+ "serde",
+ "serde-xml-rs",
+ "tokio",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2487,11 +2502,8 @@ dependencies = [
  "chrono",
  "dotenvy",
  "entity",
- "futures",
  "migration",
- "rand",
- "serde",
- "serde-xml-rs",
+ "scanner",
  "service",
  "tokio",
 ]

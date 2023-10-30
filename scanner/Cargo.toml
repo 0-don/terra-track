@@ -1,0 +1,22 @@
+[package]
+name = "scanner"
+version = "1.0.0"
+edition = "2021"
+
+
+[dependencies]
+entity = { path = "../entity" }
+tokio = { version = "1", features = ["full"] }
+futures = "0"
+
+serde = "1"
+serde-xml-rs = "0"
+anyhow = "1"
+
+chrono = "0"
+rand = "0"
+
+
+[dependencies.sea-orm]
+version = "0"
+features = ["debug-print", "runtime-tokio-rustls", "sqlx-postgres"]

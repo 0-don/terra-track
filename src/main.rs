@@ -1,16 +1,14 @@
-mod ip_iterator;
-mod scanner;
-mod scripts;
-mod types;
 mod utils;
-use crate::utils::scan;
 use dotenvy::dotenv;
+use service::models::scan_batch_service;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
-    // let open_scan = scan_batch_service::Query::find_open_scans().await?;
+    let open_scan = scan_batch_service::Query::next_scan_batch().await?;
+
+    printlog!("Open scan: {:?}", open_scan);
 
     // let cursor = "0.0.0.0"; // Start from this IP
     // let mut ip_iter = Ipv4Iter::new(cursor);
@@ -23,7 +21,19 @@ async fn main() -> anyhow::Result<()> {
 
     // printlog!("Scan complete");
 
-    let res = scan("45.33.32.156").await?;
-    println!("Result: {:?}", res);
+    // let res = scan("45.33.32.156").await?;
+    // println!("Result: {:?}", res);
     Ok(())
+}
+
+#[macro_export]
+macro_rules! printlog {
+    ($($arg:tt)*) => {
+        {
+            use chrono::{Local, DateTime};
+            let now: DateTime<Local> = Local::now();
+            let millis = now.timestamp_subsec_millis();
+            println!("{}.{:03}: {}", now.format("%Y-%m-%d %H:%M:%S"), millis, format!($($arg)*));
+        }
+    };
 }
