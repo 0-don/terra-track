@@ -1,8 +1,10 @@
 use std::net::Ipv4Addr;
 
 // LCG parameters determenistic random number generator
-pub const A: u32 = 1664525;
-pub const C: u32 = 1013904223;
+// pub const A: u32 = 1664525;
+// pub const C: u32 = 1013904223;
+pub const A: u32 = 1;
+pub const C: u32 = 1;
 pub const U32_MAX: u32 = std::u32::MAX;
 
 pub struct Ipv4Iter {

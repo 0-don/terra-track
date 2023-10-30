@@ -11,7 +11,8 @@ pub struct NmapXML {
     scaninfo: ScanInfo,
     verbose: Verbose,
     debugging: Debugging,
-    host: Host,
+    tasks: Vec<Task>,
+    host: Vec<Host>,
     runstats: RunStats,
 }
 
@@ -35,12 +36,18 @@ struct Debugging {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
+struct Task {
+    task: String,
+    time: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Host {
     starttime: String,
     endtime: String,
     status: Status,
-    address: Address,
-    hostnames: Hostnames,
+    address: Vec<Address>,
+    hostnames: Option<Hostnames>,
     ports: Ports,
     times: Times,
 }
@@ -59,7 +66,16 @@ struct Address {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Hostnames {}
+struct Hostnames {
+    hostname: Vec<Hostname>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+struct Hostname {
+    name: String,
+    #[serde(rename = "type")]
+    hostname_type: String,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Ports {
@@ -72,6 +88,7 @@ struct Port {
     portid: String,
     state: State,
     service: Service,
+    cpe: Vec<String>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -90,6 +107,7 @@ struct Service {
     ostype: Option<String>,
     method: String,
     conf: String,
+    script: Option<Script>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -119,4 +137,17 @@ struct Hosts {
     up: String,
     down: String,
     total: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+struct Script {
+    id: String,
+    output: String,
+    elem: Vec<Elem>, // Added this
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+struct Elem {
+    key: String,
+    value: String,
 }

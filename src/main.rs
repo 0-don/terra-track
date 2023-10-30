@@ -17,6 +17,10 @@ async fn main() -> anyhow::Result<()> {
 
         let ports = Scanner::new(ip.into()).run().await?;
         printlog!("Open ports: {:?}", ports);
+        continue;
+        if !ports.is_empty() {
+            continue;
+        }
         let script = Script::new(ip.into(), ports);
         let result = script.run();
         if let Ok(result) = result {
