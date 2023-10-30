@@ -1,27 +1,27 @@
 use dotenvy::dotenv;
+use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner};
 use service::models::scan_batch_service;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
-    let open_scan = scan_batch_service::Query::next_scan_batch().await?;
+    let scan = scan_batch_service::Query::next_scan_batch().await?;
 
-    printlog!("Open scan: {:?}", open_scan);
+    printlog!("Open scan: {:?}", scan);
 
-    // let cursor = "0.0.0.0"; // Start from this IP
-    // let mut ip_iter = Ipv4Iter::new(cursor);
+    let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
+    while let Some(ip) = ip_iter.next() {
+        printlog!("Scanning IP: {}", ip);
 
-    // printlog!("Starting scan...");
-
-    // while let Some(ip) = ip_iter.next() {
-    //     println!("{}", ip);
-    // }
+        let res = Scanner::new(ip.into()).run().await?;
+        println!("Result: {:?}", res);
+        // let res = scan(ip.to_string().as_str()).await?;
+        // println!("Result: {:?}", res);
+    }
 
     // printlog!("Scan complete");
 
-    // let res = scan("45.33.32.156").await?;
-    // println!("Result: {:?}", res);
     Ok(())
 }
 

@@ -19,8 +19,8 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(ScanBatch::Ip).string().not_null())
-                    .col(ColumnDef::new(ScanBatch::Cursor).integer().not_null())
-                    .col(ColumnDef::new(ScanBatch::Size).integer().not_null())
+                    .col(ColumnDef::new(ScanBatch::Cursor).unsigned().not_null())
+                    .col(ColumnDef::new(ScanBatch::BatchSize).unsigned().not_null())
                     .col(
                         ColumnDef::new(ScanBatch::Start)
                             .timestamp_with_time_zone()
@@ -56,7 +56,7 @@ enum ScanBatch {
     Id,
     Ip,
     Cursor,
-    Size,
+    BatchSize,
     Start,
     End,
     CreatedAt,
