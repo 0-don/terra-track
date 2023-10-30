@@ -1,4 +1,4 @@
-use crate::db::get_db_connection;
+use crate::{db::get_db_connection, utils::convert_i32_to_ipv4_string};
 use ::entity::scan_batch;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set, TryIntoModel,
@@ -6,6 +6,8 @@ use sea_orm::{
 
 pub struct Mutation;
 pub struct Query;
+
+const BATCH_SIZE: i32 = 10;
 
 impl Mutation {
     pub async fn create_scan_batch(
@@ -18,12 +20,11 @@ impl Mutation {
     }
 
     pub async fn update_scan_batch(
-        id: i32,
-        model: scan_batch::Model,
+        model: scan_batch::ActiveModel,
     ) -> anyhow::Result<scan_batch::Model> {
         let db = get_db_connection().await?;
         let model = scan_batch::ActiveModel {
-            id: Set(id),
+            id: model.id.clone(),
             ..model.into()
         }
         .save(&db)
@@ -68,23 +69,54 @@ impl Query {
         let db = get_db_connection().await?;
         let models = scan_batch::Entity::find()
             .filter(scan_batch::Column::End.is_null())
+            .order_by_asc(scan_batch::Column::UpdatedAt)
             .all(&db)
             .await?;
 
         Ok(models)
     }
 
-    pub async fn next_scan_batch() -> anyhow::Result<bool> {
-        let db = get_db_connection().await?;
+    pub async fn next_scan_batch() -> anyhow::Result<scan_batch::Model> {
         let scans = Self::find_open_scan_batch().await?;
 
+        #[allow(unused_assignments)]
+        let mut scan: Option<scan_batch::Model> = None;
         if scans.len() == 0 {
-            let last_scan = Self::find_last_scan_batch().await?;
-            if last_scan.is_none() {
-                
+            scan = Self::find_last_scan_batch().await?;
+            if scan.is_none() {
+                scan = Some(
+                    Mutation::create_scan_batch(scan_batch::ActiveModel {
+                        ip: Set("0.0.0.0".to_string()),
+                        cursor: Set(0),
+                        size: Set(BATCH_SIZE),
+                        ..Default::default()
+                    })
+                    .await?,
+                );
+            } else {
+                let new_cursor = scan.as_ref().unwrap().cursor + scan.as_ref().unwrap().size;
+                scan = Some(
+                    Mutation::create_scan_batch(scan_batch::ActiveModel {
+                        ip: Set(convert_i32_to_ipv4_string(new_cursor)),
+                        cursor: Set(new_cursor),
+                        size: Set(BATCH_SIZE),
+                        ..Default::default()
+                    })
+                    .await?,
+                );
             }
+        } else {
+            scan = Some(scans[0].clone());
+            Mutation::update_scan_batch(scan_batch::ActiveModel {
+                id: Set(scan.as_ref().unwrap().id),
+                updated_at: Set(Some(
+                    chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap()),
+                )),
+                ..Default::default()
+            })
+            .await?;
         }
 
-        Ok(true)
+        Ok(scan.unwrap())
     }
 }

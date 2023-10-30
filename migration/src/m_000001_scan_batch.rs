@@ -31,6 +31,16 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
+                    .col(
+                        ColumnDef::new(ScanBatch::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .col(
+                        ColumnDef::new(ScanBatch::UpdatedAt)
+                            .timestamp_with_time_zone()
+                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
                     .to_owned(),
             )
             .await
@@ -52,4 +62,6 @@ enum ScanBatch {
     Size,
     Start,
     End,
+    CreatedAt,
+    UpdatedAt,
 }

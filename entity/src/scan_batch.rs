@@ -20,6 +20,8 @@ pub struct Model {
     pub size: i32,
     pub start: DateTimeWithTimeZone,
     pub end: Option<DateTimeWithTimeZone>,
+    pub created_at: Option<DateTimeWithTimeZone>,
+    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -30,6 +32,8 @@ pub enum Column {
     Size,
     Start,
     End,
+    CreatedAt,
+    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -57,6 +61,8 @@ impl ColumnTrait for Column {
             Self::Size => ColumnType::Integer.def(),
             Self::Start => ColumnType::TimestampWithTimeZone.def(),
             Self::End => ColumnType::TimestampWithTimeZone.def().null(),
+            Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
+            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }
