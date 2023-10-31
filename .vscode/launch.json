@@ -7,15 +7,15 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'terra-track'",
+      "name": "Debug executable 'terra_track'",
       "cargo": {
         "args": [
           "build",
-          "--bin=terra-track",
-          "--package=terra-track"
+          "--bin=terra_track",
+          "--package=terra_track"
         ],
         "filter": {
-          "name": "terra-track",
+          "name": "terra_track",
           "kind": "bin"
         }
       },
@@ -25,17 +25,130 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'terra-track'",
+      "name": "Debug unit tests in executable 'terra_track'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=terra-track",
-          "--package=terra-track"
+          "--bin=terra_track",
+          "--package=terra_track"
         ],
         "filter": {
-          "name": "terra-track",
+          "name": "terra_track",
           "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'entity'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=entity"
+        ],
+        "filter": {
+          "name": "entity",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'migration'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=migration"
+        ],
+        "filter": {
+          "name": "migration",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'migration'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=migration",
+          "--package=migration"
+        ],
+        "filter": {
+          "name": "migration",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'migration'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=migration",
+          "--package=migration"
+        ],
+        "filter": {
+          "name": "migration",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'scanner'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=scanner"
+        ],
+        "filter": {
+          "name": "scanner",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'service'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=service"
+        ],
+        "filter": {
+          "name": "service",
+          "kind": "lib"
         }
       },
       "args": [],

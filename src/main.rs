@@ -15,7 +15,8 @@ async fn main() -> anyhow::Result<()> {
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
 
-        let ports = Scanner::new(ip.into()).run().await?;
+        // let ports = Scanner::new(ip.into()).run().await?;
+        let ports = vec![80];
         printlog!("Open ports: {:?}", ports);
         let script = Script::new(ip.into(), ports);
         let result = script.run();

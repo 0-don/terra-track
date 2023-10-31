@@ -11,7 +11,7 @@ pub struct NmapXML {
     scaninfo: ScanInfo,
     verbose: Verbose,
     debugging: Debugging,
-    tasks: Vec<Task>,
+    tasks: Option<Vec<Task>>,
     host: Vec<Host>,
     runstats: RunStats,
 }
@@ -67,7 +67,7 @@ struct Address {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Hostnames {
-    hostname: Vec<Hostname>,
+    hostname: Option<Vec<Hostname>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -88,7 +88,7 @@ struct Port {
     portid: String,
     state: State,
     service: Service,
-    cpe: Vec<String>, // Added this
+    cpe: Option<Vec<String>>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
