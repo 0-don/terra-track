@@ -15,9 +15,10 @@ async fn main() -> anyhow::Result<()> {
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
 
-        // let ports = Scanner::new(ip.into()).run().await?;
-        let ports = vec![80];
+        let ports = Scanner::new(ip.into()).run().await?;
         printlog!("Open ports: {:?}", ports);
+        // let script = Script::new(ip.into(), vec![]);
+        // let result = script.parse_nmap_xml();
         let script = Script::new(ip.into(), ports);
         let result = script.run();
         if let Ok(result) = result {

@@ -86,7 +86,7 @@ impl Script {
         }
     }
 
-    fn parse_nmap_xml(&self) -> anyhow::Result<NmapXML> {
+    pub fn parse_nmap_xml(&self) -> anyhow::Result<NmapXML> {
         self.create_directory();
         let mut file = File::open(self.xml.clone())?;
         let mut contents = String::new();
