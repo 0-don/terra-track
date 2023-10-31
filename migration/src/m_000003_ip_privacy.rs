@@ -21,13 +21,24 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpPrivacy::IpMainId).integer())
-                    .col(ColumnDef::new(IpPrivacy::IsTor).boolean())
-                    .col(ColumnDef::new(IpPrivacy::IsProxy).boolean())
-                    .col(ColumnDef::new(IpPrivacy::IsVpn).boolean())
-                    .col(ColumnDef::new(IpPrivacy::IsAbuser).boolean())
-                    .col(ColumnDef::new(IpPrivacy::IsRelay).boolean())
-                    .col(ColumnDef::new(IpPrivacy::IsHosting).boolean())
+                    .col(ColumnDef::new(IpPrivacy::IsTor).boolean().default(false))
+                    .col(ColumnDef::new(IpPrivacy::IsProxy).boolean().default(false))
+                    .col(ColumnDef::new(IpPrivacy::IsVpn).boolean().default(false))
+                    .col(ColumnDef::new(IpPrivacy::IsAbuser).boolean().default(false))
+                    .col(ColumnDef::new(IpPrivacy::IsRelay).boolean().default(false))
+                    .col(
+                        ColumnDef::new(IpPrivacy::IsHosting)
+                            .boolean()
+                            .default(false),
+                    )
                     .col(ColumnDef::new(IpPrivacy::Service).text())
+                    .col(ColumnDef::new(IpPrivacy::IsBogon).boolean().default(false))
+                    .col(ColumnDef::new(IpPrivacy::IsMobile).boolean().default(false))
+                    .col(
+                        ColumnDef::new(IpPrivacy::IsDatacenter)
+                            .boolean()
+                            .default(false),
+                    )
                     .col(
                         ColumnDef::new(IpPrivacy::CreatedAt)
                             .timestamp_with_time_zone()
@@ -69,6 +80,9 @@ enum IpPrivacy {
     IsAbuser,
     IsRelay,
     IsHosting,
+    IsBogon,
+    IsMobile,
+    IsDatacenter,
     Service,
     CreatedAt,
     UpdatedAt,

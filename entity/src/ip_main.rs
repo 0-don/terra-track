@@ -16,9 +16,6 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: i32,
     pub ip_address: String,
-    pub is_bogon: Option<bool>,
-    pub is_mobile: Option<bool>,
-    pub is_datacenter: Option<bool>,
     pub created_at: Option<DateTimeWithTimeZone>,
     pub updated_at: Option<DateTimeWithTimeZone>,
 }
@@ -27,9 +24,6 @@ pub struct Model {
 pub enum Column {
     Id,
     IpAddress,
-    IsBogon,
-    IsMobile,
-    IsDatacenter,
     CreatedAt,
     UpdatedAt,
 }
@@ -67,9 +61,6 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::Integer.def(),
             Self::IpAddress => ColumnType::Text.def().unique(),
-            Self::IsBogon => ColumnType::Boolean.def().null(),
-            Self::IsMobile => ColumnType::Boolean.def().null(),
-            Self::IsDatacenter => ColumnType::Boolean.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
             Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }

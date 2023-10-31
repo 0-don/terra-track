@@ -24,9 +24,6 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .unique_key(),
                     )
-                    .col(ColumnDef::new(IpMain::IsBogon).boolean())
-                    .col(ColumnDef::new(IpMain::IsMobile).boolean())
-                    .col(ColumnDef::new(IpMain::IsDatacenter).boolean())
                     .col(
                         ColumnDef::new(IpMain::CreatedAt)
                             .timestamp_with_time_zone()
@@ -54,9 +51,6 @@ pub(crate) enum IpMain {
     Table,
     Id,
     IpAddress,
-    IsBogon,
-    IsMobile,
-    IsDatacenter,
     CreatedAt,
     UpdatedAt,
 }

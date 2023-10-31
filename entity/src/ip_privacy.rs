@@ -23,6 +23,9 @@ pub struct Model {
     pub is_relay: Option<bool>,
     pub is_hosting: Option<bool>,
     pub service: Option<String>,
+    pub is_bogon: Option<bool>,
+    pub is_mobile: Option<bool>,
+    pub is_datacenter: Option<bool>,
     pub created_at: Option<DateTimeWithTimeZone>,
     pub updated_at: Option<DateTimeWithTimeZone>,
 }
@@ -38,6 +41,9 @@ pub enum Column {
     IsRelay,
     IsHosting,
     Service,
+    IsBogon,
+    IsMobile,
+    IsDatacenter,
     CreatedAt,
     UpdatedAt,
 }
@@ -72,6 +78,9 @@ impl ColumnTrait for Column {
             Self::IsRelay => ColumnType::Boolean.def().null(),
             Self::IsHosting => ColumnType::Boolean.def().null(),
             Self::Service => ColumnType::Text.def().null(),
+            Self::IsBogon => ColumnType::Boolean.def().null(),
+            Self::IsMobile => ColumnType::Boolean.def().null(),
+            Self::IsDatacenter => ColumnType::Boolean.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
             Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
