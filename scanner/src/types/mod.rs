@@ -2,152 +2,152 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct NmapXML {
-    scanner: String,
-    args: String,
-    start: String,
-    startstr: String,
-    version: String,
-    xmloutputversion: String,
-    scaninfo: ScanInfo,
-    verbose: Verbose,
-    debugging: Debugging,
-    tasks: Option<Vec<Task>>,
-    host: Vec<Host>,
-    runstats: RunStats,
+    pub scanner: String,
+    pub args: String,
+    pub start: String,
+    pub startstr: String,
+    pub version: String,
+    pub xmloutputversion: String,
+    pub scaninfo: ScanInfo,
+    pub verbose: Verbose,
+    pub debugging: Debugging,
+    pub tasks: Option<Vec<Task>>,
+    pub host: Vec<Host>,
+    pub runstats: RunStats,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct ScanInfo {
+pub struct ScanInfo {
     #[serde(rename = "type")]
-    scan_type: String,
-    protocol: String,
-    numservices: String,
-    services: String,
+    pub scan_type: String,
+    pub protocol: String,
+    pub numservices: String,
+    pub services: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Verbose {
-    level: String,
+pub struct Verbose {
+    pub level: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Debugging {
-    level: String,
+pub struct Debugging {
+    pub level: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Task {
-    task: String,
-    time: String,
+pub struct Task {
+    pub task: String,
+    pub time: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Host {
-    starttime: String,
-    endtime: String,
-    status: Status,
-    address: Vec<Address>,
-    hostnames: Option<Hostnames>,
-    ports: Ports,
-    times: Times,
+pub struct Host {
+    pub starttime: String,
+    pub endtime: String,
+    pub status: Status,
+    pub address: Vec<Address>,
+    pub hostnames: Option<Hostnames>,
+    pub ports: Ports,
+    pub times: Times,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Status {
-    state: String,
-    reason: String,
-    reason_ttl: String,
+pub struct Status {
+    pub state: String,
+    pub reason: String,
+    pub reason_ttl: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Address {
-    addr: String,
-    addrtype: String,
+pub struct Address {
+    pub addr: String,
+    pub addrtype: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Hostnames {
-    hostname: Option<Vec<Hostname>>,
+pub struct Hostnames {
+    pub hostname: Option<Vec<Hostname>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Hostname {
-    name: String,
+pub struct Hostname {
+    pub name: String,
     #[serde(rename = "type")]
-    hostname_type: String,
+    pub hostname_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Ports {
-    port: Vec<Port>,
+pub struct Ports {
+    pub port: Vec<Port>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Port {
-    protocol: String,
-    portid: String,
-    state: State,
-    service: Service,
-    cpe: Option<Vec<String>>, // Added this
+pub struct Port {
+    pub protocol: String,
+    pub portid: String,
+    pub state: State,
+    pub service: Service,
+    pub cpe: Option<Vec<String>>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct State {
-    state: String,
-    reason: String,
-    reason_ttl: String,
+pub struct State {
+    pub state: String,
+    pub reason: String,
+    pub reason_ttl: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Service {
-    name: String,
-    product: Option<String>,
-    version: Option<String>,
-    extrainfo: Option<String>,
-    ostype: Option<String>,
-    method: String,
-    conf: String,
-    script: Option<Script>, // Added this
+pub struct Service {
+    pub name: String,
+    pub product: Option<String>,
+    pub version: Option<String>,
+    pub extrainfo: Option<String>,
+    pub ostype: Option<String>,
+    pub method: String,
+    pub conf: String,
+    pub script: Option<Script>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Times {
-    srtt: String,
-    rttvar: String,
-    to: String,
+pub struct Times {
+    pub srtt: String,
+    pub rttvar: String,
+    pub to: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct RunStats {
-    finished: Finished,
-    hosts: Hosts,
+pub struct RunStats {
+    pub finished: Finished,
+    pub hosts: Hosts,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Finished {
-    time: String,
-    timestr: String,
-    elapsed: String,
-    summary: String,
-    exit: String,
+pub struct Finished {
+    pub time: String,
+    pub timestr: String,
+    pub elapsed: String,
+    pub summary: String,
+    pub exit: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Hosts {
-    up: String,
-    down: String,
-    total: String,
+pub struct Hosts {
+    pub up: String,
+    pub down: String,
+    pub total: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Script {
-    id: String,
-    output: String,
-    elem: Vec<Elem>, // Added this
+pub struct Script {
+    pub id: String,
+    pub output: String,
+    pub elem: Vec<Elem>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Elem {
-    key: String,
-    value: String,
+pub struct Elem {
+    pub key: String,
+    pub value: String,
 }
