@@ -102,6 +102,7 @@ pub struct State {
 pub struct Service {
     pub name: String,
     pub product: Option<String>,
+    pub servicefp: Option<String>,
     pub version: Option<String>,
     pub extrainfo: Option<String>,
     pub ostype: Option<String>,
