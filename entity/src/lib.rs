@@ -3,21 +3,16 @@
 pub mod prelude;
 
 pub mod ip_abuse_contact;
-pub mod ip_address;
 pub mod ip_connection;
 pub mod ip_contact_details;
 pub mod ip_flag;
 pub mod ip_hosting_details;
 pub mod ip_location;
 pub mod ip_main;
-pub mod ip_metadata;
 pub mod ip_network_details;
 pub mod ip_organization;
-pub mod ip_port;
-pub mod ip_port_state;
 pub mod ip_privacy;
 pub mod ip_security_flags;
 pub mod ip_service;
-pub mod ip_stats;
-pub mod ip_times;
 pub mod scan_batch;
+pub mod sea_orm_active_enums;

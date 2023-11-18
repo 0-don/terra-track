@@ -48,11 +48,11 @@ pub enum Relation {
     IpFlag,
     IpHostingDetails,
     IpLocation,
-    IpMetadata,
     IpNetworkDetails,
     IpOrganization,
     IpPrivacy,
     IpSecurityFlags,
+    IpService,
 }
 
 impl ColumnTrait for Column {
@@ -76,11 +76,11 @@ impl RelationTrait for Relation {
             Self::IpFlag => Entity::has_many(super::ip_flag::Entity).into(),
             Self::IpHostingDetails => Entity::has_many(super::ip_hosting_details::Entity).into(),
             Self::IpLocation => Entity::has_many(super::ip_location::Entity).into(),
-            Self::IpMetadata => Entity::has_many(super::ip_metadata::Entity).into(),
             Self::IpNetworkDetails => Entity::has_many(super::ip_network_details::Entity).into(),
             Self::IpOrganization => Entity::has_many(super::ip_organization::Entity).into(),
             Self::IpPrivacy => Entity::has_many(super::ip_privacy::Entity).into(),
             Self::IpSecurityFlags => Entity::has_many(super::ip_security_flags::Entity).into(),
+            Self::IpService => Entity::has_many(super::ip_service::Entity).into(),
         }
     }
 }
@@ -121,12 +121,6 @@ impl Related<super::ip_location::Entity> for Entity {
     }
 }
 
-impl Related<super::ip_metadata::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IpMetadata.def()
-    }
-}
-
 impl Related<super::ip_network_details::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IpNetworkDetails.def()
@@ -148,6 +142,12 @@ impl Related<super::ip_privacy::Entity> for Entity {
 impl Related<super::ip_security_flags::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IpSecurityFlags.def()
+    }
+}
+
+impl Related<super::ip_service::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IpService.def()
     }
 }
 

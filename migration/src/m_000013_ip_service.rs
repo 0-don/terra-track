@@ -1,4 +1,8 @@
-use sea_orm_migration::{prelude::*, sea_orm::{EnumIter, DeriveActiveEnum}};
+use sea_orm_migration::{
+    prelude::*,
+    sea_orm::{EnumIter, Iterable},
+    sea_query::extension::postgres::Type,
+};
 use sea_query::{Keyword, SimpleExpr};
 
 use crate::m_000002_ip_main::IpMain;
@@ -6,18 +10,37 @@ use crate::m_000002_ip_main::IpMain;
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
-#[derive(EnumIter, DeriveActiveEnum)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "ProtocolEnum")]
-pub enum ProtocolEnum {
-    #[sea_orm(string_value = "TCP")]
+// #[derive(EnumIter, DeriveActiveEnum, Iden)]
+// #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "Protocol")]
+// pub enum Protocol {
+//     #[sea_orm(string_value = "TCP")]
+//     TCP,
+//     #[sea_orm(string_value = "UDP")]
+//     UDP,
+// }
+
+#[derive(Iden, EnumIter)]
+pub enum Protocol {
+    Table,
+    #[iden = "TCP"]
     TCP,
-    #[sea_orm(string_value = "UDP")]
+    #[iden = "UPD"]
     UDP,
 }
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager
+            .create_type(
+                Type::create()
+                    .as_enum(Protocol::Table)
+                    .values(Protocol::iter().skip(1))
+                    .to_owned(),
+            )
+            .await?;
+
+        
         manager
             .create_table(
                 Table::create()
@@ -31,6 +54,10 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpService::IpMainId).big_integer())
+                    .col(
+                        ColumnDef::new(IpService::Protocol)
+                            .enumeration(Protocol::Table, Protocol::iter().skip(1)),
+                    )
                     .col(ColumnDef::new(IpService::Port).small_integer())
                     .col(ColumnDef::new(IpService::Name).text())
                     .col(ColumnDef::new(IpService::Product).text())
@@ -51,7 +78,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk_ip_hosting_details_ip_main")
+                            .name("fk_ip_service_ip_main")
                             .from(IpService::Table, IpService::IpMainId)
                             .to(IpMain::Table, IpMain::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -74,6 +101,7 @@ pub enum IpService {
     Table,
     Id,
     IpMainId,
+    Protocol,
     Port,
     Name,
     Product,
