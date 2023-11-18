@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpContactDetails::IpMainId).integer())
+                    .col(ColumnDef::new(IpContactDetails::IpMainId).big_integer())
                     .col(ColumnDef::new(IpContactDetails::ContactName).text())
                     .col(ColumnDef::new(IpContactDetails::ContactAddress).text())
                     .col(ColumnDef::new(IpContactDetails::Phone).text())

@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpAbuseContact::IpMainId).integer())
+                    .col(ColumnDef::new(IpAbuseContact::IpMainId).big_integer())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_abuse_contact_ip_main")

@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpFlag::IpMainId).integer())
+                    .col(ColumnDef::new(IpFlag::IpMainId).big_integer())
                     .col(ColumnDef::new(IpFlag::Img).text())
                     .col(ColumnDef::new(IpFlag::Emoji).text())
                     .col(ColumnDef::new(IpFlag::EmojiUnicode).text())

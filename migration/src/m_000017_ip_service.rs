@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpService::IpPortId).integer())
+                    .col(ColumnDef::new(IpService::IpPortId).big_integer())
                     .col(ColumnDef::new(IpService::Name).text())
                     .col(ColumnDef::new(IpService::Product).text())
                     .col(ColumnDef::new(IpService::Version).text())

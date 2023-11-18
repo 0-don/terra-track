@@ -14,8 +14,8 @@ impl EntityName for Entity {
 
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
 pub struct Model {
-    pub id: i32,
-    pub ip_port_id: Option<i32>,
+    pub id: i64,
+    pub ip_port_id: Option<i64>,
     pub state: Option<String>,
     pub reason: Option<String>,
     pub reason_ttl: Option<String>,
@@ -40,7 +40,7 @@ pub enum PrimaryKey {
 }
 
 impl PrimaryKeyTrait for PrimaryKey {
-    type ValueType = i32;
+    type ValueType = i64;
     fn auto_increment() -> bool {
         true
     }
@@ -55,8 +55,8 @@ impl ColumnTrait for Column {
     type EntityName = Entity;
     fn def(&self) -> ColumnDef {
         match self {
-            Self::Id => ColumnType::Integer.def(),
-            Self::IpPortId => ColumnType::Integer.def().null(),
+            Self::Id => ColumnType::BigInteger.def(),
+            Self::IpPortId => ColumnType::BigInteger.def().null(),
             Self::State => ColumnType::Text.def().null(),
             Self::Reason => ColumnType::Text.def().null(),
             Self::ReasonTtl => ColumnType::Text.def().null(),

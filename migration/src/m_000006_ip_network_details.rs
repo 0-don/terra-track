@@ -19,9 +19,9 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpNetworkDetails::IpMainId).integer())
+                    .col(ColumnDef::new(IpNetworkDetails::IpMainId).big_integer())
                     .col(ColumnDef::new(IpNetworkDetails::PtrRecord).text())
-                    .col(ColumnDef::new(IpNetworkDetails::AsnNumber).integer())
+                    .col(ColumnDef::new(IpNetworkDetails::AsnNumber).big_integer())
                     .col(ColumnDef::new(IpNetworkDetails::AsnName).text())
                     .col(ColumnDef::new(IpNetworkDetails::IpRange).text())
                     .col(

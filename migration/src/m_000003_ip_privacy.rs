@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpPrivacy::IpMainId).integer())
+                    .col(ColumnDef::new(IpPrivacy::IpMainId).big_integer())
                     .col(ColumnDef::new(IpPrivacy::IsTor).boolean().default(false))
                     .col(ColumnDef::new(IpPrivacy::IsProxy).boolean().default(false))
                     .col(ColumnDef::new(IpPrivacy::IsVpn).boolean().default(false))

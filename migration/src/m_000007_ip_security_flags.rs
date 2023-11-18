@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpSecurityFlags::IpMainId).integer())
+                    .col(ColumnDef::new(IpSecurityFlags::IpMainId).big_integer())
                     .col(ColumnDef::new(IpSecurityFlags::SpamDatabase).text())
                     .col(ColumnDef::new(IpSecurityFlags::AdultHosting).boolean())
                     .col(ColumnDef::new(IpSecurityFlags::Hackers).boolean())

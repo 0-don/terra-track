@@ -14,10 +14,10 @@ impl EntityName for Entity {
 
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
 pub struct Model {
-    pub id: i32,
-    pub ip_main_id: Option<i32>,
+    pub id: i64,
+    pub ip_main_id: Option<i64>,
     pub ptr_record: Option<String>,
-    pub asn_number: Option<i32>,
+    pub asn_number: Option<i64>,
     pub asn_name: Option<String>,
     pub ip_range: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
@@ -42,7 +42,7 @@ pub enum PrimaryKey {
 }
 
 impl PrimaryKeyTrait for PrimaryKey {
-    type ValueType = i32;
+    type ValueType = i64;
     fn auto_increment() -> bool {
         true
     }
@@ -57,10 +57,10 @@ impl ColumnTrait for Column {
     type EntityName = Entity;
     fn def(&self) -> ColumnDef {
         match self {
-            Self::Id => ColumnType::Integer.def(),
-            Self::IpMainId => ColumnType::Integer.def().null(),
+            Self::Id => ColumnType::BigInteger.def(),
+            Self::IpMainId => ColumnType::BigInteger.def().null(),
             Self::PtrRecord => ColumnType::Text.def().null(),
-            Self::AsnNumber => ColumnType::Integer.def().null(),
+            Self::AsnNumber => ColumnType::BigInteger.def().null(),
             Self::AsnName => ColumnType::Text.def().null(),
             Self::IpRange => ColumnType::Text.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),

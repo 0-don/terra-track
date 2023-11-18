@@ -19,8 +19,8 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpOrganization::IpMainId).integer())
-                    .col(ColumnDef::new(IpOrganization::Asn).integer())
+                    .col(ColumnDef::new(IpOrganization::IpMainId).big_integer())
+                    .col(ColumnDef::new(IpOrganization::Asn).big_integer())
                     .col(ColumnDef::new(IpOrganization::Domain).text())
                     .col(ColumnDef::new(IpOrganization::OrgName).text())
                     .col(ColumnDef::new(IpOrganization::Network).text())

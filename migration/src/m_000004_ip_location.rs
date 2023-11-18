@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpLocation::IpMainId).integer())
+                    .col(ColumnDef::new(IpLocation::IpMainId).big_integer())
                     .col(ColumnDef::new(IpLocation::Continent).text())
                     .col(ColumnDef::new(IpLocation::Country).text())
                     .col(ColumnDef::new(IpLocation::CountryCode).text())

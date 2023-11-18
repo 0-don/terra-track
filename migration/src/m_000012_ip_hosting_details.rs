@@ -19,10 +19,10 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpHostingDetails::IpMainId).integer())
-                    .col(ColumnDef::new(IpHostingDetails::NumDomains).integer())
-                    .col(ColumnDef::new(IpHostingDetails::NumMailServers).integer())
-                    .col(ColumnDef::new(IpHostingDetails::NumNameServers).integer())
+                    .col(ColumnDef::new(IpHostingDetails::IpMainId).big_integer())
+                    .col(ColumnDef::new(IpHostingDetails::NumDomains).big_integer())
+                    .col(ColumnDef::new(IpHostingDetails::NumMailServers).big_integer())
+                    .col(ColumnDef::new(IpHostingDetails::NumNameServers).big_integer())
                     .col(
                         ColumnDef::new(IpHostingDetails::CreatedAt)
                             .timestamp_with_time_zone()

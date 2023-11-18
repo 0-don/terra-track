@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpAddress::IpMetadataId).integer())
+                    .col(ColumnDef::new(IpAddress::IpMetadataId).big_integer())
                     .col(ColumnDef::new(IpAddress::Addr).text())
                     .col(ColumnDef::new(IpAddress::AddrType).text())
                     .col(
