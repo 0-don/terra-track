@@ -1,6 +1,6 @@
 use crate::db::get_db_connection;
 use ::entity::ip_main;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel, QueryFilter, ColumnTrait};
 
 pub struct Mutation;
 pub struct Query;
@@ -45,6 +45,16 @@ impl Query {
     pub async fn find_ip_main_by_id(id: i32) -> anyhow::Result<Option<ip_main::Model>> {
         let db = get_db_connection().await?;
         let model = ip_main::Entity::find_by_id(id).one(&db).await?;
+
+        Ok(model)
+    }
+
+    pub async fn find_ip_main_by_ip(ip: &String) -> anyhow::Result<Option<ip_main::Model>> {
+        let db = get_db_connection().await?;
+        let model = ip_main::Entity::find()
+            .filter(ip_main::Column::IpAddress.contains(ip))
+            .one(&db)
+            .await?;
 
         Ok(model)
     }
