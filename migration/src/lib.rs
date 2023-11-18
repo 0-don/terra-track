@@ -12,13 +12,7 @@ mod m_000009_ip_contact_details;
 mod m_000010_ip_abuse_contact;
 mod m_000011_ip_flag;
 mod m_000012_ip_hosting_details;
-mod m_000013_ip_metadata;
-mod m_000014_ip_address;
-mod m_000015_ip_port;
-mod m_000016_ip_port_state;
-mod m_000017_ip_service;
-mod m_000018_ip_stats;
-mod m_000019_ip_times;
+mod m_000013_ip_service;
 
 pub struct Migrator;
 
@@ -38,13 +32,7 @@ impl MigratorTrait for Migrator {
             Box::new(m_000010_ip_abuse_contact::Migration),
             Box::new(m_000011_ip_flag::Migration),
             Box::new(m_000012_ip_hosting_details::Migration),
-            Box::new(m_000013_ip_metadata::Migration),
-            Box::new(m_000014_ip_address::Migration),
-            Box::new(m_000015_ip_port::Migration),
-            Box::new(m_000016_ip_port_state::Migration),
-            Box::new(m_000017_ip_service::Migration),
-            Box::new(m_000018_ip_stats::Migration),
-            Box::new(m_000019_ip_times::Migration),
+            Box::new(m_000013_ip_service::Migration),
         ]
     }
 }
