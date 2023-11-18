@@ -15,7 +15,7 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn update_ip_main(id: i32, model: ip_main::Model) -> anyhow::Result<ip_main::Model> {
+    pub async fn update_ip_main(id: i64, model: ip_main::Model) -> anyhow::Result<ip_main::Model> {
         let db = get_db_connection().await?;
         let model = ip_main::ActiveModel {
             id: Set(id),
@@ -28,7 +28,7 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn delete_ip_main(id: i32) -> anyhow::Result<bool> {
+    pub async fn delete_ip_main(id: i64) -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
         ip_main::ActiveModel {
             id: Set(id),
@@ -42,7 +42,7 @@ impl Mutation {
 }
 
 impl Query {
-    pub async fn find_ip_main_by_id(id: i32) -> anyhow::Result<Option<ip_main::Model>> {
+    pub async fn find_ip_main_by_id(id: i64) -> anyhow::Result<Option<ip_main::Model>> {
         let db = get_db_connection().await?;
         let model = ip_main::Entity::find_by_id(id).one(&db).await?;
 

@@ -38,7 +38,7 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn delete_scan_batch(id: i32) -> anyhow::Result<bool> {
+    pub async fn delete_scan_batch(id: i64) -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
         scan_batch::ActiveModel {
             id: Set(id),
@@ -52,7 +52,7 @@ impl Mutation {
 }
 
 impl Query {
-    pub async fn find_scan_batch_by_id(id: i32) -> anyhow::Result<Option<scan_batch::Model>> {
+    pub async fn find_scan_batch_by_id(id: i64) -> anyhow::Result<Option<scan_batch::Model>> {
         let db = get_db_connection().await?;
         let model = scan_batch::Entity::find_by_id(id).one(&db).await?;
 
