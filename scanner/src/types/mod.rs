@@ -89,6 +89,20 @@ pub struct Port {
     pub state: State,
     pub service: Service,
     pub cpe: Option<Vec<String>>, // Added this
+    pub script: Option<Script>,   // Added this
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct Script {
+    pub id: String,
+    pub output: String,
+    pub elem: Vec<Elem>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct Elem {
+    pub key: String,
+    pub value: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -138,17 +152,4 @@ pub struct Hosts {
     pub up: String,
     pub down: String,
     pub total: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub struct Script {
-    pub id: String,
-    pub output: String,
-    pub elem: Vec<Elem>, // Added this
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub struct Elem {
-    pub key: String,
-    pub value: String,
 }

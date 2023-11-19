@@ -30,11 +30,13 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
         let days_ago_30 = chrono::Utc::now()
             .with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
             - Duration::days(30);
-        let ip_service = ip_service_service::Query::find_ip_service_by_port_older_then(
-            port.portid.parse::<i16>().unwrap(),
-            Some(days_ago_30),
-        )
-        .await?;
+        let ip_service =
+            ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
+                port.portid.parse::<i16>().unwrap(),
+                ip_main.as_ref().unwrap().id,
+                Some(days_ago_30),
+            )
+            .await?;
 
         let (os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
         println!("OS Type: {:?}, CPU Arch: {:?}", os_type, cpu_arch);
