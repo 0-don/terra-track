@@ -89,19 +89,19 @@ pub struct Port {
     pub state: State,
     pub service: Service,
     pub cpe: Option<Vec<String>>, // Added this
-    pub script: Option<Script>,   // Added this
+    pub script: Option<Vec<Script>>,   // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Script {
     pub id: String,
     pub output: String,
-    pub elem: Vec<Elem>,
+    pub elem: Option<Vec<Elem>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Elem {
-    pub key: String,
+    pub key: Option<String>,
     pub value: Option<String>,
 }
 
@@ -122,7 +122,7 @@ pub struct Service {
     pub ostype: Option<String>,
     pub method: String,
     pub conf: String,
-    pub script: Option<Script>, // Added this
+    // pub script: Option<Script>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
