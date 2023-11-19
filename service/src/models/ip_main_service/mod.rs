@@ -75,7 +75,7 @@ impl Query {
         let model = ip_main::Entity::find()
             .filter(ip_main::Column::IpAddress.eq(ip))
             .apply_if(date, |query, date| {
-                query.filter(ip_main::Column::CreatedAt.lt(date))
+                query.filter(ip_main::Column::CreatedAt.gt(date))
             })
             .one(&db)
             .await?;

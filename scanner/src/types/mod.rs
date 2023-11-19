@@ -88,21 +88,35 @@ pub struct Port {
     pub portid: String,
     pub state: State,
     pub service: Service,
-    pub cpe: Option<Vec<String>>, // Added this
-    pub script: Option<Vec<Script>>,   // Added this
+    pub cpe: Option<Vec<String>>,    // Added this
+    pub script: Option<Vec<Script>>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Script {
     pub id: String,
     pub output: String,
-    pub elem: Option<Vec<Elem>>,
+    #[serde(rename = "elem", default)]
+    pub elems: Vec<Elem>,
+
+    #[serde(rename = "table", default)]
+    pub tables: Vec<Table>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct Table {
+    #[serde(rename = "key")]
+    key: String,
+
+    #[serde(rename = "elem", default)]
+    elems: Vec<Elem>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Elem {
     pub key: Option<String>,
-    pub value: Option<String>,
+    #[serde(rename = "$value")]
+    value: String
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

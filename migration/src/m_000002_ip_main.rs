@@ -34,6 +34,13 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
+                    .index(
+                        Index::create()
+                            .name("idx_ip_main_ip_address")
+                            .table(IpMain::Table)
+                            .col(IpMain::IpAddress)
+                            .unique(),
+                    )
                     .to_owned(),
             )
             .await
