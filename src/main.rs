@@ -1,7 +1,12 @@
+use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
 use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
-use service::{models::scan_batch_service, parser::parse_nmap_results, utils::date};
+use service::{
+    models::{ip_main_service, scan_batch_service},
+    parser::parse_nmap_results,
+    utils::date,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -11,9 +16,14 @@ async fn main() -> anyhow::Result<()> {
 
     printlog!("Open scan: {:?}", scan);
 
+    let year_ago = chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
+        - Duration::days(365);
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
+
+        let ip_main =
+            ip_main_service::Query::find_ip_main_by_ip_older_then(&ip.to_string(), Some(year_ago)).await?;
 
         let ports = Scanner::new(ip.into()).run().await?;
         printlog!("Open ports: {:?}", ports);

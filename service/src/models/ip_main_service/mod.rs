@@ -1,6 +1,9 @@
 use crate::db::get_db_connection;
 use ::entity::ip_main;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
+use sea_orm::{
+    prelude::DateTimeWithTimeZone, ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter,
+    QueryTrait, Set, TryIntoModel,
+};
 
 pub struct Mutation;
 pub struct Query;
@@ -64,10 +67,16 @@ impl Query {
         Ok(model)
     }
 
-    pub async fn find_ip_main_by_ip(ip: &String) -> anyhow::Result<Option<ip_main::Model>> {
+    pub async fn find_ip_main_by_ip_older_then(
+        ip: &String,
+        date: Option<DateTimeWithTimeZone>,
+    ) -> anyhow::Result<Option<ip_main::Model>> {
         let db = get_db_connection().await?;
         let model = ip_main::Entity::find()
-            .filter(ip_main::Column::IpAddress.contains(ip))
+            .filter(ip_main::Column::IpAddress.eq(ip))
+            .apply_if(date, |query, date| {
+                query.filter(ip_main::Column::CreatedAt.lt(date))
+            })
             .one(&db)
             .await?;
 
