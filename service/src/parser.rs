@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use chrono::Duration;
 use entity::ip_main;
+use entity::ip_service;
 use regex::Regex;
 use scanner::types::NmapXML;
 use sea_orm::Set;
@@ -41,18 +42,17 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
         let (os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
         println!("OS Type: {:?}, CPU Arch: {:?}", os_type, cpu_arch);
 
-        // if ip_service.is_none() {
-        //     ip_service = Some(
-        //         ip_service_service::Mutation::create_ip_service(ip_main_service::ActiveModel {
-        //             ip_main_id: Set(ip_main.as_ref().unwrap().id),
-        //             protocol: Set(port.protocol.to_string()),
-        //             port: Set(port.portid),
-        //             name: Set(port.service.name.to_string()),
-        //             ..Default::default()
-        //         })
-        //         .await?,
-        //     );
-        // }
+        if ip_service.is_none() {
+            ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+                ip_main_id: Set(ip_main.as_ref().unwrap().id),
+                port: Set(port.portid.parse::<i16>().unwrap()),
+                name: Set(port.service.name.clone()),
+                cpu_arch: Set(cpu_arch),
+                os_type: Set(os_type),
+                ..Default::default()
+            })
+            .await?;
+        }
     }
 
     // let ip = data.host.
@@ -66,12 +66,15 @@ pub fn parse_os_from_nmap_output(nmap_output: &Option<String>) -> (Option<String
         return (None, None);
     }
     let os_patterns = vec![
-        r"windows\s\d+-x86_64|linux-gnueabihf-armv\d+", // Specific OS versions with architecture
-        r"linux|ubuntu|debian|centos|fedora|windows\s\d+|mac\sos|solaris|bsd|sunos|gnu", // OS Types including distributions
+        // Specific OS versions with architecture
+        r"windows\s(server\s)?(11|10|8\.1|8|7|xp)|windows\s\d+-x86_64|linux-gnueabihf-armv\d+",
+        // Expanded OS Types including distributions and variations
+        r"linux|ubuntu|debian|centos|fedora|red\s?hat|suse|arch\s?linux|manjaro|mint|aix|hp-ux|solaris|bsd|sunos|gnu|vmware|xen|kvm|mac\sos\sx|macos\s(catalina|big\s?sur|monterey|sierra|high\s?sierra|mojave)|android|ios|windows\sphone",
     ];
+
     let cpu_patterns = vec![
-        r"(x86_64|x86|aarch64|armv\d+|mips\d+|sparc|ppc64|s390x)-pc-(linux-gnu|windows-gnu|solaris|bsd)", // Combined OS and Architecture
-        r"x86_64|x86|aarch64|armv\d+|mips\d+|sparc|ppc64|s390x", // CPU Architectures
+        // Expanded CPU Architectures including specific Intel and AMD architectures
+        r"x86_64|x86|i[3579]|ryzen|aarch64|armv\d+|mips\d+|sparc|ppc64|s390x|itanium|alpha|pa-risc|avr|pic|msp430",
     ];
 
     let mut os_counts = HashMap::new();

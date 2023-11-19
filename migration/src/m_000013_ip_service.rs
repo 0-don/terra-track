@@ -10,14 +10,6 @@ use crate::m_000002_ip_main::IpMain;
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
-// #[derive(EnumIter, DeriveActiveEnum, Iden)]
-// #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "Protocol")]
-// pub enum Protocol {
-//     #[sea_orm(string_value = "TCP")]
-//     TCP,
-//     #[sea_orm(string_value = "UDP")]
-//     UDP,
-// }
 
 #[derive(Iden, EnumIter)]
 pub enum Protocol {
@@ -60,13 +52,13 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(IpService::Port).small_integer().not_null())
-                    .col(ColumnDef::new(IpService::Name).string())
-                    
+                    .col(ColumnDef::new(IpService::Name).string().not_null())
                     .col(ColumnDef::new(IpService::Product).string())
                     .col(ColumnDef::new(IpService::ServiceFp).text())
                     .col(ColumnDef::new(IpService::Version).string())
                     .col(ColumnDef::new(IpService::ExtraInfo).string())
                     .col(ColumnDef::new(IpService::OsType).string())
+                    .col(ColumnDef::new(IpService::CpuArch).string())
                     .col(ColumnDef::new(IpService::Method).string())
                     .col(
                         ColumnDef::new(IpService::CreatedAt)
@@ -111,6 +103,7 @@ pub enum IpService {
     Version,
     ExtraInfo,
     OsType,
+    CpuArch,
     Method,
     CreatedAt,
     UpdatedAt,
