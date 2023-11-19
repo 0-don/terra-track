@@ -40,7 +40,6 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        
         manager
             .create_table(
                 Table::create()
@@ -53,19 +52,22 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(IpService::IpMainId).big_integer())
+                    .col(ColumnDef::new(IpService::IpMainId).big_integer().not_null())
                     .col(
                         ColumnDef::new(IpService::Protocol)
-                            .enumeration(Protocol::Table, Protocol::iter().skip(1)),
+                            .enumeration(Protocol::Table, Protocol::iter().skip(1))
+                            .default(SimpleExpr::Value(Protocol::TCP.to_string().into()))
+                            .not_null(),
                     )
-                    .col(ColumnDef::new(IpService::Port).small_integer())
-                    .col(ColumnDef::new(IpService::Name).text())
-                    .col(ColumnDef::new(IpService::Product).text())
-                    .col(ColumnDef::new(IpService::Version).text())
-                    .col(ColumnDef::new(IpService::ExtraInfo).text())
-                    .col(ColumnDef::new(IpService::OsType).text())
-                    .col(ColumnDef::new(IpService::Method).text())
-                    .col(ColumnDef::new(IpService::Conf).text())
+                    .col(ColumnDef::new(IpService::Port).small_integer().not_null())
+                    .col(ColumnDef::new(IpService::Name).string())
+                    
+                    .col(ColumnDef::new(IpService::Product).string())
+                    .col(ColumnDef::new(IpService::ServiceFp).text())
+                    .col(ColumnDef::new(IpService::Version).string())
+                    .col(ColumnDef::new(IpService::ExtraInfo).string())
+                    .col(ColumnDef::new(IpService::OsType).string())
+                    .col(ColumnDef::new(IpService::Method).string())
                     .col(
                         ColumnDef::new(IpService::CreatedAt)
                             .timestamp_with_time_zone()
@@ -102,6 +104,7 @@ pub enum IpService {
     Id,
     IpMainId,
     Protocol,
+    ServiceFp,
     Port,
     Name,
     Product,

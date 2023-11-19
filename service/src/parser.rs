@@ -1,4 +1,5 @@
 use entity::ip_main;
+use regex::Regex;
 use scanner::types::NmapXML;
 use sea_orm::Set;
 
@@ -22,6 +23,29 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
         );
     }
 
+    for port in ports {
+        let mut ip_service = ip_main_service::Query::find_ip_service_by_ip_main_id_and_port(
+            ip_main.as_ref().unwrap().id,
+            port.portid,
+        )
+        .await?;
+
+        if ip_service.is_none() {
+            ip_service = Some(
+                ip_main_service::Mutation::create_ip_service(ip_main_service::ActiveModel {
+                    ip_main_id: Set(ip_main.as_ref().unwrap().id),
+                    protocol: Set(port.protocol.to_string()),
+                    port: Set(port.portid),
+                    name: Set(port.service.name.to_string()),
+                    ..Default::default()
+                })
+                .await?,
+            );
+        }
+    }
+
+
+
 
     // let ip = data.host.
     // data.scanner;
@@ -29,4 +53,25 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
     
     
     Ok(())
+}
+
+
+pub fn parse_os_from_nmap_output(nmap_output: &str) -> Vec<String> {
+    let patterns = vec![
+        r"x86_64|aarch64|arm|sparc|mips", // CPU Architectures
+        r"linux|windows|gnu|sunos|bsd",   // OS Vendors or Types
+        // Add more patterns here as needed
+    ];
+
+    let mut os_info = Vec::new();
+    for pattern in patterns {
+        let re = Regex::new(pattern).unwrap();
+        for line in nmap_output.lines() {
+            for cap in re.captures_iter(line) {
+                os_info.push(cap[0].to_string());
+            }
+        }
+    }
+
+    os_info
 }
