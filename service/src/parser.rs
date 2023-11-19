@@ -1,8 +1,8 @@
-use crate::models::{ip_main_service, ip_service_service};
+use crate::models::{ip_main_service, ip_service_extra_service, ip_service_service};
 use crate::utils::date;
 use chrono::Duration;
-use entity::ip_main;
 use entity::ip_service;
+use entity::{ip_main, ip_service_extra};
 use regex::Regex;
 use scanner::types::NmapXML;
 use sea_orm::Set;
@@ -38,7 +38,7 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
             os_type = port.service.ostype.clone();
         }
 
-        let ip_service =ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+        let ip_service = ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
             ip_main_id: Set(ip_main.id),
             port: Set(port.portid.parse::<i16>().unwrap()),
             name: Set(port.service.name.clone()),
@@ -53,11 +53,13 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
         })
         .await?;
 
+        ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
+            .await?;
         println!("IP Service: {:?}", ip_service);
         if let Some(script) = &port.script {
-            
-        }
 
+            // for
+        }
     }
 
     Ok(())
