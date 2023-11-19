@@ -22,12 +22,15 @@ impl Mutation {
         active_model: ip_main::ActiveModel,
     ) -> anyhow::Result<ip_main::Model> {
         let db = get_db_connection().await?;
-        let mut model = ip_main::Entity::find_by_id(active_model.id.clone().unwrap())
+        let mut model = ip_main::Entity::find()
+            .filter(ip_main::Column::IpAddress.eq(active_model.ip_address.as_ref().to_owned()))
             .one(&db)
-            .await?;
+            .await?
+            .map(|model| model.try_into_model())
+            .transpose()?;
 
         if model.is_none() {
-            model = Some(active_model.save(&db).await?.try_into_model()?);
+            model = active_model.insert(&db).await.ok();
         }
 
         Ok(model.unwrap())

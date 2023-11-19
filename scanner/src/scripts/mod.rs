@@ -50,8 +50,7 @@ impl Script {
 
         let script = self.execute_script(arguments);
         match script {
-            Ok(x) => {
-                println!("{}", x);
+            Ok(_x) => {
                 self.parse_nmap_xml()
             }
             Err(_) => Err(anyhow::anyhow!("Script failed")),

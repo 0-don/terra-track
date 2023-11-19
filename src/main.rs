@@ -14,8 +14,6 @@ async fn main() -> anyhow::Result<()> {
 
     let scan = scan_batch_service::Query::next_scan_batch().await?;
 
-    printlog!("Open scan: {:?}", scan);
-
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
@@ -43,7 +41,6 @@ async fn main() -> anyhow::Result<()> {
         if let Ok(result) = result {
             parse_nmap_results(result).await?;
         }
-
     }
 
     scan_batch_service::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {

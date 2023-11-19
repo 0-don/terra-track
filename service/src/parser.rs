@@ -56,7 +56,6 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
 
         ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
             .await?;
-        println!("IP Service: {:?}", ip_service);
         if let Some(scripts) = &port.script {
             for script in scripts {
                 if !&script.elems.is_empty() {
@@ -72,11 +71,21 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
                     .await?;
                 }
 
-                // for table in &script.tables  {
-                //     table.elems.
-                // }
+                for table in &script.tables {
+                    if !&table.elems.is_empty() {
+                        ip_service_extra_service::Mutation::create_ip_service_extra(
+                            ip_service_extra::ActiveModel {
+                                ip_main_id: Set(ip_main.id),
+                                ip_service_id: Set(ip_service.id),
+                                key: Set(table.key.clone()),
+                                value: Set(json!(&table.elems)),
+                                ..Default::default()
+                            },
+                        )
+                        .await?;
+                    }
+                }
 
-                println!("Script: {:?}", script);
             }
         }
     }
