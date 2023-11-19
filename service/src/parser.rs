@@ -24,7 +24,7 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
     }
 
     for port in ports {
-        let mut ip_service = ip_main_service::Query::find_ip_service_by_ip_main_id_and_port(
+        let mut ip_service = ip_main_service::Query::find_ip_service_by_ip_main_id_older_then(
             ip_main.as_ref().unwrap().id,
             port.portid,
         )

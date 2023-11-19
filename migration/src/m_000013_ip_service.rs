@@ -112,7 +112,6 @@ pub enum IpService {
     ExtraInfo,
     OsType,
     Method,
-    Conf,
     CreatedAt,
     UpdatedAt,
 }

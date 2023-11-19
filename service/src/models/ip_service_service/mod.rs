@@ -1,9 +1,9 @@
 use crate::db::get_db_connection;
-use ::entity::ip_main;
-use entity::ip_service;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel, QueryFilter, ColumnTrait};
-
-use super::ip_main_service;
+use ::entity::ip_service;
+use sea_orm::{
+    prelude::DateTimeWithTimeZone, ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter,
+    QueryTrait, Set, TryIntoModel,
+};
 
 pub struct Mutation;
 pub struct Query;
@@ -18,9 +18,12 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn update_ip_main(id: i64, model: ip_main::Model) -> anyhow::Result<ip_main::Model> {
+    pub async fn update_ip_service(
+        id: i64,
+        model: ip_service::Model,
+    ) -> anyhow::Result<ip_service::Model> {
         let db = get_db_connection().await?;
-        let model = ip_main::ActiveModel {
+        let model = ip_service::ActiveModel {
             id: Set(id),
             ..model.into()
         }
@@ -31,9 +34,9 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn delete_ip_main(id: i64) -> anyhow::Result<bool> {
+    pub async fn delete_ip_service(id: i64) -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
-        ip_main::ActiveModel {
+        ip_service::ActiveModel {
             id: Set(id),
             ..Default::default()
         }
@@ -45,20 +48,35 @@ impl Mutation {
 }
 
 impl Query {
-    pub async fn find_ip_main_by_id(id: i64) -> anyhow::Result<Option<ip_main::Model>> {
+    pub async fn find_ip_service_by_id(id: i64) -> anyhow::Result<Option<ip_service::Model>> {
         let db = get_db_connection().await?;
-        let model = ip_main::Entity::find_by_id(id).one(&db).await?;
+        let model = ip_service::Entity::find_by_id(id).one(&db).await?;
 
         Ok(model)
     }
 
-    pub async fn find_ip_main_by_ip(ip: &String) -> anyhow::Result<Option<ip_main::Model>> {
+    pub async fn find_ip_service_by_ip_main_id_older_then(
+        id: i64,
+        date: Option<DateTimeWithTimeZone>,
+    ) -> anyhow::Result<Option<ip_service::Model>> {
         let db = get_db_connection().await?;
-        let model = ip_main::Entity::find()
-            .filter(ip_main::Column::IpAddress.contains(ip))
+        let model = ip_service::Entity::find()
+            .filter(ip_service::Column::Id.gt(id))
+            .apply_if(date, |query, date| {
+                query.filter(ip_service::Column::CreatedAt.gt(date))
+            })
             .one(&db)
             .await?;
 
         Ok(model)
     }
+    // pub async fn find_ip_service_by_ip(ip: &String) -> anyhow::Result<Option<ip_service::Model>> {
+    //     let db = get_db_connection().await?;
+    //     let model = ip_service::Entity::find()
+    //         .filter(ip_service::Column::IpAddress.contains(ip))
+    //         .one(&db)
+    //         .await?;
+
+    //     Ok(model)
+    // }
 }
