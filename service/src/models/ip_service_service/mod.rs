@@ -55,21 +55,22 @@ impl Query {
         Ok(model)
     }
 
-    pub async fn find_ip_service_by_ip_main_id_older_then(
-        id: i64,
+    pub async fn find_ip_service_by_port_older_then(
+        port: i16,
         date: Option<DateTimeWithTimeZone>,
     ) -> anyhow::Result<Option<ip_service::Model>> {
         let db = get_db_connection().await?;
         let model = ip_service::Entity::find()
-            .filter(ip_service::Column::Id.gt(id))
+            .filter(ip_service::Column::Port.eq(port))
             .apply_if(date, |query, date| {
-                query.filter(ip_service::Column::CreatedAt.gt(date))
+                query.filter(ip_service::Column::CreatedAt.lt(date))
             })
             .one(&db)
             .await?;
 
         Ok(model)
     }
+
     // pub async fn find_ip_service_by_ip(ip: &String) -> anyhow::Result<Option<ip_service::Model>> {
     //     let db = get_db_connection().await?;
     //     let model = ip_service::Entity::find()
