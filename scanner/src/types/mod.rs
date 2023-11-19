@@ -1,4 +1,6 @@
-use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct NmapXML {
@@ -88,16 +90,17 @@ pub struct Port {
     pub portid: String,
     pub state: State,
     pub service: Service,
-    pub cpe: Option<Vec<String>>,    // Added this
-    pub script: Option<Vec<Script>>, // Added this
+    pub cpe: Option<Vec<String>>,
+    pub script: Option<Vec<Script>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Script {
     pub id: String,
     pub output: String,
-    #[serde(rename = "elem", default)]
-    pub elems: Vec<Elem>,
+
+    #[serde(deserialize_with = "deserialize_elems", rename = "elem", default)]
+    pub elems: HashMap<String, String>,
 
     #[serde(rename = "table", default)]
     pub tables: Vec<Table>,
@@ -106,17 +109,17 @@ pub struct Script {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Table {
     #[serde(rename = "key")]
-    key: String,
+    pub key: String,
 
-    #[serde(rename = "elem", default)]
-    elems: Vec<Elem>,
+    #[serde(deserialize_with = "deserialize_elems", rename = "elem", default)]
+    pub elems: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Elem {
     pub key: Option<String>,
     #[serde(rename = "$value")]
-    value: String
+    pub value: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -136,7 +139,6 @@ pub struct Service {
     pub ostype: Option<String>,
     pub method: String,
     pub conf: String,
-    // pub script: Option<Script>, // Added this
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -166,4 +168,21 @@ pub struct Hosts {
     pub up: String,
     pub down: String,
     pub total: String,
+}
+
+fn deserialize_elems<'de, D>(deserializer: D) -> Result<HashMap<String, String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let elems_array: Vec<Elem> = Deserialize::deserialize(deserializer)?;
+    let elems_map = elems_array
+        .into_iter()
+        .filter_map(|elem| match (elem.key, elem.value) {
+            (Some(key), Some(value)) => Some((key, value)),
+            (Some(key), None) => Some((key.clone(), key)),
+            (None, Some(value)) => Some((value.clone(), value)),
+            (None, None) => None,
+        })
+        .collect();
+    Ok(elems_map)
 }

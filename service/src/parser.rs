@@ -38,7 +38,7 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
             os_type = port.service.ostype.clone();
         }
 
-        ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+        let ip_service =ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
             ip_main_id: Set(ip_main.id),
             port: Set(port.portid.parse::<i16>().unwrap()),
             name: Set(port.service.name.clone()),
@@ -52,6 +52,12 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
             ..Default::default()
         })
         .await?;
+
+        println!("IP Service: {:?}", ip_service);
+        if let Some(script) = &port.script {
+            
+        }
+
     }
 
     Ok(())
