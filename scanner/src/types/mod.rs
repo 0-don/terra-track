@@ -98,28 +98,28 @@ pub struct Port {
 pub struct Script {
     pub id: String,
     pub output: String,
-
-    #[serde(deserialize_with = "deserialize_elems", rename = "elem", default)]
-    pub elems: HashMap<String, String>,
-
     #[serde(rename = "table", default)]
-    pub tables: Vec<Table>,
+    pub table: Vec<Table>,
+    #[serde(rename = "elem", default)]
+    pub elem: Vec<Elem>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Table {
-    #[serde(rename = "key")]
-    pub key: String,
-
-    #[serde(deserialize_with = "deserialize_elems", rename = "elem", default)]
-    pub elems: HashMap<String, String>,
+    #[serde(rename = "key", default)]
+    key: String,
+    #[serde(rename = "elem", default)]
+    elem: Vec<Elem>,
+    #[serde(rename = "table", default)]
+    table: Vec<Table>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Elem {
-    pub key: Option<String>,
-    #[serde(rename = "$value")]
-    pub value: Option<String>,
+    #[serde(rename = "key", default)]
+    key: Option<String>,
+    #[serde(rename = "$value", default)]
+    value: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

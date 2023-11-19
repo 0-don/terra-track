@@ -58,34 +58,44 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
             .await?;
         if let Some(scripts) = &port.script {
             for script in scripts {
-                if !&script.elems.is_empty() {
-                    ip_service_extra_service::Mutation::create_ip_service_extra(
-                        ip_service_extra::ActiveModel {
-                            ip_main_id: Set(ip_main.id),
-                            ip_service_id: Set(ip_service.id),
-                            key: Set(script.id.clone()),
-                            value: Set(json!(&script.elems)),
-                            ..Default::default()
-                        },
-                    )
-                    .await?;
-                }
+                // ip_service_extra_service::Mutation::create_ip_service_extra(
+                //     ip_service_extra::ActiveModel {
+                //         ip_main_id: Set(ip_main.id),
+                //         ip_service_id: Set(ip_service.id),
+                //         key: Set(script.id.clone()),
+                //         value: Set(json!(&script.elems)),
+                //         ..Default::default()
+                //     },
+                // )
+                // .await?;
 
-                for table in &script.tables {
-                    if !&table.elems.is_empty() {
-                        ip_service_extra_service::Mutation::create_ip_service_extra(
-                            ip_service_extra::ActiveModel {
-                                ip_main_id: Set(ip_main.id),
-                                ip_service_id: Set(ip_service.id),
-                                key: Set(table.key.clone()),
-                                value: Set(json!(&table.elems)),
-                                ..Default::default()
-                            },
-                        )
-                        .await?;
-                    }
-                }
+                // if !&script.elems.is_empty() {
+                //     ip_service_extra_service::Mutation::create_ip_service_extra(
+                //         ip_service_extra::ActiveModel {
+                //             ip_main_id: Set(ip_main.id),
+                //             ip_service_id: Set(ip_service.id),
+                //             key: Set(script.id.clone()),
+                //             value: Set(json!(&script.elems)),
+                //             ..Default::default()
+                //         },
+                //     )
+                //     .await?;
+                // }
 
+                // for table in &script.tables {
+                //     if !&table.elems.is_empty() {
+                //         ip_service_extra_service::Mutation::create_ip_service_extra(
+                //             ip_service_extra::ActiveModel {
+                //                 ip_main_id: Set(ip_main.id),
+                //                 ip_service_id: Set(ip_service.id),
+                //                 key: Set(table.key.as_ref().unwrap().to_owned()),
+                //                 value: Set(json!(&table.elems)),
+                //                 ..Default::default()
+                //             },
+                //         )
+                //         .await?;
+                //     }
+                // }
             }
         }
     }
