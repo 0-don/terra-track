@@ -12,4 +12,5 @@ pub use super::ip_organization::Entity as IpOrganization;
 pub use super::ip_privacy::Entity as IpPrivacy;
 pub use super::ip_security_flags::Entity as IpSecurityFlags;
 pub use super::ip_service::Entity as IpService;
+pub use super::ip_service_extra::Entity as IpServiceExtra;
 pub use super::scan_batch::Entity as ScanBatch;

@@ -53,6 +53,7 @@ pub enum Relation {
     IpPrivacy,
     IpSecurityFlags,
     IpService,
+    IpServiceExtra,
 }
 
 impl ColumnTrait for Column {
@@ -81,6 +82,7 @@ impl RelationTrait for Relation {
             Self::IpPrivacy => Entity::has_many(super::ip_privacy::Entity).into(),
             Self::IpSecurityFlags => Entity::has_many(super::ip_security_flags::Entity).into(),
             Self::IpService => Entity::has_many(super::ip_service::Entity).into(),
+            Self::IpServiceExtra => Entity::has_many(super::ip_service_extra::Entity).into(),
         }
     }
 }
@@ -148,6 +150,12 @@ impl Related<super::ip_security_flags::Entity> for Entity {
 impl Related<super::ip_service::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IpService.def()
+    }
+}
+
+impl Related<super::ip_service_extra::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IpServiceExtra.def()
     }
 }
 

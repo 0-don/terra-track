@@ -58,7 +58,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(IpService::ExtraInfo).string())
                     .col(ColumnDef::new(IpService::Method).string().not_null())
                     .col(ColumnDef::new(IpService::OsType).string())
-                    .col(ColumnDef::new(IpService::Method).string().not_null())
                     .col(ColumnDef::new(IpService::CpuArch).string())
                     .col(
                         ColumnDef::new(IpService::CreatedAt)

@@ -14,5 +14,6 @@ pub mod ip_organization;
 pub mod ip_privacy;
 pub mod ip_security_flags;
 pub mod ip_service;
+pub mod ip_service_extra;
 pub mod scan_batch;
 pub mod sea_orm_active_enums;
