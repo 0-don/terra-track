@@ -10,7 +10,6 @@ use crate::m_000002_ip_main::IpMain;
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
-
 #[derive(Iden, EnumIter)]
 pub enum Protocol {
     Table,
@@ -57,9 +56,10 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(IpService::ServiceFp).text())
                     .col(ColumnDef::new(IpService::Version).string())
                     .col(ColumnDef::new(IpService::ExtraInfo).string())
+                    .col(ColumnDef::new(IpService::Method).string().not_null())
                     .col(ColumnDef::new(IpService::OsType).string())
+                    .col(ColumnDef::new(IpService::Method).string().not_null())
                     .col(ColumnDef::new(IpService::CpuArch).string())
-                    .col(ColumnDef::new(IpService::Method).string())
                     .col(
                         ColumnDef::new(IpService::CreatedAt)
                             .timestamp_with_time_zone()
@@ -96,15 +96,15 @@ pub enum IpService {
     Id,
     IpMainId,
     Protocol,
-    ServiceFp,
     Port,
     Name,
     Product,
     Version,
     ExtraInfo,
+    ServiceFp,
+    Method,
     OsType,
     CpuArch,
-    Method,
     CreatedAt,
     UpdatedAt,
 }

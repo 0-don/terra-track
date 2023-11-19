@@ -26,7 +26,7 @@ pub struct Model {
     pub extra_info: Option<String>,
     pub os_type: Option<String>,
     pub cpu_arch: Option<String>,
-    pub method: Option<String>,
+    pub method: String,
     pub created_at: Option<DateTimeWithTimeZone>,
     pub updated_at: Option<DateTimeWithTimeZone>,
 }
@@ -81,7 +81,7 @@ impl ColumnTrait for Column {
             Self::ExtraInfo => ColumnType::String(None).def().null(),
             Self::OsType => ColumnType::String(None).def().null(),
             Self::CpuArch => ColumnType::String(None).def().null(),
-            Self::Method => ColumnType::String(None).def().null(),
+            Self::Method => ColumnType::String(None).def(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
             Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }

@@ -1,7 +1,7 @@
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
 use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
-use service::{models::scan_batch_service, utils::date, parser::parse_nmap_results};
+use service::{models::scan_batch_service, parser::parse_nmap_results, utils::date};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
         let result = script.parse_nmap_xml();
         // let script = Script::new(ip.into(), ports);
         // let result = script.run();
-   
+
         if let Ok(result) = result {
             printlog!("Script result: {:?}", result);
             parse_nmap_results(result).await?;

@@ -10,53 +10,53 @@ use sea_orm::Set;
 use crate::models::{ip_main_service, ip_service_service};
 
 pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
-    println!("Nmap results: {:?}", data);
     let first_host = data.host.first().unwrap();
     let ip = &first_host.address.first().unwrap().addr;
     let ports = &first_host.ports.port;
 
-    let mut ip_main = ip_main_service::Query::find_ip_main_by_ip(ip).await?;
+    let ip_main = ip_main_service::Mutation::upsert_ip_main(ip_main::ActiveModel {
+        ip_address: Set(ip.to_string()),
+        ..Default::default()
+    })
+    .await?;
 
-    if ip_main.is_none() {
-        ip_main = Some(
-            ip_main_service::Mutation::create_ip_main(ip_main::ActiveModel {
-                ip_address: Set(ip.to_string()),
-                ..Default::default()
-            })
-            .await?,
-        );
-    }
+    let year_ago = chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
+        - Duration::days(365);
 
     for port in ports {
-        let days_ago_30 = chrono::Utc::now()
-            .with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
-            - Duration::days(30);
         let ip_service =
             ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
                 port.portid.parse::<i16>().unwrap(),
-                ip_main.as_ref().unwrap().id,
-                Some(days_ago_30),
+                ip_main.id,
+                Some(year_ago),
             )
             .await?;
 
-        let (os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
-        println!("OS Type: {:?}, CPU Arch: {:?}", os_type, cpu_arch);
-
-        if ip_service.is_none() {
-            ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
-                ip_main_id: Set(ip_main.as_ref().unwrap().id),
-                port: Set(port.portid.parse::<i16>().unwrap()),
-                name: Set(port.service.name.clone()),
-                cpu_arch: Set(cpu_arch),
-                os_type: Set(os_type),
-                ..Default::default()
-            })
-            .await?;
+        if ip_service.is_some() {
+            continue;
         }
-    }
 
-    // let ip = data.host.
-    // data.scanner;
+        let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
+
+        if port.service.ostype.is_some() {
+            os_type = port.service.ostype.clone();
+        }
+
+        ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+            ip_main_id: Set(ip_main.id),
+            port: Set(port.portid.parse::<i16>().unwrap()),
+            name: Set(port.service.name.clone()),
+            product: Set(port.service.product.clone()),
+            service_fp: Set(port.service.servicefp.clone()),
+            version: Set(port.service.version.clone()),
+            extra_info: Set(port.service.extrainfo.clone()),
+            method: Set(port.service.method.clone()),
+            os_type: Set(os_type),
+            cpu_arch: Set(cpu_arch),
+            ..Default::default()
+        })
+        .await?;
+    }
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 use crate::db::get_db_connection;
 use ::entity::ip_main;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel, QueryFilter, ColumnTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
 
 pub struct Mutation;
 pub struct Query;
@@ -13,6 +13,21 @@ impl Mutation {
         let model = active_model.save(&db).await?.try_into_model()?;
 
         Ok(model)
+    }
+
+    pub async fn upsert_ip_main(
+        active_model: ip_main::ActiveModel,
+    ) -> anyhow::Result<ip_main::Model> {
+        let db = get_db_connection().await?;
+        let mut model = ip_main::Entity::find_by_id(active_model.id.clone().unwrap())
+            .one(&db)
+            .await?;
+
+        if model.is_none() {
+            model = Some(active_model.save(&db).await?.try_into_model()?);
+        }
+
+        Ok(model.unwrap())
     }
 
     pub async fn update_ip_main(id: i64, model: ip_main::Model) -> anyhow::Result<ip_main::Model> {
