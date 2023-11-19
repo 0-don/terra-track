@@ -1,13 +1,12 @@
-use std::collections::HashMap;
-
+use crate::models::{ip_main_service, ip_service_service};
+use crate::utils::date;
 use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
 use regex::Regex;
 use scanner::types::NmapXML;
 use sea_orm::Set;
-
-use crate::models::{ip_main_service, ip_service_service};
+use std::collections::HashMap;
 
 pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
     let first_host = data.host.first().unwrap();
@@ -20,15 +19,12 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
     })
     .await?;
 
-    let year_ago = chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap())
-        - Duration::days(365);
-
     for port in ports {
         let ip_service =
             ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
                 port.portid.parse::<i16>().unwrap(),
                 ip_main.id,
-                Some(year_ago),
+                Some(date(Duration::days(365))),
             )
             .await?;
 

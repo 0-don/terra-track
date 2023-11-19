@@ -4,7 +4,6 @@ use std::io::Read;
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::Command;
-
 use crate::types::NmapXML;
 
 pub struct Script {
