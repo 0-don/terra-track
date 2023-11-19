@@ -16,7 +16,7 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: i64,
     pub ip_main_id: i64,
-    pub ip_service_id: i32,
+    pub ip_service_id: i64,
     pub key: String,
     pub value: Json,
     pub created_at: Option<DateTimeWithTimeZone>,
@@ -58,7 +58,7 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::BigInteger.def(),
             Self::IpMainId => ColumnType::BigInteger.def(),
-            Self::IpServiceId => ColumnType::Integer.def(),
+            Self::IpServiceId => ColumnType::BigInteger.def(),
             Self::Key => ColumnType::String(None).def(),
             Self::Value => ColumnType::Json.def(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),

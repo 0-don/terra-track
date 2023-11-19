@@ -6,6 +6,7 @@ use entity::{ip_main, ip_service_extra};
 use regex::Regex;
 use scanner::types::NmapXML;
 use sea_orm::Set;
+use serde_json::json;
 use std::collections::HashMap;
 
 pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
@@ -56,9 +57,27 @@ pub async fn parse_nmap_results(data: NmapXML) -> anyhow::Result<()> {
         ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
             .await?;
         println!("IP Service: {:?}", ip_service);
-        if let Some(script) = &port.script {
+        if let Some(scripts) = &port.script {
+            for script in scripts {
+                if !&script.elems.is_empty() {
+                    ip_service_extra_service::Mutation::create_ip_service_extra(
+                        ip_service_extra::ActiveModel {
+                            ip_main_id: Set(ip_main.id),
+                            ip_service_id: Set(ip_service.id),
+                            key: Set(script.id.clone()),
+                            value: Set(json!(&script.elems)),
+                            ..Default::default()
+                        },
+                    )
+                    .await?;
+                }
 
-            // for
+                // for table in &script.tables  {
+                //     table.elems.
+                // }
+
+                println!("Script: {:?}", script);
+            }
         }
     }
 

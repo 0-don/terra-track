@@ -28,7 +28,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(IpServiceExtra::IpServiceId)
-                            .integer()
+                            .big_integer()
                             .not_null(),
                     )
                     .col(ColumnDef::new(IpServiceExtra::Key).string().not_null())
