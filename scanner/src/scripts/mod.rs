@@ -48,6 +48,8 @@ impl Script {
             binding.as_str(),
         ];
 
+        self.create_directory();
+
         let script = self.execute_script(arguments);
         match script {
             Ok(_x) => self.parse_nmap_xml(),
