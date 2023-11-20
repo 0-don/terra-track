@@ -5,12 +5,12 @@ use entity::ip_service;
 use entity::{ip_main, ip_service_extra};
 use regex::Regex;
 
-use scanner::types::Nmaprun;
+use scanner::types::{Nmaprun, Nmap};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
 
-pub async fn parse_nmap_results(data: Nmaprun) -> anyhow::Result<()> {
+pub async fn parse_nmap_results(data: Nmap) -> anyhow::Result<()> {
     // let first_host = data.host.first().unwrap();
     // let ip = &first_host.address.first().unwrap().addr;
     // let ports = &first_host.ports.port;

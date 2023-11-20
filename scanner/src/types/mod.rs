@@ -1,176 +1,326 @@
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde::{Serialize, Deserialize};
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmap {
-    pub nmaprun: Nmaprun,
+    nmaprun: Nmaprun,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmaprun {
-    pub args: String,
-    pub debugging: Debugging,
-    pub host: Host,
-    pub runstats: Runstats,
-    pub scaninfo: Scaninfo,
-    pub scanner: String,
-    pub start: i64,
-    pub startstr: String,
-    pub taskbegin: Vec<Taskbegin>,
-    pub taskend: Vec<Taskend>,
-    pub taskprogress: Vec<Taskprogress>,
-    pub verbose: Verbose,
-    pub version: f64,
-    pub xmloutputversion: f64,
+    args: String,
+    debugging: Debugging,
+    host: Host,
+    runstats: Runstats,
+    scaninfo: Scaninfo,
+    scanner: String,
+    start: i64,
+    startstr: String,
+    taskbegin: Vec<Taskbegin>,
+    taskend: Vec<Taskend>,
+    taskprogress: Vec<Taskprogress>,
+    verbose: Debugging,
+    version: f64,
+    xmloutputversion: f64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Debugging {
-    pub level: i64,
+    level: i64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Host {
-    pub address: Address,
-    pub endtime: i64,
-    pub hostnames: Hostnames,
-    pub ports: Ports,
-    pub starttime: i64,
-    pub status: Status,
-    pub times: Times,
+    address: Address,
+    endtime: i64,
+    hostnames: Hostnames,
+    ports: Ports,
+    starttime: i64,
+    status: Stat,
+    times: Times,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Address {
-    pub addr: String,
-    pub addrtype: String,
+    addr: String,
+    addrtype: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Hostnames {}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Hostnames {
+}
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ports {
-    pub port: Vec<Port>,
+    port: Vec<Port>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
-    pub portid: i64,
-    pub protocol: String,
-    pub script: Value,
-    pub service: Service,
-    pub state: State,
+    portid: i64,
+    protocol: Protocol,
+    script: ScriptUnion,
+    service: Service,
+    state: Stat,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Protocol {
+    Tcp,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ScriptUnion {
+    PurpleScript(PurpleScript),
+    ScriptElementArray(Vec<ScriptElement>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScriptElement {
+    elem: Option<ElemUnion>,
+    id: String,
+    output: String,
+    table: Option<ScriptTable>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ElemUnion {
+    ElemElem(ElemElem),
+    ElemElemArray(Vec<ElemElem>),
+    String(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ElemElem {
+    key: String,
+    value: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ScriptTable {
+    IndigoTable(IndigoTable),
+    PurpleTableArray(Vec<PurpleTable>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PurpleTable {
+    elem: Option<Vec<PurpleElem>>,
+    key: TableKey,
+    table: Option<TableTableUnion>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PurpleElem {
+    key: PurpleKey,
+    value: PurpleValue,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub enum PurpleKey {
+    Bits,
+    #[serde(rename = "commonName")]
+    CommonName,
+    #[serde(rename = "countryName")]
+    CountryName,
+    #[serde(rename = "localityName")]
+    LocalityName,
+    #[serde(rename = "notAfter")]
+    NotAfter,
+    #[serde(rename = "notBefore")]
+    NotBefore,
+    #[serde(rename = "organizationName")]
+    OrganizationName,
+    #[serde(rename = "stateOrProvinceName")]
+    StateOrProvinceName,
+    Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PurpleValue {
+    Integer(i64),
+    String(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TableKey {
+    Extensions,
+    Issuer,
+    Pubkey,
+    Subject,
+    Validity,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TableTableUnion {
+    FluffyTableArray(Vec<FluffyTable>),
+    TentacledTable(TentacledTable),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct FluffyTable {
+    elem: Vec<FluffyElem>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct FluffyElem {
+    key: FluffyKey,
+    value: FluffyValue,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FluffyKey {
+    Critical,
+    Name,
+    Value,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum FluffyValue {
+    Bool(bool),
+    String(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TentacledTable {
+    key: String,
+    table: StickyTable,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StickyTable {
+    elem: Vec<ElemElem>,
+    key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IndigoTable {
+    elem: Vec<String>,
+    key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PurpleScript {
+    elem: Vec<ElemElem>,
+    id: String,
+    output: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
-    pub conf: i64,
-    pub method: String,
-    pub name: String,
-    pub product: Option<String>,
-    pub servicefp: Option<String>,
-    pub tunnel: Option<String>,
-    pub cpe: Option<String>,
+    conf: i64,
+    method: Method,
+    name: String,
+    product: Option<String>,
+    servicefp: Option<String>,
+    tunnel: Option<String>,
+    cpe: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct State {
-    pub reason: String,
-    #[serde(rename = "reason_ttl")]
-    pub reason_ttl: i64,
-    pub state: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Method {
+    Probed,
+    Table,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Status {
-    pub reason: String,
-    #[serde(rename = "reason_ttl")]
-    pub reason_ttl: i64,
-    pub state: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Stat {
+    reason: Reason,
+    reason_ttl: i64,
+    state: State,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Reason {
+    #[serde(rename = "syn-ack")]
+    SynAck,
+    #[serde(rename = "user-set")]
+    UserSet,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum State {
+    Open,
+    Up,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Times {
-    pub rttvar: i64,
-    pub srtt: i64,
-    pub to: i64,
+    rttvar: i64,
+    srtt: i64,
+    to: i64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Runstats {
-    pub finished: Finished,
-    pub hosts: Hosts,
+    finished: Finished,
+    hosts: Hosts,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Finished {
-    pub elapsed: f64,
-    pub exit: String,
-    pub summary: String,
-    pub time: i64,
-    pub timestr: String,
+    elapsed: f64,
+    exit: String,
+    summary: String,
+    time: i64,
+    timestr: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hosts {
-    pub down: i64,
-    pub total: i64,
-    pub up: i64,
+    down: i64,
+    total: i64,
+    up: i64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scaninfo {
-    pub numservices: i64,
-    pub protocol: String,
-    pub services: String,
+    numservices: i64,
+    protocol: Protocol,
+    services: String,
     #[serde(rename = "type")]
-    pub type_field: String,
+    scaninfo_type: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskbegin {
-    pub task: String,
-    pub time: i64,
+    task: Task,
+    time: i64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Task {
+    #[serde(rename = "Connect Scan")]
+    ConnectScan,
+    #[serde(rename = "NSE")]
+    Nse,
+    #[serde(rename = "Service scan")]
+    ServiceScan,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskend {
-    pub task: String,
-    pub time: i64,
-    pub extrainfo: Option<String>,
+    task: Task,
+    time: i64,
+    extrainfo: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskprogress {
-    pub etc: i64,
-    pub percent: f64,
-    pub remaining: i64,
-    pub task: String,
-    pub time: i64,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Verbose {
-    pub level: i64,
+    etc: i64,
+    percent: f64,
+    remaining: i64,
+    task: Task,
+    time: i64,
 }
