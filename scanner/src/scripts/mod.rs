@@ -1,8 +1,9 @@
 use crate::types::{Nmaprun, Ports};
 use quick_xml;
+use quickxml_to_serde::{xml_string_to_json, Config};
 use serde_xml_rs::from_str;
 use std::fs::{create_dir_all, File};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::Command;
@@ -90,8 +91,24 @@ impl Script {
 
         file.read_to_string(&mut contents)?;
         // let nmap: Ports = quick_xml::de::from_str(&contents).unwrap();
-        // let nmap: Welcome1 = quick_xml::de::from_str(&contents).unwrap();
-        let nmap: Nmaprun = from_str(&contents).unwrap();
+        // convert the XML string into JSON with default config params
+        let json = xml_string_to_json(
+            contents.clone(),
+            &Config {
+                xml_attr_prefix: "".to_string(),
+                xml_text_node_prop_name: "value".to_string(),
+                ..Default::default()
+            },
+        )
+        .unwrap()
+        .to_string();
+
+        File::create(self.xml.clone().replace(".xml", ".json"))
+            .unwrap()
+            .write_all(json.as_bytes())
+            .unwrap();
+
+        let nmap: Nmaprun = serde_json::from_str(json.as_str())?;
         Ok(nmap)
     }
 }
