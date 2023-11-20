@@ -8,7 +8,6 @@ pub struct Nmap {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmaprun {
     pub args: String,
-    pub debugging: Debugging,
     pub host: Host,
     pub runstats: Runstats,
     pub scaninfo: Scaninfo,
@@ -18,21 +17,14 @@ pub struct Nmaprun {
     pub taskbegin: Vec<Taskbegin>,
     pub taskend: Vec<Taskend>,
     pub taskprogress: Vec<Taskprogress>,
-    pub verbose: Debugging,
     pub version: f64,
     pub xmloutputversion: f64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Debugging {
-    pub level: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Host {
     pub address: Address,
     pub endtime: i64,
-    pub hostnames: Hostnames,
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,
@@ -44,9 +36,6 @@ pub struct Address {
     pub addr: String,
     pub addrtype: String,
 }
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Hostnames {}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ports {

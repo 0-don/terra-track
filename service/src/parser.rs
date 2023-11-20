@@ -102,7 +102,7 @@ async fn process_scripts(
                                         .into_iter()
                                         .map(|e| (e.key, e.value))
                                         .collect::<HashMap<_, _>>()
-                                );
+                                )
                             })
                             .collect::<HashMap<_, _>>()),
                     } })
