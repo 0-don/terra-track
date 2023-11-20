@@ -4,7 +4,7 @@ use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
 use regex::Regex;
-use scanner::types::{Nmap, Port, ScriptUnion};
+use scanner::types::{ElemUnion, Nmap, Port, ScriptUnion};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
@@ -91,7 +91,14 @@ async fn process_scripts(
                 } else if script.table.is_some() {
                     json!(&script.table)
                 } else if script.elem.is_some() {
-                    json!(&script.elem)
+                    match script.elem.as_ref().unwrap() {
+                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value.as_str()}),
+                        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
+                            .collect::<HashMap<_, _>>()),
+                        ElemUnion::String(string) => json!(string),
+                    }
                 } else {
                     continue;
                 };
