@@ -56,7 +56,7 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
     .await
 }
 
-fn parse_script(script_table: &ScriptTable) -> Value {
+fn parse_script_table(script_table: &ScriptTable) -> Value {
     match script_table {
         ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
         ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
@@ -92,6 +92,17 @@ fn parse_script(script_table: &ScriptTable) -> Value {
     }
 }
 
+fn parse_script_elem(elem: &ElemUnion) -> Value {
+    match elem {
+        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
+        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
+            .into_iter()
+            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
+            .collect::<HashMap<_, _>>()),
+        ElemUnion::String(string) => json!(string),
+    }
+}
+
 async fn process_scripts(
     ip_main_id: i64,
     ip_service_id: i64,
@@ -116,18 +127,11 @@ async fn process_scripts(
         ScriptUnion::ScriptElementArray(script_elements) => {
             for script in script_elements {
                 let value = if script.table.is_some() && script.elem.is_some() {
-                    json!({ &script.id: &script.elem, "table": parse_script(script.table.as_ref().unwrap()) })
+                    json!({ &script.id: parse_script_elem(script.elem.as_ref().unwrap()), "table": parse_script_table(script.table.as_ref().unwrap()) })
                 } else if script.table.is_some() {
-                    parse_script(script.table.as_ref().unwrap())
+                    parse_script_table(script.table.as_ref().unwrap())
                 } else if script.elem.is_some() {
-                    match script.elem.as_ref().unwrap() {
-                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
-                        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
-                            .into_iter()
-                            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
-                            .collect::<HashMap<_, _>>()),
-                        ElemUnion::String(string) => json!(string),
-                    }
+                    parse_script_elem(script.elem.as_ref().unwrap())
                 } else {
                     continue;
                 };
