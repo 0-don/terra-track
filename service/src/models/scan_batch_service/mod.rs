@@ -101,16 +101,16 @@ impl Query {
                     .await?,
                 );
             } else {
-                let ip_iter =
-                    Ipv4Iter::new(&convert_i32_to_ipv4_string(scan.as_ref().unwrap().cursor))
-                        .skip_batch(scan.as_ref().unwrap().batch_size);
+                let ip_iter = Ipv4Iter::batched(
+                    &convert_i32_to_ipv4_string(scan.as_ref().unwrap().cursor),
+                    scan.as_ref().unwrap().batch_size,
+                )
+                .skip_batch(scan.as_ref().unwrap().batch_size);
 
                 scan = Some(
                     Mutation::create_scan_batch(scan_batch::ActiveModel {
-                        ip: Set(ip_iter.unwrap().to_string()),
-                        cursor: Set(convert_ipv4_string_to_i32(
-                            ip_iter.unwrap().to_string().as_str(),
-                        )),
+                        ip: Set(ip_iter.to_string()),
+                        cursor: Set(convert_ipv4_string_to_i32(ip_iter.to_string().as_str())),
                         start: Set(date),
                         batch_size: Set(BATCH_SIZE),
                         ..Default::default()

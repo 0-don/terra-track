@@ -48,15 +48,14 @@ impl Ipv4Iter {
         pos % 2 != 0
     }
 
-    pub fn skip_batch(&mut self, batches_to_skip: i32) -> Option<Ipv4Addr> {
-        let total_to_skip = batches_to_skip as u32 * self.batch_size;
-        let mut last_ip: Option<Ipv4Addr> = None;
+    pub fn skip_batch(&mut self, batches_to_skip: i32) -> Ipv4Addr {
+        let total_to_skip = batches_to_skip as u64 + self.batch_size as u64;
 
         for _ in 0..total_to_skip {
-            last_ip = self.next();
+            self.next();
         }
 
-        last_ip
+        Ipv4Addr::from(self.current)
     }
 
     fn next_ip(&mut self) {
