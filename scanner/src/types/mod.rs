@@ -66,6 +66,7 @@ pub struct Port {
 #[serde(rename_all = "snake_case")]
 pub enum Protocol {
     Tcp,
+    Udp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -107,52 +108,22 @@ pub enum ScriptTable {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleTable {
     pub elem: Option<Vec<PurpleElem>>,
-    pub key: TableKey,
+    pub key: String,
     pub table: Option<TableTableUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleElem {
-    pub key: PurpleKey,
+    pub key: String,
     pub value: PurpleValue,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum PurpleKey {
-    Bits,
-    #[serde(rename = "commonName")]
-    CommonName,
-    #[serde(rename = "countryName")]
-    CountryName,
-    #[serde(rename = "localityName")]
-    LocalityName,
-    #[serde(rename = "notAfter")]
-    NotAfter,
-    #[serde(rename = "notBefore")]
-    NotBefore,
-    #[serde(rename = "organizationName")]
-    OrganizationName,
-    #[serde(rename = "stateOrProvinceName")]
-    StateOrProvinceName,
-    Type,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PurpleValue {
     Integer(i64),
     String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum TableKey {
-    Extensions,
-    Issuer,
-    Pubkey,
-    Subject,
-    Validity,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

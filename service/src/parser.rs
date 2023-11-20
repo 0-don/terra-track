@@ -4,7 +4,7 @@ use chrono::Duration;
 use entity::ip_service;
 use entity::{ip_main, ip_service_extra};
 use regex::Regex;
-use scanner::types::{Nmap, ScriptUnion};
+use scanner::types::{Nmap, Port, ScriptUnion};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
@@ -14,110 +14,100 @@ pub async fn parse_nmap_results(nmap: Nmap) -> anyhow::Result<()> {
     let ip = &host.address.addr;
     let ports = &host.ports.port;
 
-    let ip_main = ip_main_service::Mutation::upsert_ip_main(ip_main::ActiveModel {
-        ip_address: Set(ip.to_string()),
-        ..Default::default()
-    })
-    .await?;
+    let ip_main = ip_main_service::Mutation::upsert_ip_main_by_ip(ip).await?;
 
     for port in ports {
-        let ip_service =
-            ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
-                port.portid as i16,
-                ip_main.id,
-                Some(date(Duration::days(365))),
-            )
-            .await?;
-
-        if ip_service.is_some() {
-            continue;
-        }
-
-        let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
-
-        if port.service.ostype.is_some() {
-            os_type = port.service.ostype.clone();
-        }
-
-        let ip_service = ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
-            ip_main_id: Set(ip_main.id),
-            port: Set(port.portid as i16),
-            name: Set(port.service.name.clone()),
-            product: Set(port.service.product.clone()),
-            service_fp: Set(port.service.servicefp.clone()),
-            version: Set(port.service.version.clone()),
-            extra_info: Set(port.service.extrainfo.clone()),
-            method: Set(format!("{:?}", port.service.method)),
-            os_type: Set(os_type),
-            cpu_arch: Set(cpu_arch),
-            ..Default::default()
-        })
-        .await?;
-
-        ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
-            .await?;
-
-        match &port.script {
-            ScriptUnion::PurpleScript(purple_script) => {
-                // Your logic for handling PurpleScript
-                // Example:
-                ip_service_extra_service::Mutation::create_ip_service_extra(
-                    ip_service_extra::ActiveModel {
-                        ip_main_id: Set(ip_main.id),
-                        ip_service_id: Set(ip_service.id),
-                        key: Set(purple_script.id.clone()),
-                        value: Set(json!(&purple_script.elem)),
-                        ..Default::default()
-                    },
-                )
-                .await?;
-            }
-            ScriptUnion::ScriptElementArray(script_elements) => {
-                for script in script_elements {
-                    ip_service_extra_service::Mutation::create_ip_service_extra(
-                        ip_service_extra::ActiveModel {
-                            ip_main_id: Set(ip_main.id),
-                            ip_service_id: Set(ip_service.id),
-                            key: Set(script.id.clone()),
-                            value: Set(json!(&script.elem)),
-                            ..Default::default()
-                        },
-                    )
-                    .await?;
-
-                    // if !&script.elem.is_empty() {
-                    //     ip_service_extra_service::Mutation::create_ip_service_extra(
-                    //         ip_service_extra::ActiveModel {
-                    //             ip_main_id: Set(ip_main.id),
-                    //             ip_service_id: Set(ip_service.id),
-                    //             key: Set(script.id.clone()),
-                    //             value: Set(json!(&script.elems)),
-                    //             ..Default::default()
-                    //         },
-                    //     )
-                    //     .await?;
-                    // }
-
-                    // for table in &script.tables {
-                    //     if !&table.elems.is_empty() {
-                    //         ip_service_extra_service::Mutation::create_ip_service_extra(
-                    //             ip_service_extra::ActiveModel {
-                    //                 ip_main_id: Set(ip_main.id),
-                    //                 ip_service_id: Set(ip_service.id),
-                    //                 key: Set(table.key.as_ref().unwrap().to_owned()),
-                    //                 value: Set(json!(&table.elems)),
-                    //                 ..Default::default()
-                    //             },
-                    //         )
-                    //         .await?;
-                    //     }
-                    // }
-                }
-            }
-        };
+        process_port(&ip_main, port).await?;
     }
 
     Ok(())
+}
+
+async fn process_port(ip_main: &ip_main::Model, port: &Port) -> anyhow::Result<()> {
+    if ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
+        port.portid as i16,
+        ip_main.id,
+        Some(date(Duration::days(365))),
+    )
+    .await?
+    .is_some()
+    {
+        return Ok(());
+    }
+
+    let ip_service = create_ip_service(ip_main.id, port).await?;
+
+    process_scripts(ip_main.id, ip_service.id, &port.script).await
+}
+
+async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_service::Model> {
+    let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
+
+    if let Some(ostype) = &port.service.ostype {
+        os_type = Some(ostype.clone());
+    }
+
+    ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+        ip_main_id: Set(ip_main_id),
+        port: Set(port.portid as i16),
+        name: Set(port.service.name.clone()),
+        // ... other fields
+        os_type: Set(os_type),
+        cpu_arch: Set(cpu_arch),
+        ..Default::default()
+    })
+    .await
+}
+
+async fn process_scripts(
+    ip_main_id: i64,
+    ip_service_id: i64,
+    script_union: &ScriptUnion,
+) -> anyhow::Result<()> {
+    match script_union {
+        ScriptUnion::PurpleScript(purple_script) => {
+            create_ip_service_extra(
+                ip_main_id,
+                ip_service_id,
+                &purple_script.id,
+                &json!(&purple_script.elem),
+            )
+            .await?;
+            Ok(())
+        }
+        ScriptUnion::ScriptElementArray(script_elements) => {
+            for script in script_elements {
+                let value = if script.table.is_some() && script.elem.is_some() {
+                    json!({ "elem": &script.elem, "table": &script.table })
+                } else if script.table.is_some() {
+                    json!(&script.table)
+                } else if script.elem.is_some() {
+                    json!(&script.elem)
+                } else {
+                    continue;
+                };
+
+                create_ip_service_extra(ip_main_id, ip_service_id, &script.id, &value).await?;
+            }
+            Ok(())
+        }
+    }
+}
+
+async fn create_ip_service_extra(
+    ip_main_id: i64,
+    ip_service_id: i64,
+    key: &str,
+    value: &serde_json::Value,
+) -> anyhow::Result<ip_service_extra::Model> {
+    ip_service_extra_service::Mutation::create_ip_service_extra(ip_service_extra::ActiveModel {
+        ip_main_id: Set(ip_main_id),
+        ip_service_id: Set(ip_service_id),
+        key: Set(key.to_string()),
+        value: Set(value.clone()),
+        ..Default::default()
+    })
+    .await
 }
 
 pub fn parse_os_from_nmap_output(nmap_output: &Option<String>) -> (Option<String>, Option<String>) {
