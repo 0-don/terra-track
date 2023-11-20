@@ -5,11 +5,10 @@ use entity::ip_main;
 use entity::ip_service;
 use regex::Regex;
 use scanner::types::{
-    ElemUnion, Nmap, Port, PurpleScript, PurpleTable, ScriptElement, ScriptTable, ScriptUnion,
-    TableTableUnion,
+    ElemUnion, Nmap, Port, PurpleTable, ScriptTable, ScriptUnion, TableTableUnion,
 };
 use sea_orm::Set;
-use serde_json::json;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 
 pub async fn parse_nmap_results(nmap: Nmap) -> anyhow::Result<()> {
@@ -73,130 +72,116 @@ async fn process_scripts(
 ) -> anyhow::Result<()> {
     match script_union {
         ScriptUnion::PurpleScript(purple_script) => {
-            process_purple_script(ip_main_id, ip_service_id, purple_script).await
-        }
-        ScriptUnion::ScriptElementArray(script_elements) => {
-            process_script_elements(ip_main_id, ip_service_id, script_elements).await
-        }
-    }
-}
-
-async fn process_purple_script(
-    ip_main_id: i64,
-    ip_service_id: i64,
-    purple_script: &PurpleScript,
-) -> anyhow::Result<()> {
-    let data = purple_script
-        .elem
-        .iter()
-        .map(|elem| (elem.key.clone(), elem.value.clone()))
-        .collect::<HashMap<_, _>>();
-
-    ip_service_extra_service::Mutation::upsert_ip_service_extra(
-        ip_main_id,
-        ip_service_id,
-        &purple_script.id,
-        json!(data),
-    )
-    .await?;
-
-    Ok(())
-}
-
-async fn process_script_elements(
-    ip_main_id: i64,
-    ip_service_id: i64,
-    script_elements: &[ScriptElement],
-) -> anyhow::Result<()> {
-    for script in script_elements {
-        if let Some(value) = construct_script_element_value(script) {
             ip_service_extra_service::Mutation::upsert_ip_service_extra(
                 ip_main_id,
                 ip_service_id,
-                &script.id,
-                value,
+                &purple_script.id,
+                json!(purple_script
+                    .elem
+                    .clone()
+                    .into_iter()
+                    .map(|elem| (elem.key, elem.value))
+                    .collect::<HashMap<_, _>>()),
             )
             .await?;
+            Ok(())
         }
-    }
+        ScriptUnion::ScriptElementArray(script_elements) => {
+            for script in script_elements {
+                let value = if script.table.is_some() && script.elem.is_some() {
+                    json!({ &script.id: &script.elem, "table": match script.table.as_ref().unwrap() {
+                        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
+                        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .map(|elem| {
 
-    Ok(())
-}
+                                let key = elem.key.to_owned();
+                                let value = if let Some(elems) = elem.clone().elem {
+                                    elems.into_iter().map(|e| (e.key, e.value)).collect::<HashMap<_, _>>()
+                                } else if let Some(table) = elem.clone().table {
+                                    match table {
+                                        TableTableUnion::FluffyTableArray(fluffy_tables) => {
+                                            fluffy_tables.into_iter().flat_map(|fluffy_table| {
+                                                fluffy_table.elem.into_iter().map(|e| (e.key, e.value))
+                                            }).collect::<HashMap<_, _>>()
+                                        },
+                                        TableTableUnion::TentacledTable(tentacled_table) => {
+                                            tentacled_table.table.elem.into_iter().map(|e| (e.key, e.value)).collect::<HashMap<_, _>>()
+                                        }
+                                    }
+                                } else {
+                                    HashMap::new()
+                                };
+                            
+                                (key, value)
+                            })
+                            .collect::<HashMap<_, _>>()),
+                    } })
+                } else if script.table.is_some() {
+                    match script.table.as_ref().unwrap() {
+                        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
+                        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .map(|elem| {
+                                let key = elem.key.to_owned();
+                                let value = if let Some(elems) = elem.clone().elem {
+                                    elems
+                                        .into_iter()
+                                        .map(|e| (e.key, e.value))
+                                        .collect::<HashMap<_, _>>()
+                                } else if let Some(table) = elem.clone().table {
+                                    match table {
+                                        TableTableUnion::FluffyTableArray(fluffy_tables) => {
+                                            fluffy_tables
+                                                .into_iter()
+                                                .flat_map(|fluffy_table| {
+                                                    fluffy_table
+                                                        .elem
+                                                        .into_iter()
+                                                        .map(|e| (e.key, e.value))
+                                                })
+                                                .collect::<HashMap<_, _>>()
+                                        }
+                                        TableTableUnion::TentacledTable(tentacled_table) => {
+                                            tentacled_table
+                                                .table
+                                                .elem
+                                                .into_iter()
+                                                .map(|e| (e.key, e.value))
+                                                .collect::<HashMap<_, _>>()
+                                        }
+                                    }
+                                } else {
+                                    HashMap::new()
+                                };
 
-fn construct_script_element_value(script: &ScriptElement) -> Option<serde_json::Value> {
-    script
-        .table
-        .as_ref()
-        .map(|table| json!({ "table": process_script_table(table) }))
-        .or_else(|| {
-            script
-                .elem
-                .as_ref()
-                .map(|elem| json!({ "elem": process_elem_union(elem) }))
-        })
-}
+                                (key, value)
+                            })
+                            .collect::<HashMap<_, _>>()),
+                    }
+                } else if script.elem.is_some() {
+                    match script.elem.as_ref().unwrap() {
+                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
+                        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
+                            .collect::<HashMap<_, _>>()),
+                        ElemUnion::String(string) => json!(string),
+                    }
+                } else {
+                    continue;
+                };
 
-fn process_script_table(table: &ScriptTable) -> serde_json::Value {
-    match table {
-        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
-        ScriptTable::PurpleTableArray(elem_array) => {
-            json!(elem_array
-                .iter()
-                .map(|elem| {
-                    let key = elem.key.clone();
-                    let value = process_table_elem(elem);
-                    (key, value)
-                })
-                .collect::<HashMap<_, _>>())
+                ip_service_extra_service::Mutation::upsert_ip_service_extra(
+                    ip_main_id,
+                    ip_service_id,
+                    &script.id,
+                    value,
+                )
+                .await?;
+            }
+            Ok(())
         }
-    }
-}
-
-fn process_table_elem(elem: &PurpleTable) -> serde_json::Value {
-    if let Some(elems) = &elem.elem {
-        json!(elems
-            .iter()
-            .map(|e| (e.key.clone(), e.value.clone()))
-            .collect::<HashMap<_, _>>())
-    } else if let Some(table) = &elem.table {
-        process_table_table_union(table)
-    } else {
-        json!(HashMap::<String, serde_json::Value>::new())
-    }
-}
-
-fn process_table_table_union(table_union: &TableTableUnion) -> serde_json::Value {
-    match table_union {
-        TableTableUnion::FluffyTableArray(fluffy_tables) => {
-            json!(fluffy_tables
-                .iter()
-                .flat_map(|fluffy_table| {
-                    fluffy_table
-                        .elem
-                        .iter()
-                        .map(|e| (e.key.clone(), e.value.clone()))
-                })
-                .collect::<HashMap<_, _>>())
-        }
-        TableTableUnion::TentacledTable(tentacled_table) => {
-            json!(tentacled_table
-                .table
-                .elem
-                .iter()
-                .map(|e| (e.key.clone(), e.value.clone()))
-                .collect::<HashMap<_, _>>())
-        }
-    }
-}
-
-fn process_elem_union(elem_union: &ElemUnion) -> serde_json::Value {
-    match elem_union {
-        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
-        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
-            .iter()
-            .map(|elem| { (elem.key.clone(), elem.value.clone()) })
-            .collect::<HashMap<_, _>>()),
-        ElemUnion::String(string) => json!(string),
     }
 }
 
