@@ -45,17 +45,10 @@ pub struct Ports {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
     pub portid: i64,
-    pub protocol: Protocol,
+    pub protocol: String,
     pub script: ScriptUnion,
     pub service: Service,
     pub state: Stat,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Protocol {
-    Tcp,
-    Udp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -149,7 +142,7 @@ pub struct PurpleScript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
     pub conf: i64,
-    pub method: Method,
+    pub method: String,
     pub name: String,
     pub product: Option<String>,
     pub ostype: Option<String>,
@@ -158,13 +151,6 @@ pub struct Service {
     pub version: Option<String>,
     pub tunnel: Option<String>,
     pub cpe: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Method {
-    Probed,
-    Table,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -206,7 +192,7 @@ pub struct Hosts {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scaninfo {
     pub numservices: i64,
-    pub protocol: Protocol,
+    pub protocol: String,
     pub services: String,
     #[serde(rename = "type")]
     pub scaninfo_type: String,
