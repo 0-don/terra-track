@@ -88,8 +88,7 @@ impl Script {
         let mut contents = String::new();
 
         file.read_to_string(&mut contents)?;
-        // let nmap: Ports = quick_xml::de::from_str(&contents).unwrap();
-        // convert the XML string into JSON with default config params
+
         let json = xml_string_to_json(
             contents.clone(),
             &Config {
@@ -97,14 +96,10 @@ impl Script {
                 xml_text_node_prop_name: "value".to_string(),
                 ..Default::default()
             },
-        )
-        .unwrap()
+        )?
         .to_string();
 
-        File::create(self.xml.clone().replace(".xml", ".json"))
-            .unwrap()
-            .write_all(json.as_bytes())
-            .unwrap();
+        File::create(self.xml.clone().replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
         let nmap: Nmap = serde_json::from_str(json.as_str())?;
         Ok(nmap)

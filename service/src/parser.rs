@@ -74,7 +74,12 @@ async fn process_scripts(
                 ip_main_id,
                 ip_service_id,
                 &purple_script.id,
-                &json!(&purple_script.elem),
+                json!(purple_script
+                    .elem
+                    .clone()
+                    .into_iter()
+                    .map(|elem| (elem.key, elem.value))
+                    .collect::<HashMap<_, _>>()),
             )
             .await?;
             Ok(())
@@ -82,7 +87,7 @@ async fn process_scripts(
         ScriptUnion::ScriptElementArray(script_elements) => {
             for script in script_elements {
                 let value = if script.table.is_some() && script.elem.is_some() {
-                    json!({ "elem": &script.elem, "table": &script.table })
+                    json!({ &script.id: &script.elem, "table": &script.table })
                 } else if script.table.is_some() {
                     json!(&script.table)
                 } else if script.elem.is_some() {
@@ -95,7 +100,7 @@ async fn process_scripts(
                     ip_main_id,
                     ip_service_id,
                     &script.id,
-                    &value,
+                    value,
                 )
                 .await?;
             }

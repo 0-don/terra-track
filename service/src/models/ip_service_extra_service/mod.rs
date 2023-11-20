@@ -19,7 +19,7 @@ impl Mutation {
         ip_main_id: i64,
         ip_service_id: i64,
         key: &str,
-        value: &serde_json::Value,
+        value: serde_json::Value,
     ) -> anyhow::Result<ip_service_extra::Model> {
         let db = get_db_connection().await?;
         let mut model = ip_service_extra::Entity::find()
