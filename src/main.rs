@@ -1,7 +1,7 @@
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, scripts::Script};
+use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
 use service::{
     models::{ip_main_service, scan_batch_service},
     parser::parse_nmap_results,
@@ -29,12 +29,12 @@ async fn main() -> anyhow::Result<()> {
             continue;
         }
 
-        let script = Script::new(ip.into(), vec![]);
-        let result = script.parse_nmap_xml();
+        // let script = Script::new(ip.into(), vec![]);
+        // let result = script.parse_nmap_xml();
 
-        // let ports = Scanner::new(ip.into()).run().await?;
-        // printlog!("Open ports: {:?}", ports);
-        // let result = Script::new(ip.into(), ports).run();
+        let ports = Scanner::new(ip.into()).run().await?;
+        printlog!("Open ports: {:?}", ports);
+        let result = Script::new(ip.into(), ports).run();
 
         if let Ok(result) = result {
             parse_nmap_results(result).await?;

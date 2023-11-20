@@ -17,7 +17,7 @@ impl Script {
         Self {
             ip,
             open_ports,
-            xml: format!("./{}.xml", ip.to_string()),
+            xml: format!("./output/{}.xml", ip.to_string()),
         }
     }
 
