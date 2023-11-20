@@ -51,7 +51,11 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
         ip_main_id: Set(ip_main_id),
         port: Set(port.portid as i16),
         name: Set(port.service.name.clone()),
-        // ... other fields
+        product: Set(port.service.product.clone()),
+        service_fp: Set(port.service.servicefp.clone()),
+        version: Set(port.service.version.clone()),
+        extra_info: Set(port.service.extrainfo.clone()),
+        method: Set(format!("{:?}", port.service.method.clone())),
         os_type: Set(os_type),
         cpu_arch: Set(cpu_arch),
         ..Default::default()
