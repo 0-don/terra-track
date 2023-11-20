@@ -87,18 +87,44 @@ async fn process_scripts(
         ScriptUnion::ScriptElementArray(script_elements) => {
             for script in script_elements {
                 let value = if script.table.is_some() && script.elem.is_some() {
-                    json!({ &script.id: &script.elem, "table": &script.table })
+                    json!({ &script.id: &script.elem, "table": match script.table.as_ref().unwrap() {
+                        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
+                        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .filter(|elem| elem.elem.is_some())
+                            .map(|elem| {
+
+                                return (
+                                    elem.key.to_owned(),
+                                    elem.elem
+                                        .clone()
+                                        .unwrap()
+                                        .into_iter()
+                                        .map(|e| (e.key, e.value))
+                                        .collect::<HashMap<_, _>>()
+                                );
+                            })
+                            .collect::<HashMap<_, _>>()),
+                    } })
                 } else if script.table.is_some() {
                     match script.table.as_ref().unwrap() {
                         ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
                         ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
                             .into_iter()
-                            .map(|elem| (elem.key.to_owned(), elem.elem.to_owned()))
+                            .map(|elem| (
+                                elem.key.to_owned(),
+                                elem.elem
+                                    .clone()
+                                    .unwrap()
+                                    .into_iter()
+                                    .map(|e| (e.key, e.value))
+                                    .collect::<HashMap<_, _>>()
+                            ))
                             .collect::<HashMap<_, _>>()),
                     }
                 } else if script.elem.is_some() {
                     match script.elem.as_ref().unwrap() {
-                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value.as_str() }),
+                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
                         ElemUnion::ElemElemArray(elem_array) => json!(elem_array
                             .into_iter()
                             .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))

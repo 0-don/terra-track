@@ -87,15 +87,9 @@ pub struct ScriptElement {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ElemUnion {
-    ElemElem(ElemElem),
-    ElemElemArray(Vec<ElemElem>),
+    ElemElem(PurpleElem),
+    ElemElemArray(Vec<PurpleElem>),
     String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ElemElem {
-    pub key: String,
-    pub value: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -118,12 +112,12 @@ pub struct PurpleElem {
     pub value: PurpleValue,
 }
 
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PurpleValue {
     Integer(i64),
     String(String),
+    Boolean(bool),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -135,28 +129,7 @@ pub enum TableTableUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyTable {
-    pub elem: Vec<FluffyElem>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct FluffyElem {
-    pub key: FluffyKey,
-    pub value: FluffyValue,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum FluffyKey {
-    Critical,
-    Name,
-    Value,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum FluffyValue {
-    Bool(bool),
-    String(String),
+    pub elem: Vec<PurpleElem>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -167,7 +140,7 @@ pub struct TentacledTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyTable {
-    pub elem: Vec<ElemElem>,
+    pub elem: Vec<PurpleElem>,
     pub key: String,
 }
 
@@ -179,7 +152,7 @@ pub struct IndigoTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleScript {
-    pub elem: Vec<ElemElem>,
+    pub elem: Vec<PurpleElem>,
     pub id: String,
     pub output: String,
 }
@@ -207,25 +180,9 @@ pub enum Method {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Stat {
-    pub reason: Reason,
+    pub reason: String,
     pub reason_ttl: i64,
-    pub state: State,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum Reason {
-    #[serde(rename = "syn-ack")]
-    SynAck,
-    #[serde(rename = "user-set")]
-    UserSet,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum State {
-    Open,
-    Up,
+    pub state: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -268,23 +225,13 @@ pub struct Scaninfo {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskbegin {
-    pub task: Task,
+    pub task: String,
     pub time: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Task {
-    #[serde(rename = "Connect Scan")]
-    ConnectScan,
-    #[serde(rename = "NSE")]
-    Nse,
-    #[serde(rename = "Service scan")]
-    ServiceScan,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskend {
-    pub task: Task,
+    pub task: String,
     pub time: i64,
     pub extrainfo: Option<String>,
 }
@@ -294,6 +241,6 @@ pub struct Taskprogress {
     pub etc: i64,
     pub percent: f64,
     pub remaining: i64,
-    pub task: Task,
+    pub task: String,
     pub time: i64,
 }
