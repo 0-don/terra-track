@@ -1,6 +1,6 @@
 use crate::db::get_db_connection;
 use entity::ip_service_extra;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel, QueryFilter, ColumnTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
 
 pub struct Mutation;
 pub struct Query;
@@ -13,6 +13,38 @@ impl Mutation {
         let model = active_model.save(&db).await?.try_into_model()?;
 
         Ok(model)
+    }
+
+    pub async fn upsert_ip_service_extra(
+        ip_main_id: i64,
+        ip_service_id: i64,
+        key: &str,
+        value: &serde_json::Value,
+    ) -> anyhow::Result<ip_service_extra::Model> {
+        let db = get_db_connection().await?;
+        let mut model = ip_service_extra::Entity::find()
+            .filter(ip_service_extra::Column::IpMainId.eq(ip_main_id))
+            .filter(ip_service_extra::Column::IpServiceId.eq(ip_service_id))
+            .filter(ip_service_extra::Column::Key.eq(key))
+            .one(&db)
+            .await?
+            .map(|model| model.try_into_model())
+            .transpose()?;
+
+        if model.is_none() {
+            model = ip_service_extra::ActiveModel {
+                ip_main_id: Set(ip_main_id),
+                ip_service_id: Set(ip_service_id),
+                key: Set(key.to_string()),
+                value: Set(value.clone()),
+                ..Default::default()
+            }
+            .insert(&db)
+            .await
+            .ok();
+        }
+
+        Ok(model.unwrap())
     }
 
     pub async fn update_ip_service_extra(

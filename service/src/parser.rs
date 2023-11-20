@@ -1,8 +1,8 @@
 use crate::models::{ip_main_service, ip_service_extra_service, ip_service_service};
 use crate::utils::date;
 use chrono::Duration;
+use entity::ip_main;
 use entity::ip_service;
-use entity::{ip_main, ip_service_extra};
 use regex::Regex;
 use scanner::types::{Nmap, Port, ScriptUnion};
 use sea_orm::Set;
@@ -66,7 +66,7 @@ async fn process_scripts(
 ) -> anyhow::Result<()> {
     match script_union {
         ScriptUnion::PurpleScript(purple_script) => {
-            create_ip_service_extra(
+            ip_service_extra_service::Mutation::upsert_ip_service_extra(
                 ip_main_id,
                 ip_service_id,
                 &purple_script.id,
@@ -87,27 +87,17 @@ async fn process_scripts(
                     continue;
                 };
 
-                create_ip_service_extra(ip_main_id, ip_service_id, &script.id, &value).await?;
+                ip_service_extra_service::Mutation::upsert_ip_service_extra(
+                    ip_main_id,
+                    ip_service_id,
+                    &script.id,
+                    &value,
+                )
+                .await?;
             }
             Ok(())
         }
     }
-}
-
-async fn create_ip_service_extra(
-    ip_main_id: i64,
-    ip_service_id: i64,
-    key: &str,
-    value: &serde_json::Value,
-) -> anyhow::Result<ip_service_extra::Model> {
-    ip_service_extra_service::Mutation::create_ip_service_extra(ip_service_extra::ActiveModel {
-        ip_main_id: Set(ip_main_id),
-        ip_service_id: Set(ip_service_id),
-        key: Set(key.to_string()),
-        value: Set(value.clone()),
-        ..Default::default()
-    })
-    .await
 }
 
 pub fn parse_os_from_nmap_output(nmap_output: &Option<String>) -> (Option<String>, Option<String>) {

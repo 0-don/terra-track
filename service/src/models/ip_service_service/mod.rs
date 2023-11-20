@@ -58,13 +58,13 @@ impl Query {
     pub async fn find_ip_service_by_port_and_ip_main_id_older_then(
         port: i16,
         ip_main_id: i64,
-        date: Option<DateTimeWithTimeZone>,
+        time_ago: Option<DateTimeWithTimeZone>,
     ) -> anyhow::Result<Option<ip_service::Model>> {
         let db = get_db_connection().await?;
         let model = ip_service::Entity::find()
             .filter(ip_service::Column::Port.eq(port))
             .filter(ip_service::Column::IpMainId.eq(ip_main_id))
-            .apply_if(date, |query, date| {
+            .apply_if(time_ago, |query, date| {
                 query.filter(ip_service::Column::CreatedAt.lt(date))
             })
             .one(&db)
