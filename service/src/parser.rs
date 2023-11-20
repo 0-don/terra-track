@@ -4,101 +4,118 @@ use chrono::Duration;
 use entity::ip_service;
 use entity::{ip_main, ip_service_extra};
 use regex::Regex;
-
-use scanner::types::{Nmaprun, Nmap};
+use scanner::types::{Nmap, ScriptUnion};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
 
-pub async fn parse_nmap_results(data: Nmap) -> anyhow::Result<()> {
-    // let first_host = data.host.first().unwrap();
-    // let ip = &first_host.address.first().unwrap().addr;
-    // let ports = &first_host.ports.port;
+pub async fn parse_nmap_results(nmap: Nmap) -> anyhow::Result<()> {
+    let host = nmap.nmaprun.host;
+    let ip = &host.address.addr;
+    let ports = &host.ports.port;
 
-    // let ip_main = ip_main_service::Mutation::upsert_ip_main(ip_main::ActiveModel {
-    //     ip_address: Set(ip.to_string()),
-    //     ..Default::default()
-    // })
-    // .await?;
+    let ip_main = ip_main_service::Mutation::upsert_ip_main(ip_main::ActiveModel {
+        ip_address: Set(ip.to_string()),
+        ..Default::default()
+    })
+    .await?;
 
-    // for port in ports {
-    //     let ip_service =
-    //         ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
-    //             port.portid.parse::<i16>().unwrap(),
-    //             ip_main.id,
-    //             Some(date(Duration::days(365))),
-    //         )
-    //         .await?;
+    for port in ports {
+        let ip_service =
+            ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
+                port.portid as i16,
+                ip_main.id,
+                Some(date(Duration::days(365))),
+            )
+            .await?;
 
-    //     if ip_service.is_some() {
-    //         continue;
-    //     }
+        if ip_service.is_some() {
+            continue;
+        }
 
-    //     let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
+        let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
 
-    //     if port.service.ostype.is_some() {
-    //         os_type = port.service.ostype.clone();
-    //     }
+        if port.service.ostype.is_some() {
+            os_type = port.service.ostype.clone();
+        }
 
-    //     let ip_service = ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
-    //         ip_main_id: Set(ip_main.id),
-    //         port: Set(port.portid.parse::<i16>().unwrap()),
-    //         name: Set(port.service.name.clone()),
-    //         product: Set(port.service.product.clone()),
-    //         service_fp: Set(port.service.servicefp.clone()),
-    //         version: Set(port.service.version.clone()),
-    //         extra_info: Set(port.service.extrainfo.clone()),
-    //         method: Set(port.service.method.clone()),
-    //         os_type: Set(os_type),
-    //         cpu_arch: Set(cpu_arch),
-    //         ..Default::default()
-    //     })
-    //     .await?;
+        let ip_service = ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+            ip_main_id: Set(ip_main.id),
+            port: Set(port.portid as i16),
+            name: Set(port.service.name.clone()),
+            product: Set(port.service.product.clone()),
+            service_fp: Set(port.service.servicefp.clone()),
+            version: Set(port.service.version.clone()),
+            extra_info: Set(port.service.extrainfo.clone()),
+            method: Set(format!("{:?}", port.service.method)),
+            os_type: Set(os_type),
+            cpu_arch: Set(cpu_arch),
+            ..Default::default()
+        })
+        .await?;
 
-    //     ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
-    //         .await?;
+        ip_service_extra_service::Mutation::delete_ip_service_extra_by_ip_service_id(ip_service.id)
+            .await?;
 
-    //     for script in &port.script {
-    //         ip_service_extra_service::Mutation::create_ip_service_extra(
-    //             ip_service_extra::ActiveModel {
-    //                 ip_main_id: Set(ip_main.id),
-    //                 ip_service_id: Set(ip_service.id),
-    //                 key: Set(script.id.clone()),
-    //                 value: Set(json!(&script.elem)),
-    //                 ..Default::default()
-    //             },
-    //         )
-    //         .await?;
+        match &port.script {
+            ScriptUnion::PurpleScript(purple_script) => {
+                // Your logic for handling PurpleScript
+                // Example:
+                ip_service_extra_service::Mutation::create_ip_service_extra(
+                    ip_service_extra::ActiveModel {
+                        ip_main_id: Set(ip_main.id),
+                        ip_service_id: Set(ip_service.id),
+                        key: Set(purple_script.id.clone()),
+                        value: Set(json!(&purple_script.elem)),
+                        ..Default::default()
+                    },
+                )
+                .await?;
+            }
+            ScriptUnion::ScriptElementArray(script_elements) => {
+                for script in script_elements {
+                    ip_service_extra_service::Mutation::create_ip_service_extra(
+                        ip_service_extra::ActiveModel {
+                            ip_main_id: Set(ip_main.id),
+                            ip_service_id: Set(ip_service.id),
+                            key: Set(script.id.clone()),
+                            value: Set(json!(&script.elem)),
+                            ..Default::default()
+                        },
+                    )
+                    .await?;
 
-    //         // if !&script.elems.is_empty() {
-    //         //     ip_service_extra_service::Mutation::create_ip_service_extra(
-    //         //         ip_service_extra::ActiveModel {
-    //         //             ip_main_id: Set(ip_main.id),
-    //         //             ip_service_id: Set(ip_service.id),
-    //         //             key: Set(script.id.clone()),
-    //         //             value: Set(json!(&script.elems)),
-    //         //             ..Default::default()
-    //         //         },
-    //         //     )
-    //         //     .await?;
-    //         // }
+                    // if !&script.elem.is_empty() {
+                    //     ip_service_extra_service::Mutation::create_ip_service_extra(
+                    //         ip_service_extra::ActiveModel {
+                    //             ip_main_id: Set(ip_main.id),
+                    //             ip_service_id: Set(ip_service.id),
+                    //             key: Set(script.id.clone()),
+                    //             value: Set(json!(&script.elems)),
+                    //             ..Default::default()
+                    //         },
+                    //     )
+                    //     .await?;
+                    // }
 
-    //         // for table in &script.tables {
-    //         //     if !&table.elems.is_empty() {
-    //         //         ip_service_extra_service::Mutation::create_ip_service_extra(
-    //         //             ip_service_extra::ActiveModel {
-    //         //                 ip_main_id: Set(ip_main.id),
-    //         //                 ip_service_id: Set(ip_service.id),
-    //         //                 key: Set(table.key.as_ref().unwrap().to_owned()),
-    //         //                 value: Set(json!(&table.elems)),
-    //         //                 ..Default::default()
-    //         //             },
-    //         //         )
-    //         //         .await?;
-    //         //     }
-    //         // }
-    //     }
-    // }
+                    // for table in &script.tables {
+                    //     if !&table.elems.is_empty() {
+                    //         ip_service_extra_service::Mutation::create_ip_service_extra(
+                    //             ip_service_extra::ActiveModel {
+                    //                 ip_main_id: Set(ip_main.id),
+                    //                 ip_service_id: Set(ip_service.id),
+                    //                 key: Set(table.key.as_ref().unwrap().to_owned()),
+                    //                 value: Set(json!(&table.elems)),
+                    //                 ..Default::default()
+                    //             },
+                    //         )
+                    //         .await?;
+                    //     }
+                    // }
+                }
+            }
+        };
+    }
 
     Ok(())
 }

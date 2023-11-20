@@ -1,66 +1,65 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmap {
-    nmaprun: Nmaprun,
+    pub nmaprun: Nmaprun,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmaprun {
-    args: String,
-    debugging: Debugging,
-    host: Host,
-    runstats: Runstats,
-    scaninfo: Scaninfo,
-    scanner: String,
-    start: i64,
-    startstr: String,
-    taskbegin: Vec<Taskbegin>,
-    taskend: Vec<Taskend>,
-    taskprogress: Vec<Taskprogress>,
-    verbose: Debugging,
-    version: f64,
-    xmloutputversion: f64,
+    pub args: String,
+    pub debugging: Debugging,
+    pub host: Host,
+    pub runstats: Runstats,
+    pub scaninfo: Scaninfo,
+    pub scanner: String,
+    pub start: i64,
+    pub startstr: String,
+    pub taskbegin: Vec<Taskbegin>,
+    pub taskend: Vec<Taskend>,
+    pub taskprogress: Vec<Taskprogress>,
+    pub verbose: Debugging,
+    pub version: f64,
+    pub xmloutputversion: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Debugging {
-    level: i64,
+    pub level: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Host {
-    address: Address,
-    endtime: i64,
-    hostnames: Hostnames,
-    ports: Ports,
-    starttime: i64,
-    status: Stat,
-    times: Times,
+    pub address: Address,
+    pub endtime: i64,
+    pub hostnames: Hostnames,
+    pub ports: Ports,
+    pub starttime: i64,
+    pub status: Stat,
+    pub times: Times,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Address {
-    addr: String,
-    addrtype: String,
+    pub addr: String,
+    pub addrtype: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Hostnames {
-}
+pub struct Hostnames {}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ports {
-    port: Vec<Port>,
+    pub port: Vec<Port>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
-    portid: i64,
-    protocol: Protocol,
-    script: ScriptUnion,
-    service: Service,
-    state: Stat,
+    pub portid: i64,
+    pub protocol: Protocol,
+    pub script: ScriptUnion,
+    pub service: Service,
+    pub state: Stat,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -78,10 +77,10 @@ pub enum ScriptUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScriptElement {
-    elem: Option<ElemUnion>,
-    id: String,
-    output: String,
-    table: Option<ScriptTable>,
+    pub elem: Option<ElemUnion>,
+    pub id: String,
+    pub output: String,
+    pub table: Option<ScriptTable>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -94,8 +93,8 @@ pub enum ElemUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ElemElem {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -107,15 +106,15 @@ pub enum ScriptTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleTable {
-    elem: Option<Vec<PurpleElem>>,
-    key: TableKey,
-    table: Option<TableTableUnion>,
+    pub elem: Option<Vec<PurpleElem>>,
+    pub key: TableKey,
+    pub table: Option<TableTableUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleElem {
-    key: PurpleKey,
-    value: PurpleValue,
+    pub key: PurpleKey,
+    pub value: PurpleValue,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -165,13 +164,13 @@ pub enum TableTableUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyTable {
-    elem: Vec<FluffyElem>,
+    pub elem: Vec<FluffyElem>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyElem {
-    key: FluffyKey,
-    value: FluffyValue,
+    pub key: FluffyKey,
+    pub value: FluffyValue,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -191,38 +190,41 @@ pub enum FluffyValue {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TentacledTable {
-    key: String,
-    table: StickyTable,
+    pub key: String,
+    pub table: StickyTable,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyTable {
-    elem: Vec<ElemElem>,
-    key: String,
+    pub elem: Vec<ElemElem>,
+    pub key: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndigoTable {
-    elem: Vec<String>,
-    key: String,
+    pub elem: Vec<String>,
+    pub key: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleScript {
-    elem: Vec<ElemElem>,
-    id: String,
-    output: String,
+    pub elem: Vec<ElemElem>,
+    pub id: String,
+    pub output: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
-    conf: i64,
-    method: Method,
-    name: String,
-    product: Option<String>,
-    servicefp: Option<String>,
-    tunnel: Option<String>,
-    cpe: Option<String>,
+    pub conf: i64,
+    pub method: Method,
+    pub name: String,
+    pub product: Option<String>,
+    pub ostype: Option<String>,
+    pub servicefp: Option<String>,
+    pub extrainfo: Option<String>,
+    pub version: Option<String>,
+    pub tunnel: Option<String>,
+    pub cpe: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -234,9 +236,9 @@ pub enum Method {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Stat {
-    reason: Reason,
-    reason_ttl: i64,
-    state: State,
+    pub reason: Reason,
+    pub reason_ttl: i64,
+    pub state: State,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -257,46 +259,46 @@ pub enum State {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Times {
-    rttvar: i64,
-    srtt: i64,
-    to: i64,
+    pub rttvar: i64,
+    pub srtt: i64,
+    pub to: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Runstats {
-    finished: Finished,
-    hosts: Hosts,
+    pub finished: Finished,
+    pub hosts: Hosts,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Finished {
-    elapsed: f64,
-    exit: String,
-    summary: String,
-    time: i64,
-    timestr: String,
+    pub elapsed: f64,
+    pub exit: String,
+    pub summary: String,
+    pub time: i64,
+    pub timestr: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hosts {
-    down: i64,
-    total: i64,
-    up: i64,
+    pub down: i64,
+    pub total: i64,
+    pub up: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scaninfo {
-    numservices: i64,
-    protocol: Protocol,
-    services: String,
+    pub numservices: i64,
+    pub protocol: Protocol,
+    pub services: String,
     #[serde(rename = "type")]
-    scaninfo_type: String,
+    pub scaninfo_type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskbegin {
-    task: Task,
-    time: i64,
+    pub task: Task,
+    pub time: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -311,16 +313,16 @@ pub enum Task {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskend {
-    task: Task,
-    time: i64,
-    extrainfo: Option<String>,
+    pub task: Task,
+    pub time: i64,
+    pub extrainfo: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Taskprogress {
-    etc: i64,
-    percent: f64,
-    remaining: i64,
-    task: Task,
-    time: i64,
+    pub etc: i64,
+    pub percent: f64,
+    pub remaining: i64,
+    pub task: Task,
+    pub time: i64,
 }
