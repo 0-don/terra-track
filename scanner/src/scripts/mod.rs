@@ -1,10 +1,10 @@
+use crate::types::{NmapXML, Hostnames, Ports};
+use quick_xml;
 use std::fs::{create_dir_all, File};
-use serde_xml_rs::from_str;
 use std::io::Read;
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::Command;
-use crate::types::NmapXML;
 
 pub struct Script {
     ip: IpAddr,
@@ -50,9 +50,7 @@ impl Script {
 
         let script = self.execute_script(arguments);
         match script {
-            Ok(_x) => {
-                self.parse_nmap_xml()
-            }
+            Ok(_x) => self.parse_nmap_xml(),
             Err(_) => Err(anyhow::anyhow!("Script failed")),
         }
     }
@@ -88,9 +86,10 @@ impl Script {
         self.create_directory();
         let mut file = File::open(self.xml.clone())?;
         let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
 
-        let nmap: NmapXML = from_str(&contents).unwrap();
+        file.read_to_string(&mut contents)?;
+        let nmap: Ports = quick_xml::de::from_str(&contents).unwrap();
+        let nmap: NmapXML = quick_xml::de::from_str(&contents).unwrap();
         Ok(nmap)
     }
 }

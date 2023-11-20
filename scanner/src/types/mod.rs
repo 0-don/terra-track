@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct NmapXML {
@@ -69,7 +67,8 @@ pub struct Address {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Hostnames {
-    pub hostname: Option<Vec<Hostname>>,
+    #[serde(default)]
+    pub hostname: Vec<Hostname>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -81,6 +80,7 @@ pub struct Hostname {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Ports {
+    #[serde(default)]
     pub port: Vec<Port>,
 }
 
@@ -88,38 +88,38 @@ pub struct Ports {
 pub struct Port {
     pub protocol: String,
     pub portid: String,
-    pub state: State,
+    pub state: Option<State>,
     pub service: Service,
-    pub cpe: Option<Vec<String>>,
-    pub script: Option<Vec<Script>>,
+    #[serde(default)]
+    pub cpe: Vec<String>,
+    #[serde(default)]
+    pub script: Vec<Script>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Script {
     pub id: String,
     pub output: String,
-    #[serde(rename = "table", default)]
+    #[serde(default)]
     pub table: Vec<Table>,
-    #[serde(rename = "elem", default)]
+    #[serde(default)]
     pub elem: Vec<Elem>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Table {
-    #[serde(rename = "key", default)]
-    key: String,
-    #[serde(rename = "elem", default)]
-    elem: Vec<Elem>,
-    #[serde(rename = "table", default)]
-    table: Vec<Table>,
+    pub key: Option<String>,
+    #[serde(default)]
+    pub elem: Vec<Elem>,
+    #[serde(default = "Vec::new")]
+    pub table: Vec<Table>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Elem {
-    #[serde(rename = "key", default)]
-    key: Option<String>,
-    #[serde(rename = "$value", default)]
-    value: Option<String>,
+    pub key: Option<String>,
+    #[serde(rename = "$value")]
+    pub value: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -170,19 +170,19 @@ pub struct Hosts {
     pub total: String,
 }
 
-fn deserialize_elems<'de, D>(deserializer: D) -> Result<HashMap<String, String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let elems_array: Vec<Elem> = Deserialize::deserialize(deserializer)?;
-    let elems_map = elems_array
-        .into_iter()
-        .filter_map(|elem| match (elem.key, elem.value) {
-            (Some(key), Some(value)) => Some((key, value)),
-            (Some(key), None) => Some((key.clone(), key)),
-            (None, Some(value)) => Some((value.clone(), value)),
-            (None, None) => None,
-        })
-        .collect();
-    Ok(elems_map)
-}
+// fn deserialize_elems<'de, D>(deserializer: D) -> Result<HashMap<String, String>, D::Error>
+// where
+//     D: Deserializer<'de>,
+// {
+//     let elems_array: Vec<Elem> = Deserialize::deserialize(deserializer)?;
+//     let elems_map = elems_array
+//         .into_iter()
+//         .filter_map(|elem| match (elem.key, elem.value) {
+//             (Some(key), Some(value)) => Some((key, value)),
+//             (Some(key), None) => Some((key.clone(), key)),
+//             (None, Some(value)) => Some((value.clone(), value)),
+//             (None, None) => None,
+//         })
+//         .collect();
+//     Ok(elems_map)
+// }

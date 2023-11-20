@@ -29,8 +29,8 @@ async fn main() -> anyhow::Result<()> {
             continue;
         }
 
-        let ports = Scanner::new(ip.into()).run().await?;
-        printlog!("Open ports: {:?}", ports);
+        // let ports = Scanner::new(ip.into()).run().await?;
+        // printlog!("Open ports: {:?}", ports);
 
         let script = Script::new(ip.into(), vec![]);
         let result = script.parse_nmap_xml();
