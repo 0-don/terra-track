@@ -1,13 +1,11 @@
 use crate::entity_mapper::process_scripts;
 use crate::models::{ip_main_service, ip_service_service};
-use crate::utils::date;
+use crate::utils::{date, parse_os_from_nmap_output};
 use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
-use regex::Regex;
 use scanner::types::{Nmap, Port};
 use sea_orm::Set;
-use std::collections::HashMap;
 
 pub async fn parse_nmap_results(nmap: Nmap) -> anyhow::Result<()> {
     let host = nmap.nmaprun.host;
@@ -54,44 +52,4 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
         ..Default::default()
     })
     .await
-}
-
-pub fn parse_os_from_nmap_output(nmap_output: &Option<String>) -> (Option<String>, Option<String>) {
-    if nmap_output.is_none() {
-        return (None, None);
-    }
-    let os_patterns = vec![
-        r"windows\s(server\s)?(11|10|8\.1|8|7|xp)|windows\s\d+-x86_64|linux-gnueabihf-armv\d+",
-        r"linux|ubuntu|debian|centos|fedora|red\s?hat|suse|arch\s?linux|manjaro|mint|aix|hp-ux|solaris|bsd|sunos|gnu|vmware|xen|kvm|mac\sos\sx|macos\s(catalina|big\s?sur|monterey|sierra|high\s?sierra|mojave)|android|ios|windows\sphone",
-    ];
-    let cpu_patterns = vec![
-        r"x86_64|x86|i[3579]|ryzen|aarch64|armv\d+|mips\d+|sparc|ppc64|s390x|itanium|alpha|pa-risc|avr|pic|msp430",
-    ];
-    let mut os_counts = HashMap::new();
-    let mut cpu_counts = HashMap::new();
-    for pattern in os_patterns {
-        let re = Regex::new(pattern).unwrap();
-        for line in nmap_output.as_ref().unwrap().lines() {
-            if let Some(cap) = re.captures(line) {
-                *os_counts.entry(cap[0].to_string()).or_insert(0) += 1;
-            }
-        }
-    }
-    for pattern in cpu_patterns {
-        let re = Regex::new(pattern).unwrap();
-        for line in nmap_output.as_ref().unwrap().lines() {
-            if let Some(cap) = re.captures(line) {
-                *cpu_counts.entry(cap[0].to_string()).or_insert(0) += 1;
-            }
-        }
-    }
-    let os_type = os_counts
-        .into_iter()
-        .max_by_key(|&(_, count)| count)
-        .map(|(match_str, _)| match_str);
-    let cpu_arch = cpu_counts
-        .into_iter()
-        .max_by_key(|&(_, count)| count)
-        .map(|(match_str, _)| match_str);
-    (os_type, cpu_arch)
 }
