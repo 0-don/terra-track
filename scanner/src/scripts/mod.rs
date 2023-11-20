@@ -1,5 +1,6 @@
-use crate::types::{NmapXML, Hostnames, Ports};
+use crate::types::{Nmaprun, Ports};
 use quick_xml;
+use serde_xml_rs::from_str;
 use std::fs::{create_dir_all, File};
 use std::io::Read;
 use std::net::IpAddr;
@@ -21,7 +22,7 @@ impl Script {
         }
     }
 
-    pub fn run(self) -> anyhow::Result<NmapXML> {
+    pub fn run(self) -> anyhow::Result<Nmaprun> {
         // Convert ports to string and join with commas
         let ports_str = self
             .open_ports
@@ -82,14 +83,15 @@ impl Script {
         }
     }
 
-    pub fn parse_nmap_xml(&self) -> anyhow::Result<NmapXML> {
+    pub fn parse_nmap_xml(&self) -> anyhow::Result<Nmaprun> {
         self.create_directory();
         let mut file = File::open(self.xml.clone())?;
         let mut contents = String::new();
 
         file.read_to_string(&mut contents)?;
-        let nmap: Ports = quick_xml::de::from_str(&contents).unwrap();
-        let nmap: NmapXML = quick_xml::de::from_str(&contents).unwrap();
+        // let nmap: Ports = quick_xml::de::from_str(&contents).unwrap();
+        // let nmap: Welcome1 = quick_xml::de::from_str(&contents).unwrap();
+        let nmap: Nmaprun = from_str(&contents).unwrap();
         Ok(nmap)
     }
 }

@@ -9,7 +9,7 @@ entity = { path = "../entity" }
 tokio = { version = "1", features = ["full"] }
 futures = "0"
 
-serde = "1"
+serde = { version = "1", features = ["derive"] }
 serde-xml-rs = "0"
 quick-xml = { version = "0", features = ["serialize"] }
 anyhow = "1"

@@ -1,7 +1,7 @@
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
+use scanner::{ip_iterator::Ipv4Iter, scripts::Script};
 use service::{
     models::{ip_main_service, scan_batch_service},
     parser::parse_nmap_results,
