@@ -122,8 +122,8 @@ pub struct TentacledTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyTable {
-    pub elem: Vec<PurpleElem>,
     pub key: String,
+    pub elem: Vec<PurpleElem>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

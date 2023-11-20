@@ -4,7 +4,7 @@ use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
 use regex::Regex;
-use scanner::types::{ElemUnion, Nmap, Port, ScriptTable, ScriptUnion};
+use scanner::types::{ElemUnion, Nmap, Port, ScriptTable, ScriptUnion, TableTableUnion};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
@@ -91,18 +91,27 @@ async fn process_scripts(
                         ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
                         ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
                             .into_iter()
-                            .filter(|elem| elem.elem.is_some())
                             .map(|elem| {
 
-                                return (
-                                    elem.key.to_owned(),
-                                    elem.elem
-                                        .clone()
-                                        .unwrap()
-                                        .into_iter()
-                                        .map(|e| (e.key, e.value))
-                                        .collect::<HashMap<_, _>>()
-                                )
+                                let key = elem.key.to_owned();
+                                let value = if let Some(elems) = elem.clone().elem {
+                                    elems.into_iter().map(|e| (e.key, e.value)).collect::<HashMap<_, _>>()
+                                } else if let Some(table) = elem.clone().table {
+                                    match table {
+                                        TableTableUnion::FluffyTableArray(fluffy_tables) => {
+                                            fluffy_tables.into_iter().flat_map(|fluffy_table| {
+                                                fluffy_table.elem.into_iter().map(|e| (e.key, e.value))
+                                            }).collect::<HashMap<_, _>>()
+                                        },
+                                        TableTableUnion::TentacledTable(tentacled_table) => {
+                                            tentacled_table.table.elem.into_iter().map(|e| (e.key, e.value)).collect::<HashMap<_, _>>()
+                                        }
+                                    }
+                                } else {
+                                    HashMap::new()
+                                };
+                            
+                                (key, value)
                             })
                             .collect::<HashMap<_, _>>()),
                     } })
