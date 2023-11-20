@@ -4,7 +4,7 @@ use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
 use regex::Regex;
-use scanner::types::{ElemUnion, Nmap, Port, ScriptUnion};
+use scanner::types::{ElemUnion, Nmap, Port, ScriptTable, ScriptUnion};
 use sea_orm::Set;
 use serde_json::json;
 use std::collections::HashMap;
@@ -89,10 +89,16 @@ async fn process_scripts(
                 let value = if script.table.is_some() && script.elem.is_some() {
                     json!({ &script.id: &script.elem, "table": &script.table })
                 } else if script.table.is_some() {
-                    json!(&script.table)
+                    match script.table.as_ref().unwrap() {
+                        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
+                        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
+                            .into_iter()
+                            .map(|elem| (elem.key.to_owned(), elem.elem.to_owned()))
+                            .collect::<HashMap<_, _>>()),
+                    }
                 } else if script.elem.is_some() {
                     match script.elem.as_ref().unwrap() {
-                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value.as_str()}),
+                        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value.as_str() }),
                         ElemUnion::ElemElemArray(elem_array) => json!(elem_array
                             .into_iter()
                             .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
