@@ -50,7 +50,7 @@ impl MigrationTrait for Migration {
                             .default(SimpleExpr::Value(Protocol::TCP.to_string().into()))
                             .not_null(),
                     )
-                    .col(ColumnDef::new(IpService::Port).small_integer().not_null())
+                    .col(ColumnDef::new(IpService::Port).small_unsigned().not_null())
                     .col(ColumnDef::new(IpService::Name).string().not_null())
                     .col(ColumnDef::new(IpService::Product).string())
                     .col(ColumnDef::new(IpService::ServiceFp).text())

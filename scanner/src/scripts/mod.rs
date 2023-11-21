@@ -22,6 +22,10 @@ impl Script {
     }
 
     pub fn run(self) -> anyhow::Result<Nmap> {
+        if let Ok(nmap) = self.get_file_if_exist() {
+            return Ok(nmap);
+        }
+
         // Convert ports to string and join with commas
         let ports_str = self
             .open_ports
@@ -31,7 +35,6 @@ impl Script {
             .join(",");
 
         // Construct the list of arguments with the IP and ports
-
         let binding = self.ip.to_string();
         let arguments = vec![
             "nmap",
@@ -64,6 +67,20 @@ impl Script {
                 create_dir_all(parent).expect("Failed to create directory");
             }
         }
+    }
+
+    fn get_file_if_exist(&self) -> anyhow::Result<Nmap> {
+        if Path::new(&self.xml).exists() {
+            let nmap = self.parse_nmap_xml();
+            if let Ok(nmap) = nmap {
+                if nmap.nmaprun.host.address.addr == self.ip.to_string() {
+                    return Ok(nmap);
+                }
+                return Err(anyhow::anyhow!("IP does not match"));
+            }
+            return Err(anyhow::anyhow!("Failed to parse XML"));
+        }
+        Err(anyhow::anyhow!("File does not exist"))
     }
 
     fn execute_script(&self, arguments: Vec<&str>) -> anyhow::Result<String> {
