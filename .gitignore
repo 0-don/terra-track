@@ -3,3 +3,4 @@ output
 *.xml
 *.sql
 *.json
+.env
