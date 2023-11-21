@@ -7,8 +7,8 @@ use entity::ip_service;
 use scanner::types::{Nmap, Port};
 use sea_orm::Set;
 
-pub async fn parse_nmap_results(nmap: Nmap) -> anyhow::Result<()> {
-    let host = nmap.nmaprun.host;
+pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
+    let host = &nmap.nmaprun.host;
     let ip = &host.address.addr;
     let ports = &host.ports.port;
     let ip_main = ip_main_service::Mutation::upsert_ip_main_by_ip(ip).await?;
@@ -46,7 +46,7 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
         service_fp: Set(port.service.servicefp.clone()),
         version: Set(port.service.version.clone()),
         extra_info: Set(port.service.extrainfo.clone()),
-        method: Set(format!("{:?}", port.service.method.clone())),
+        method: Set(format!("{:?}", port.service.method)),
         os_type: Set(os_type),
         cpu_arch: Set(cpu_arch),
         ..Default::default()

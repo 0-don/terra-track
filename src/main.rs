@@ -36,8 +36,8 @@ async fn main() -> anyhow::Result<()> {
         printlog!("Open ports: {:?}", ports);
         let result = Script::new(ip.into(), ports).run();
 
-        if let Ok(result) = result {
-            parse_nmap_results(result).await?;
+        if let Ok(nmap) = result {
+            parse_nmap_results(&nmap).await?;
         }
     }
 
