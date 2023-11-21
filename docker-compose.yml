@@ -18,7 +18,7 @@ services:
   terra-track-vpn:
     container_name: terra-track-vpn
     restart: always
-    # network_mode: bridge
+    network_mode: bridge
     image: qmcgaw/gluetun
     cap_add:
       - NET_ADMIN
@@ -37,7 +37,7 @@ services:
     container_name: terra-track-db
     image: postgres:alpine
     restart: always
-    # network_mode: bridge
+    network_mode: bridge
     ports:
       - 5433:5432
     environment:
