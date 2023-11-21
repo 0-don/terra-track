@@ -51,6 +51,8 @@ impl Script {
             binding.as_str(),
         ];
 
+        println!("{:?}", arguments.join(" "));
+
         self.create_directory();
 
         let script = self.execute_script(arguments);
