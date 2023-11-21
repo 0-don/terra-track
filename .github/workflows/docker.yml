@@ -27,5 +27,8 @@ jobs:
           echo SERVER_CITIES=${{ secrets.SERVER_CITIES }} >> .env
           cat .env
 
+      - name: Reset DB
+        run: docker stop terra-track-db || true && docker rm terra-track-db || true
+
       - name: Docker run
         run: docker compose up -d --force-recreate --build
