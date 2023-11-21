@@ -3,53 +3,6 @@ use scanner::types::{ElemUnion, ScriptTable, ScriptUnion, TableTableUnion};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-pub fn parse_script_table(script_table: &ScriptTable) -> Value {
-    match script_table {
-        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
-        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
-            .into_iter()
-            .map(|elem| {
-                let key = elem.key.to_owned();
-                let value = if let Some(elems) = elem.clone().elem {
-                    elems
-                        .into_iter()
-                        .map(|e| (e.key, e.value))
-                        .collect::<HashMap<_, _>>()
-                } else if let Some(table) = elem.clone().table {
-                    match table {
-                        TableTableUnion::FluffyTableArray(fluffy_tables) => fluffy_tables
-                            .into_iter()
-                            .flat_map(|fluffy_table| {
-                                fluffy_table.elem.into_iter().map(|e| (e.key, e.value))
-                            })
-                            .collect::<HashMap<_, _>>(),
-                        TableTableUnion::TentacledTable(tentacled_table) => tentacled_table
-                            .table
-                            .elem
-                            .into_iter()
-                            .map(|e| (e.key, e.value))
-                            .collect::<HashMap<_, _>>(),
-                    }
-                } else {
-                    HashMap::new()
-                };
-                (key, value)
-            })
-            .collect::<HashMap<_, _>>()),
-    }
-}
-
-pub fn parse_script_elem(elem: &ElemUnion) -> Value {
-    match elem {
-        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
-        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
-            .into_iter()
-            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
-            .collect::<HashMap<_, _>>()),
-        ElemUnion::String(string) => json!(string),
-    }
-}
-
 pub async fn process_scripts(
     ip_main_id: i64,
     ip_service_id: i64,
@@ -92,5 +45,57 @@ pub async fn process_scripts(
             }
             Ok(())
         }
+    }
+}
+
+pub fn parse_script_table(script_table: &ScriptTable) -> Value {
+    match script_table {
+        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): elem.elem }),
+        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
+            .into_iter()
+            .map(|elem| {
+                let key = elem.key.to_owned();
+                let value = if let Some(elems) = &elem.elem {
+                    elems
+                        .into_iter()
+                        .map(|e| (e.key.to_owned(), e.value.to_owned()))
+                        .collect::<HashMap<_, _>>()
+                } else if let Some(table) = &elem.table {
+                    match table {
+                        TableTableUnion::FluffyTableArray(fluffy_tables) => fluffy_tables
+                            .into_iter()
+                            .flat_map(|fluffy_table| {
+                                fluffy_table
+                                    .elem
+                                    .to_owned()
+                                    .into_iter()
+                                    .map(|e| (e.key, e.value))
+                            })
+                            .collect::<HashMap<_, _>>(),
+                        TableTableUnion::TentacledTable(tentacled_table) => tentacled_table
+                            .table
+                            .elem
+                            .to_owned()
+                            .into_iter()
+                            .map(|e| (e.key, e.value))
+                            .collect::<HashMap<_, _>>(),
+                    }
+                } else {
+                    HashMap::new()
+                };
+                (key, value)
+            })
+            .collect::<HashMap<_, _>>()),
+    }
+}
+
+pub fn parse_script_elem(elem: &ElemUnion) -> Value {
+    match elem {
+        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): e.value }),
+        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
+            .into_iter()
+            .map(|elem| (elem.key.to_owned(), elem.value.to_owned()))
+            .collect::<HashMap<_, _>>()),
+        ElemUnion::String(string) => json!({ string: string }),
     }
 }
