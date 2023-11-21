@@ -17,6 +17,9 @@ services:
   terra-track:
     container_name: terra-track
     restart: always
+    depends_on:
+      - terra-track-db
+      - terra-track-vpn
     build:
       dockerfile: Dockerfile
       args:
