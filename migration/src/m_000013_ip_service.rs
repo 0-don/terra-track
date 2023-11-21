@@ -1,7 +1,7 @@
 use sea_orm_migration::{
     prelude::*,
     sea_orm::{EnumIter, Iterable},
-    // sea_query::extension::postgres::Type,
+    sea_query::extension::postgres::Type,
 };
 use sea_query::{Keyword, SimpleExpr};
 
@@ -22,14 +22,14 @@ pub enum Protocol {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // manager
-        //     .create_type(
-        //         Type::create()
-        //             .as_enum(Protocol::Table)
-        //             .values(Protocol::iter().skip(1))
-        //             .to_owned(),
-        //     )
-        //     .await?;
+        manager
+            .create_type(
+                Type::create()
+                    .as_enum(Protocol::Table)
+                    .values(Protocol::iter().skip(1))
+                    .to_owned(),
+            )
+            .await?;
 
         manager
             .create_table(

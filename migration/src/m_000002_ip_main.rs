@@ -45,15 +45,15 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        manager
-            .exec_stmt(
-                Query::insert()
-                    .into_table(IpMain::Table)
-                    .columns([IpMain::IpAddress])
-                    .values_panic(["1.0.0.0".into()])
-                    .to_owned(),
-            )
-            .await?;
+        // manager
+        //     .exec_stmt(
+        //         Query::insert()
+        //             .into_table(IpMain::Table)
+        //             .columns([IpMain::IpAddress])
+        //             .values_panic(["1.0.0.0".into()])
+        //             .to_owned(),
+        //     )
+        //     .await?;
 
         Ok(())
     }
