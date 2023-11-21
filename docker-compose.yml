@@ -22,7 +22,6 @@ services:
     volumes:
       - ~/terra-track-output:/app/output
 
-
   terra-track-db:
     container_name: terra-track-db
     image: postgres:alpine
