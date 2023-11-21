@@ -17,9 +17,6 @@ RUN cargo build --release
 # Second stage: Construct the final image
 FROM alpine:latest
 
-# User and group setup
-RUN addgroup -S terra-track && adduser -S -G terra-track terra-track
-
 # Install necessary packages
 RUN apk update && apk add --no-cache nmap nmap-scripts wget curl
 
@@ -32,9 +29,6 @@ RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 # Copy the built binary from the builder stage
 # Replace 'terra_track' with the correct binary name if different
 COPY --from=builder /build/target/release/terra_track /app/terra_track
-
-# Set non-root user
-USER terra-track
 
 # Set the binary as entrypoint
 ENTRYPOINT ["/app/terra_track"]
