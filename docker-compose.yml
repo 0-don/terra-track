@@ -19,10 +19,11 @@ services:
     restart: always
     build:
       dockerfile: Dockerfile
+      args:
+        - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
+
     volumes:
       - ~/terra-track-output:/app/output
-    environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
 
   terra-track-db:
     container_name: terra-track-db
