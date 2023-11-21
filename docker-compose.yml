@@ -12,7 +12,6 @@ services:
       dockerfile: Dockerfile
       args:
         - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
-
     volumes:
       - ~/terra-track-output:/app/output
 
@@ -33,6 +32,7 @@ services:
     container_name: terra-track-db
     image: postgres:alpine
     restart: always
+    network_mode: "service:terra-track-vpn"
     ports:
       - 5433:5432
     environment:
