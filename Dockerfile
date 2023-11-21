@@ -20,7 +20,8 @@ FROM alpine:latest
 # User and group setup
 RUN addgroup -S terra-track && adduser -S -G terra-track terra-track
 
-
+# Install necessary packages
+RUN apk update && apk add --no-cache nmap nmap-scripts wget curl
 
 # Set the working directory
 WORKDIR /app
@@ -34,9 +35,6 @@ COPY --from=builder /build/target/release/terra_track /app/terra_track
 
 # Set non-root user
 USER terra-track
-
-# Install necessary packages
-RUN apk add --no-cache nmap nmap-scripts wget curl
 
 # Set the binary as entrypoint
 ENTRYPOINT ["/app/terra_track"]
