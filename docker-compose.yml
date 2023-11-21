@@ -4,7 +4,7 @@ services:
   terra-track:
     container_name: terra-track
     restart: always
-    network_mode: "service:terra-track-vpn"  # Traffic routed through VPN
+    network_mode: service:terra-track-vpn
     depends_on:
       - terra-track-db
       - terra-track-vpn
@@ -18,6 +18,7 @@ services:
   terra-track-vpn:
     container_name: terra-track-vpn
     restart: always
+    network_mode: bridge
     image: qmcgaw/gluetun
     cap_add:
       - NET_ADMIN
@@ -27,14 +28,15 @@ services:
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
       - SERVER_CITIES=${SERVER_CITIES}
+    links:
+      - terra-track-db
     # No 'networks' specified, uses default bridge network
 
   terra-track-db:
     container_name: terra-track-db
     image: postgres:alpine
     restart: always
-    networks:
-      - db-network  # Custom network for DB communication
+    network_mode: bridge
     ports:
       - 5433:5432
     environment:
@@ -42,7 +44,3 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST_AUTH_METHOD=trust
-
-networks:
-  db-network:
-    driver: bridge
