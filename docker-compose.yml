@@ -1,19 +1,6 @@
 version: "3.8"
 
 services:
-  terra-track-vpn:
-    container_name: terra-track-vpn
-    restart: always
-    image: qmcgaw/gluetun
-    cap_add:
-      - NET_ADMIN
-    environment:
-      - VPN_SERVICE_PROVIDER=mullvad
-      - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
-      - SERVER_CITIES=${SERVER_CITIES}
-
   terra-track:
     container_name: terra-track
     restart: always
@@ -27,6 +14,19 @@ services:
 
     volumes:
       - ~/terra-track-output:/app/output
+
+  terra-track-vpn:
+    container_name: terra-track-vpn
+    restart: always
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - SERVER_CITIES=${SERVER_CITIES}
 
   terra-track-db:
     container_name: terra-track-db
