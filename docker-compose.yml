@@ -19,6 +19,8 @@ services:
     restart: always
     build:
       dockerfile: Dockerfile
+    volumes:
+      - ~/terra-track-output:/app/output
 
 
   terra-track-db:
