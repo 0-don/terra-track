@@ -9,13 +9,11 @@ COPY . .
 # Cache dependencies (for each workspace component and the main application)
 RUN cargo update
 
-# Dummy build for dependency caching
-RUN echo "fn main() {}" > src/main.rs
-RUN cargo build --release
-
 # Now build the real application (build the entire workspace)
 RUN cargo build --release
 
+
+##############################################
 # Second stage: Construct the final image
 FROM alpine:latest
 
