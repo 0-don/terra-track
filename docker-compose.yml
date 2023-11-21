@@ -4,14 +4,14 @@ services:
   terra-track:
     container_name: terra-track
     restart: always
-    network_mode: "service:terra-track-vpn"
+    network_mode: "service:terra-track-vpn"  # Traffic routed through VPN
     depends_on:
       - terra-track-db
       - terra-track-vpn
     build:
       dockerfile: Dockerfile
       args:
-        - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
+        - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@terra-track-db:5432/${POSTGRES_DB}
     volumes:
       - ~/terra-track-output:/app/output
 
@@ -21,22 +21,28 @@ services:
     image: qmcgaw/gluetun
     cap_add:
       - NET_ADMIN
-    ports:
-      - 5433:5432/tcp
     environment:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
       - SERVER_CITIES=${SERVER_CITIES}
+    # No 'networks' specified, uses default bridge network
 
   terra-track-db:
     container_name: terra-track-db
     image: postgres:alpine
     restart: always
-    network_mode: "service:terra-track-vpn"
+    networks:
+      - db-network  # Custom network for DB communication
+    ports:
+      - 5433:5432
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST_AUTH_METHOD=trust
+
+networks:
+  db-network:
+    driver: bridge
