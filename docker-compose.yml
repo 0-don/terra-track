@@ -28,6 +28,7 @@ services:
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
       - SERVER_CITIES=${SERVER_CITIES}
+      - LOG_LEVEL=debug
     links:
       - terra-track-db
     # No 'networks' specified, uses default bridge network
