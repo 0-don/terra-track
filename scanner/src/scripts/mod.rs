@@ -57,17 +57,17 @@ impl Script {
             "--version-all",
             "-sC",
             "-O",
-            "-oX",
+            "-oA",
             self.xml_nmap_path.as_str(),
             "-p",
             full_ports_str.as_str(),
             "--script",
-            "safe,default,version,auth,banner,ssl-cert,http-title,http-methods,http-headers,http-enum",        
+            "intrusive,default,version,auth,banner,ssl-cert,http-title,http-methods,http-headers,http-enum",        
             // "-D",
             // "RND:10",    
             ip.as_str(),
         ];
-
+        // cassandra-info,
         println!("{:?}", arguments.join(" "));
 
         self.create_directory();
