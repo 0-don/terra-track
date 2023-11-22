@@ -39,7 +39,7 @@ impl Script {
         let arguments = vec![
             "nmap",
             "-v6", // Verbose
-            "-T4", // Timing template
+            "-T4", // Timing template (higher is faster)
             "-n",  // Never do DNS resolution
             "-A",  // Enable OS detection, version detection, script scanning, and traceroute
             "-Pn", // Treat all hosts as online -- skip host discovery
@@ -58,7 +58,7 @@ impl Script {
 
         let script = self.execute_script(arguments);
         match script {
-            Ok(nmap) => self.parse_nmap_xml(),
+            Ok(_nmap) => self.parse_nmap_xml(),
             Err(err) => {
                 println!("{:?}", err);
                 Err(anyhow::anyhow!("Script failed"))
