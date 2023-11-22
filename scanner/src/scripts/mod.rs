@@ -88,7 +88,8 @@ impl Script {
                 return Err(anyhow::anyhow!("IP does not match"));
             }
             println!("Failed to parse XML");
-            return Err(anyhow::anyhow!("Failed to parse XML"));
+            panic!("{:?}", nmap);
+            // return Err(anyhow::anyhow!("Failed to parse XML"));
         }
         println!("File does not exist");
         Err(anyhow::anyhow!("File does not exist"))
