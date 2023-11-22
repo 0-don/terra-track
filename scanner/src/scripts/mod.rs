@@ -26,30 +26,39 @@ impl Script {
             return Ok(nmap);
         }
 
-        // Convert ports to string and join with commas
-        let ports_str = self
+        // Convert ports to a comma-separated string for TCP
+        let tcp_ports_str = self
             .open_ports
             .iter()
             .map(ToString::to_string)
             .collect::<Vec<_>>()
             .join(",");
 
-        // Construct the list of arguments with the IP and ports
-        let binding = self.ip.to_string();
+        // Fixed list of well-known UDP ports
+        let udp_ports_str = "7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024";
+
+        let full_ports_str = format!("{},{}", tcp_ports_str, udp_ports_str);
+        let ip = self.ip.to_string();
+        // Construct the nmap arguments
         let arguments = vec![
             "nmap",
-            "-v6", // Verbose
-            "-T4", // Timing template (higher is faster)
-            "-n",  // Never do DNS resolution
+            "-v6",           // Verbose
+            "-T4",           // Timing template (higher is faster)
+            "-n",            // Never do DNS resolution
             "-A",  // Enable OS detection, version detection, script scanning, and traceroute
             "-Pn", // Treat all hosts as online -- skip host discovery
+            "-sV", // Probe open ports to determine service/version info
+            "--version-all", // Try every single probe
             "-sC", // Script scan using the default set of scripts
             "-O",  // Enable OS detection
             "-oX", // XML output
             self.xml.as_str(),
-            "-p",
-            &ports_str,
-            binding.as_str(),
+            "-p",                    // Specify ports
+            full_ports_str.as_str(), // Ports
+            "--script=vuln",         // Vulnerability scanning
+            "-D",
+            "RND:10",    // Using 10 random decoys
+            ip.as_str(), // Target IP
         ];
 
         println!("{:?}", arguments.join(" "));
