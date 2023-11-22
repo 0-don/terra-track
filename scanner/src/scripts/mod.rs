@@ -38,13 +38,14 @@ impl Script {
         let binding = self.ip.to_string();
         let arguments = vec![
             "nmap",
-            "-vvvvvv",
-            "-T2",
-            "-n",
-            "-sV",
-            "-Pn",
-            "-sC",
-            "-oX",
+            "-v6", // Verbose
+            "-T4", // Timing template
+            "-n",  // Never do DNS resolution
+            "-A",  // Enable OS detection, version detection, script scanning, and traceroute
+            "-Pn", // Treat all hosts as online -- skip host discovery
+            "-sC", // Script scan using the default set of scripts
+            "-O",  // Enable OS detection
+            "-oX", // XML output
             self.xml.as_str(),
             "-p",
             &ports_str,
@@ -57,10 +58,7 @@ impl Script {
 
         let script = self.execute_script(arguments);
         match script {
-            Ok(nmap) => {
-                println!("{:?}", nmap);
-                self.parse_nmap_xml()
-            }
+            Ok(nmap) => self.parse_nmap_xml(),
             Err(err) => {
                 println!("{:?}", err);
                 Err(anyhow::anyhow!("Script failed"))
@@ -88,8 +86,7 @@ impl Script {
                 return Err(anyhow::anyhow!("IP does not match"));
             }
             println!("Failed to parse XML");
-            panic!("{:?}", nmap);
-            // return Err(anyhow::anyhow!("Failed to parse XML"));
+            return Err(anyhow::anyhow!("Failed to parse XML"));
         }
         println!("File does not exist");
         Err(anyhow::anyhow!("File does not exist"))
