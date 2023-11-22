@@ -1,10 +1,10 @@
 use crate::types::Nmap;
 use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
-use std::io::{Read, Write};
+use std::io::{Read, Write, BufReader, BufRead};
 use std::net::IpAddr;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 pub struct Script {
     ip: IpAddr,
@@ -40,7 +40,6 @@ impl Script {
             .collect::<Vec<_>>()
             .join(",");
 
-            
         // let udp_ports_str = "7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024";
         let udp_ports_str = "";
 
@@ -49,6 +48,7 @@ impl Script {
         let arguments = vec![
             "nmap",
             "-v6",
+            "-d1",
             "-T4",
             "-n",
             "-A",
@@ -58,14 +58,16 @@ impl Script {
             "-sC",
             "-O",
             "-oA",
-            self.xml_nmap_path.as_str(),
+            &self.xml_nmap_path,
+            "-sS",
+            "-sU",
             "-p",
-            full_ports_str.as_str(),
+            &full_ports_str,
             "--script",
-            "intrusive,default,version,auth,banner,ssl-cert,http-title,http-methods,http-headers,http-enum",        
+            "default,version,discovery,banner,ssl-cert,http-title,http-methods,http-headers,http-enum",
             // "-D",
-            // "RND:10",    
-            ip.as_str(),
+            // "RND:10",
+            &ip,
         ];
         // cassandra-info,
         println!("{:?}", arguments.join(" "));
@@ -105,15 +107,33 @@ impl Script {
         Err(anyhow::anyhow!("File does not exist"))
     }
 
+
     fn execute_script(&self, arguments: Vec<&str>) -> anyhow::Result<String> {
         let command = arguments[0];
-        let process = Command::new(command).args(&arguments[1..]).output()?;
-        if process.status.success() {
-            Ok(String::from_utf8_lossy(&process.stdout).into_owned())
+        let mut child = Command::new(command)
+            .args(&arguments[1..])
+            .stdout(Stdio::piped())
+            .spawn()?;
+    
+        let stdout = child.stdout.take().ok_or(anyhow::anyhow!("Failed to take stdout"))?;
+        let reader = BufReader::new(stdout);
+    
+        let mut output = String::new();
+    
+        for line in reader.lines() {
+            let line = line?;
+            println!("{}", line); // Print each line to terminal
+            output.push_str(&line);
+            output.push('\n'); // Append the line to the output string
+        }
+    
+        let status = child.wait()?;
+        if status.success() {
+            Ok(output)
         } else {
             Err(anyhow::anyhow!(
                 "Exit code = {}",
-                process.status.code().unwrap_or(-1)
+                status.code().unwrap_or(-1)
             ))
         }
     }
