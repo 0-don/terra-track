@@ -1,3 +1,5 @@
+use std::fs::remove_dir_all;
+
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
@@ -14,6 +16,8 @@ async fn main() -> anyhow::Result<()> {
 
     let scan = scan_batch_service::Query::next_scan_batch().await?;
 
+    remove_dir_all("./output")?;
+    
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
@@ -31,6 +35,9 @@ async fn main() -> anyhow::Result<()> {
 
         // let script = Script::new(ip.into(), vec![]);
         // let result = script.parse_nmap_xml();
+
+        // remove folder recursively
+
 
         let ports = Scanner::new(ip.into()).run().await?;
         printlog!("Open ports: {:?}", ports);

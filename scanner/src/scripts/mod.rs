@@ -1,7 +1,7 @@
 use crate::types::Nmap;
 use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
-use std::io::{Read, Write, BufReader, BufRead};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -45,6 +45,20 @@ impl Script {
 
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
+
+        let scripts = vec![
+            "(default or version or discovery or ./vulners)",
+            "and not *enum*",
+            "and not broadcast-*",
+            "and not targets-asn",
+            "and not http-robtex-shared-ns",
+            "and not http-icloud-findmyiphone",
+            "and not targets-ipv6-multicast-slaac",
+            "and not http-icloud-sendmsg",
+            "and not hostmap-robtex",
+        ]
+        .join(" ");
+
         let arguments = vec![
             "nmap",
             "-v6",
@@ -64,7 +78,7 @@ impl Script {
             "-p",
             &full_ports_str,
             "--script",
-            "default,version,discovery,banner,ssl-cert,http-title,http-methods,http-headers,http-enum",
+            &scripts,
             // "-D",
             // "RND:10",
             &ip,
@@ -107,26 +121,28 @@ impl Script {
         Err(anyhow::anyhow!("File does not exist"))
     }
 
-
     fn execute_script(&self, arguments: Vec<&str>) -> anyhow::Result<String> {
         let command = arguments[0];
         let mut child = Command::new(command)
             .args(&arguments[1..])
             .stdout(Stdio::piped())
             .spawn()?;
-    
-        let stdout = child.stdout.take().ok_or(anyhow::anyhow!("Failed to take stdout"))?;
+
+        let stdout = child
+            .stdout
+            .take()
+            .ok_or(anyhow::anyhow!("Failed to take stdout"))?;
         let reader = BufReader::new(stdout);
-    
+
         let mut output = String::new();
-    
+
         for line in reader.lines() {
             let line = line?;
             println!("{}", line); // Print each line to terminal
             output.push_str(&line);
             output.push('\n'); // Append the line to the output string
         }
-    
+
         let status = child.wait()?;
         if status.success() {
             Ok(output)
