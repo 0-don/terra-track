@@ -47,7 +47,7 @@ impl Script {
         let ip = self.ip.to_string();
 
         let scripts = vec![
-            "(default or version or discovery or ./vulners)",
+            "./vulscan",
             "and not *enum*",
             "and not broadcast-*",
             "and not targets-asn",
