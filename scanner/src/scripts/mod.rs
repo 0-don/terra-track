@@ -9,15 +9,22 @@ use std::process::Command;
 pub struct Script {
     ip: IpAddr,
     open_ports: Vec<u16>,
-    xml: String,
+    xml_path: String,
+    xml_file_path: String,
+    xml_nmap_path: String,
 }
 
 impl Script {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
+        let xml_path = format!("./output/{}", ip.to_string());
+        let xml_file_path = format!("./output/{}/{}.xml", ip.to_string(), ip.to_string());
+        let xml_nmap_path = format!("./output/{}/{}", ip.to_string(), ip.to_string());
         Self {
             ip,
             open_ports,
-            xml: format!("./output/{}.xml", ip.to_string()),
+            xml_path,
+            xml_file_path,
+            xml_nmap_path,
         }
     }
 
@@ -35,9 +42,10 @@ impl Script {
             .join(",");
 
         // Fixed list of well-known UDP ports
-        let udp_ports_str = "7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024";
+        // let udp_ports_str = "7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024";
+        let udp_ports_str = "";
 
-        let full_ports_str = format!("{},{}", tcp_ports_str, udp_ports_str);
+        let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
         // Construct the nmap arguments
         let arguments = vec![
@@ -51,14 +59,16 @@ impl Script {
             "--version-all", // Try every single probe
             "-sC", // Script scan using the default set of scripts
             "-O",  // Enable OS detection
-            "-oX", // XML output
-            self.xml.as_str(),
+            "-oA", // XML output
+            &self.xml_nmap_path,
+            "-sS",
+            "-sU",                   // Specifying both TCP (SYN scan) and UDP scans
             "-p",                    // Specify ports
             full_ports_str.as_str(), // Ports
-            "--script=vuln",         // Vulnerability scanning
-            "-D",
-            "RND:10",    // Using 10 random decoys
-            ip.as_str(), // Target IP
+            // "--script=vuln",         // Vulnerability scanning
+            // "-D",
+            // "RND:10",    // Using 10 random decoys
+            &ip,
         ];
 
         println!("{:?}", arguments.join(" "));
@@ -77,15 +87,13 @@ impl Script {
 
     // Separate method to create directory based on the XML path
     fn create_directory(&self) {
-        if let Some(parent) = Path::new(&self.xml).parent() {
-            if !parent.exists() {
-                create_dir_all(parent).expect("Failed to create directory");
-            }
+        if !Path::new(&self.xml_path).exists() {
+            create_dir_all(&self.xml_path).expect("Failed to create directory");
         }
     }
 
     fn get_file_if_exist(&self) -> anyhow::Result<Nmap> {
-        if Path::new(&self.xml).exists() {
+        if Path::new(&self.xml_file_path).exists() {
             let nmap = self.parse_nmap_xml();
             if let Ok(nmap) = nmap {
                 if nmap.nmaprun.host.address.addr == self.ip.to_string() {
@@ -121,7 +129,7 @@ impl Script {
 
     pub fn parse_nmap_xml(&self) -> anyhow::Result<Nmap> {
         self.create_directory();
-        let mut file = File::open(self.xml.clone())?;
+        let mut file = File::open(self.xml_file_path.clone())?;
         let mut contents = String::new();
 
         file.read_to_string(&mut contents)?;
@@ -136,7 +144,7 @@ impl Script {
         )?
         .to_string();
 
-        File::create(self.xml.clone().replace(".xml", ".json"))?.write_all(json.as_bytes())?;
+        File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
         let nmap: Nmap = serde_json::from_str(json.as_str())?;
         Ok(nmap)
