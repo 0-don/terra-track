@@ -11,6 +11,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let host = &nmap.nmaprun.host;
     let ip = &host.address.addr;
     let ports = &host.ports.port;
+
     let ip_main = ip_main_service::Mutation::upsert_ip_main_by_ip(ip).await?;
     for port in ports {
         process_port(&ip_main, port).await?;

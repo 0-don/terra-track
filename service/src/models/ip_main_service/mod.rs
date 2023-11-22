@@ -37,6 +37,7 @@ impl Mutation {
     }
 
     pub async fn upsert_ip_main_by_ip(ip: &String) -> anyhow::Result<ip_main::Model> {
+        println!("upsert_ip_main_by_ip: {}", ip);
         let db = get_db_connection().await?;
         let mut model = ip_main::Entity::find()
             .filter(ip_main::Column::IpAddress.eq(ip))
