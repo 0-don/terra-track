@@ -11,7 +11,7 @@ use sea_orm::{
 pub struct Mutation;
 pub struct Query;
 
-const BATCH_SIZE: i32 = 1;
+const BATCH_SIZE: i32 = 20;
 
 impl Mutation {
     pub async fn create_scan_batch(
