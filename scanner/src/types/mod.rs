@@ -47,7 +47,7 @@ pub struct Elem {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Os {
     pub osfingerprint: Osfingerprint,
-    pub osmatch: OsmatchUnion,
+    pub osmatch: Option<OsmatchUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
