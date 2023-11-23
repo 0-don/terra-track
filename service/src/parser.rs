@@ -1,12 +1,16 @@
 use crate::mapper::ip_service_script_mapper::process_scripts;
 use crate::models::ip_main_service::ip_main_m;
 use crate::models::ip_service_service;
+use crate::models::ip_service_service::ip_service_m;
+use crate::models::ip_service_service::ip_service_q;
 use crate::utils::date;
 use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
 use scanner::types::{Nmap, Port};
 use sea_orm::Set;
+
+pub const BATCH_SIZE: i32 = 20;
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let host = &nmap.nmaprun.host;
@@ -21,7 +25,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
 }
 
 async fn process_port(ip_main: &ip_main::Model, port: &Port) -> anyhow::Result<()> {
-    if ip_service_service::Query::find_ip_service_by_port_and_ip_main_id_older_then(
+    if ip_service_q::Query::find_ip_service_by_port_and_ip_main_id_older_then(
         port.portid as i16,
         ip_main.id,
         Some(date(Duration::days(365))),
@@ -44,7 +48,7 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
     // if let Some(ostype) = &port.service.ostype {
     //     os_type = Some(ostype.clone());
     // }
-    ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
+    ip_service_m::Mutation::create_ip_service(ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
         port: Set(port.portid as i16),
         name: Set(port.service.name.clone()),
