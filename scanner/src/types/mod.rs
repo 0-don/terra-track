@@ -35,15 +35,7 @@ pub struct Address {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hostscript {
-    pub script: Vec<HostscriptScript>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct HostscriptScript {
-    pub id: String,
-    pub output: String,
-    pub elem: Option<Vec<ElemUnion>>,
-    pub table: Option<Table>,
+    pub script: Vec<Script>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -101,7 +93,7 @@ pub struct Script {
     pub id: String,
     pub output: Value,
     pub elem: Option<ElemUnion>,
-    pub table: Option<ScriptTableUnion>,
+    pub table: Option<TableUnion>,
     pub value: Option<bool>,
 }
 
@@ -110,38 +102,6 @@ pub struct Table {
     pub key: String,
     pub elem: Option<ElemUnion>,
     pub table: Option<TableUnion>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Tables {
-    pub key: Option<String>,
-    pub elem: Vec<Elem>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TentacledTable {
-    pub key: String,
-    pub table: StickyTable,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct StickyTable {
-    pub elem: Vec<Elem>,
-    pub key: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct IndigoTable {
-    pub key: String,
-    pub elem: ElemUnion,
-    pub table: Option<Vec<IndecentTable>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct IndecentTable {
-    pub elem: Option<StringUnion>,
-    pub key: String,
-    pub table: Option<Table>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -203,7 +163,8 @@ pub enum OsMatchClassUnion {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ElemUnion {
-    Enum(String),
+    String(String),
+    StringArray(Vec<String>),
     Elem(Elem),
     ElemArray(Vec<Elem>),
     ElemUnionArray(Vec<ElemUnion>),
@@ -213,19 +174,5 @@ pub enum ElemUnion {
 #[serde(untagged)]
 pub enum TableUnion {
     TableArray(Vec<Table>),
-    Table(TentacledTable),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum StringUnion {
-    String(String),
-    StringArray(Vec<String>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ScriptTableUnion {
-    IndigoTable(IndigoTable),
-    PurpleTableArray(Vec<Table>),
+    Table(Box<Table>),
 }

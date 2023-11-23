@@ -3,7 +3,10 @@ use dotenvy::dotenv;
 use migration::sea_orm::Set;
 use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
 use service::{
-    models::{ip_main_service, scan_batch_service},
+    models::{
+        ip_main_service::ip_main_q,
+        scan_batch_service::{scan_batch_m, scan_batch_q},
+    },
     parser::parse_nmap_results,
     utils::date,
 };
@@ -12,7 +15,7 @@ use service::{
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
-    let scan = scan_batch_service::Query::next_scan_batch().await?;
+    let scan = scan_batch_q::Query::next_scan_batch().await?;
     // only in dev mode
     // if cfg!(debug_assertions) {
     //     let _ = remove_dir_all("./output");
@@ -22,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
 
-        let ip_main = ip_main_service::Query::find_ip_main_by_ip_older_then(
+        let ip_main = ip_main_q::Query::find_ip_main_by_ip_older_then(
             &ip.to_string(),
             Some(date(Duration::days(365))),
         )
@@ -51,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
     // printlog!("Open ports: {:?}", ports);
     // let result = Script::new("45.33.32.156".parse()?, ports).run();
 
-    scan_batch_service::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
+    scan_batch_m::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
         id: Set(scan.id),
         end: Set(Some(date(Duration::zero()))),
         ..Default::default()

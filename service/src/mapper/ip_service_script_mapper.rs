@@ -1,8 +1,7 @@
-use scanner::types::{ScriptUnion, Script};
+use crate::models::ip_service_script_service::ip_service_script_m;
+use scanner::types::{ElemUnion, Script, ScriptUnion, Table, TableUnion};
 use serde_json::{json, Value};
 use std::collections::HashMap;
-
-use crate::models::ip_service_script_service::ip_service_script_m;
 
 pub async fn process_scripts(
     ip_main_id: i64,
@@ -11,81 +10,93 @@ pub async fn process_scripts(
 ) -> anyhow::Result<()> {
     match script_union {
         ScriptUnion::Script(script) => {
-            ip_service_script_m::Mutation::upsert_ip_service_script(
-                ip_main_id,
-                ip_service_id,
-                &script.id,
-                json!({ &script.id: script.output, "elem": script.elem, "table": script.table, "value": script.value  }),
-            )
-            .await?;
-            Ok(())
+            process_single_script(ip_main_id, ip_service_id, script).await
         }
-        ScriptUnion::ScriptArray(script_elements) => {
-            for script in script_elements {
-                let value = match (&script.elem, &script.table) {
-                    (Some(elem), Some(table)) => {
-                        json!({ &script.id: parse_script_elem(elem), "table": parse_script_table(table) })
-                    }
-                    (Some(elem), None) => parse_script_elem(elem),
-                    (None, Some(table)) => parse_script_table(table),
-                    (None, None) => continue,
-                };
-                ip_service_script_m::Mutation::upsert_ip_service_script(
-                    ip_main_id,
-                    ip_service_id,
-                    &script.id,
-                    value,
-                )
-                .await?;
+        ScriptUnion::ScriptArray(scripts) => {
+            for script in scripts {
+                process_single_script(ip_main_id, ip_service_id, script).await?;
             }
             Ok(())
         }
     }
 }
 
-pub fn parse_script_table(script_table: &Script) -> Value {
-    match script_table {
-        ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): &elem.elem }),
-        ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
-            .iter()
-            .map(|elem| {
-                let key = &elem.key;
-                let value = if let Some(elems) = &elem.elem {
-                    elems
-                        .iter()
-                        .map(|e| (e.key.as_str(), &e.value))
-                        .collect::<HashMap<_, _>>()
-                } else if let Some(table) = &elem.table {
-                    match table {
-                        TableTableUnion::FluffyTableArray(fluffy_tables) => fluffy_tables
-                            .iter()
-                            .flat_map(|fluffy_table| {
-                                fluffy_table.elem.iter().map(|e| (e.key.as_str(), &e.value))
-                            })
-                            .collect::<HashMap<_, _>>(),
-                        TableTableUnion::TentacledTable(tentacled_table) => tentacled_table
-                            .table
-                            .elem
-                            .iter()
-                            .map(|e| (e.key.as_str(), &e.value))
-                            .collect::<HashMap<_, _>>(),
-                    }
-                } else {
-                    HashMap::new()
-                };
-                (key.as_str(), value)
-            })
-            .collect::<HashMap<_, _>>()),
+async fn process_single_script(
+    ip_main_id: i64,
+    ip_service_id: i64,
+    script: &Script,
+) -> anyhow::Result<()> {
+    let mut json_map = serde_json::Map::new();
+
+    json_map.insert("output".to_string(), json!(script.output));
+    json_map.insert("value".to_string(), json!(script.value));
+
+    if let Some(elem_union) = &script.elem {
+        json_map.insert("elem".to_string(), parse_script_elem(elem_union));
+    }
+
+    if let Some(table_union) = &script.table {
+        json_map.insert("table".to_string(), parse_script_table(table_union));
+    }
+
+    ip_service_script_m::Mutation::upsert_ip_service_script(
+        ip_main_id,
+        ip_service_id,
+        &script.id,
+        json!({ &script.id: Value::Object(json_map) }),
+    )
+    .await?;
+
+    Ok(())
+}
+
+fn parse_script_elem(elem_union: &ElemUnion) -> Value {
+    match elem_union {
+        ElemUnion::String(s) => json!({ "value": s }),
+        ElemUnion::StringArray(arr) => json!(arr),
+        ElemUnion::Elem(e) => {
+            let mut map = HashMap::new();
+            map.insert(e.key.clone(), e.value.clone());
+            json!(map)
+        }
+        ElemUnion::ElemArray(arr) => {
+            let map: HashMap<_, _> = arr
+                .iter()
+                .map(|e| (e.key.clone(), e.value.clone()))
+                .collect();
+            json!(map)
+        }
+        ElemUnion::ElemUnionArray(arr) => {
+            let values: Vec<_> = arr.iter().map(parse_script_elem).collect();
+            json!(values)
+        }
     }
 }
 
-pub fn parse_script_elem(elem: &ElemUnion) -> Value {
-    match elem {
-        ElemUnion::ElemElem(e) => json!({ e.key.as_str(): &e.value }),
-        ElemUnion::ElemElemArray(elem_array) => json!(elem_array
-            .iter()
-            .map(|elem| (elem.key.as_str(), &elem.value))
-            .collect::<HashMap<_, _>>()),
-        ElemUnion::String(string) => json!({ string: string }),
+fn parse_script_table(table_union: &TableUnion) -> Value {
+    match table_union {
+        TableUnion::Table(table) => parse_table(table),
+        TableUnion::TableArray(tables) => {
+            let values: Vec<_> = tables.iter().map(parse_table).collect();
+            json!(values)
+        }
     }
+}
+
+fn parse_table(table: &Table) -> Value {
+    let mut map = HashMap::new();
+
+    let elem_value = match &table.elem {
+        Some(elem_union) => parse_script_elem(elem_union),
+        None => Value::Null,
+    };
+    map.insert(table.key.clone(), elem_value);
+
+    let table_value = match &table.table {
+        Some(table_union) => parse_script_table(table_union),
+        None => Value::Null,
+    };
+    map.insert("table".to_string(), table_value);
+
+    json!(map)
 }
