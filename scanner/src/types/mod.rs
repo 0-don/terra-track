@@ -21,7 +21,6 @@ pub struct Nmaprun {
 pub struct Host {
     pub address: Address,
     pub endtime: i64,
-    pub hostnames: Hostnames,
     pub os: Os,
     pub ports: Ports,
     pub starttime: i64,
@@ -38,28 +37,17 @@ pub struct Address {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Hostnames {}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hostscript {
     pub script: Vec<HostscriptScript>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HostscriptScript {
-    pub elem: Option<Vec<IndigoElem>>,
+    pub elem: Option<Vec<AmbitiousElem>>,
     pub id: String,
     pub output: String,
     pub table: Option<FluffyTable>,
 }
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum IndigoElem {
-    FluffyElem(FluffyElem),
-    String(String),
-}
-
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyElem {

@@ -57,6 +57,7 @@ impl Script {
             "and not http-icloud-sendmsg".to_string(),
             "and not hostmap-robtex".to_string(),
             "and not http-virustotal".to_string(),
+            "and not qscan".to_string(),
             "and not http-slowloris".to_string(),
         ]
         .join(" ");

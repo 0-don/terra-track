@@ -53,9 +53,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(IpService::Port).small_unsigned().not_null())
                     .col(ColumnDef::new(IpService::Name).string().not_null())
                     .col(ColumnDef::new(IpService::Product).string())
-                    .col(ColumnDef::new(IpService::ServiceFp).text())
-                    .col(ColumnDef::new(IpService::Version).string())
-                    .col(ColumnDef::new(IpService::ExtraInfo).string())
                     .col(ColumnDef::new(IpService::Method).string().not_null())
                     .col(ColumnDef::new(IpService::OsType).string())
                     .col(ColumnDef::new(IpService::CpuArch).string())
@@ -98,9 +95,6 @@ pub enum IpService {
     Port,
     Name,
     Product,
-    Version,
-    ExtraInfo,
-    ServiceFp,
     Method,
     OsType,
     CpuArch,

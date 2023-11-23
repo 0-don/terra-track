@@ -35,21 +35,17 @@ async fn process_port(ip_main: &ip_main::Model, port: &Port) -> anyhow::Result<(
 }
 
 async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_service::Model> {
-    let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
-    if let Some(ostype) = &port.service.ostype {
-        os_type = Some(ostype.clone());
-    }
+    // let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
+    // if let Some(ostype) = &port.service.ostype {
+    //     os_type = Some(ostype.clone());
+    // }
     ip_service_service::Mutation::create_ip_service(ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
         port: Set(port.portid as i16),
         name: Set(port.service.name.clone()),
         product: Set(port.service.product.clone()),
-        service_fp: Set(port.service.servicefp.clone()),
-        version: Set(port.service.version.clone()),
-        extra_info: Set(port.service.extrainfo.clone()),
         method: Set(format!("{:?}", port.service.method)),
-        os_type: Set(os_type),
-        cpu_arch: Set(cpu_arch),
+       
         ..Default::default()
     })
     .await
