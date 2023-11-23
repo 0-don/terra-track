@@ -3,7 +3,7 @@ use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 pub struct Script {
@@ -46,16 +46,29 @@ impl Script {
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
 
+
+        let srcdir = PathBuf::from("./vulscan/vulscan.nse");
+        let binding = srcdir
+            .canonicalize()
+            .unwrap();
+        let vulscan_path = binding
+            .to_str()
+            .unwrap();
+
+        println!("{}", vulscan_path);
+        
+        
         let scripts = vec![
-            "./vulscan",
-            "and not *enum*",
-            "and not broadcast-*",
-            "and not targets-asn",
-            "and not http-robtex-shared-ns",
-            "and not http-icloud-findmyiphone",
-            "and not targets-ipv6-multicast-slaac",
-            "and not http-icloud-sendmsg",
-            "and not hostmap-robtex",
+            format!("default or vulscan"),
+ 
+            // "and not *enum*".to_string(),
+            // "and not broadcast-*",
+            // "and not targets-asn",
+            // "and not http-robtex-shared-ns",
+            // "and not http-icloud-findmyiphone",
+            // "and not targets-ipv6-multicast-slaac",
+            // "and not http-icloud-sendmsg",
+            // "and not hostmap-robtex",
         ]
         .join(" ");
 
