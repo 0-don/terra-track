@@ -167,7 +167,7 @@ pub enum ElemUnion {
     StringArray(Vec<String>),
     Elem(Elem),
     ElemArray(Vec<Elem>),
-    ElemUnionArray(Vec<ElemUnion>),
+    ElemUnion(Vec<ElemUnion>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

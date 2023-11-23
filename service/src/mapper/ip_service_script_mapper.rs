@@ -66,7 +66,7 @@ fn parse_script_elem(elem_union: &ElemUnion) -> Value {
                 .collect();
             json!(map)
         }
-        ElemUnion::ElemUnionArray(arr) => {
+        ElemUnion::ElemUnion(arr) => {
             let values: Vec<_> = arr.iter().map(parse_script_elem).collect();
             json!(values)
         }

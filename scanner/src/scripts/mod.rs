@@ -82,11 +82,9 @@ impl Script {
             &full_ports_str,
             "--script",
             &scripts,
-            // "-D",
-            // "RND:10",
             &ip,
         ];
-        // cassandra-info,
+
         println!("{:?}", arguments.join(" "));
 
         self.create_directory();
