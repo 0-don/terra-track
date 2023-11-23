@@ -1,5 +1,5 @@
 use crate::models::ip_service_extra_service;
-use scanner::types::{ElemUnion, ScriptTable, ScriptUnion, TableTableUnion};
+
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
