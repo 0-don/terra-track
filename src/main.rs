@@ -1,5 +1,3 @@
-use std::fs::remove_dir_all;
-
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;

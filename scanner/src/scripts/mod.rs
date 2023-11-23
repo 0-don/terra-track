@@ -3,7 +3,7 @@ use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Command, Stdio};
 
 pub struct Script {
@@ -47,15 +47,15 @@ impl Script {
         let ip = self.ip.to_string();
 
         let scripts = vec![
-            format!("default or vulscan"),
+            format!("(default or version or discovery or intrusive or auth or vuln)"),
             // "and not *enum*".to_string(),
-            // "and not broadcast-*",
-            // "and not targets-asn",
-            // "and not http-robtex-shared-ns",
-            // "and not http-icloud-findmyiphone",
-            // "and not targets-ipv6-multicast-slaac",
-            // "and not http-icloud-sendmsg",
-            // "and not hostmap-robtex",
+            "and not broadcast-*".to_string(),
+            "and not targets-asn".to_string(),
+            "and not http-robtex-shared-ns".to_string(),
+            "and not http-icloud-findmyiphone".to_string(),
+            "and not targets-ipv6-multicast-slaac".to_string(),
+            "and not http-icloud-sendmsg".to_string(),
+            "and not hostmap-robtex".to_string(),
         ]
         .join(" ");
 
