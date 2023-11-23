@@ -48,17 +48,20 @@ impl Script {
 
         let scripts = vec![
             format!("(default or version or discovery or auth or vuln or external)"),
-            "and not *enum*".to_string(),
             "and not broadcast-*".to_string(),
             "and not targets-asn".to_string(),
             "and not http-robtex-shared-ns".to_string(),
             "and not http-icloud-findmyiphone".to_string(),
             "and not targets-ipv6-multicast-slaac".to_string(),
+            "and not targets-ipv6-multicast-echo".to_string(),
             "and not http-icloud-sendmsg".to_string(),
             "and not hostmap-robtex".to_string(),
             "and not http-virustotal".to_string(),
+            //
+            //
             "and not qscan".to_string(),
-            "and not http-slowloris".to_string(),
+            "and not *slowloris*".to_string(),
+            "and not *enum*".to_string(),
         ]
         .join(" ");
 
@@ -139,7 +142,7 @@ impl Script {
 
         for line in reader.lines() {
             let line = line?;
-            // println!("{}", line);
+            println!("{}", line);
             output.push_str(&line);
             output.push('\n');
         }
@@ -174,11 +177,18 @@ impl Script {
 
         File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
-        let nmap = serde_json::from_str::<Nmap>(json.as_str());
-        if nmap.is_ok() {
-            return Ok(nmap.unwrap());
-        } else {
-            panic!("{:?}", nmap.err().unwrap());
+        let deserializer = &mut serde_json::Deserializer::from_str(&json);
+
+        let nmap: Result<Nmap, _> = serde_path_to_error::deserialize(deserializer);
+        match nmap {
+            Ok(n) => Ok(n),
+            Err(err) => {
+                let path = err.path().to_string();
+                let error = err.to_string();
+                println!("\n\n{}", path);
+                println!("{}\n\n", error);
+                panic!();
+            }
         }
     }
 }

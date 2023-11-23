@@ -19,9 +19,9 @@ async fn main() -> anyhow::Result<()> {
 
     let scan = scan_batch_q::Query::next_scan_batch().await?;
 
-    if cfg!(debug_assertions) {
-        let _ = remove_dir_all("./output");
-    }
+    // if cfg!(debug_assertions) {
+    //     let _ = remove_dir_all("./output");
+    // }
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
@@ -38,12 +38,11 @@ async fn main() -> anyhow::Result<()> {
             continue;
         }
 
-        // let script = Script::new(ip.into(), vec![]);
-        // let result = script.parse_nmap_xml();
 
         // remove folder recursively
 
-        let ports = Scanner::new(ip.into()).run().await?;
+        // let ports = Scanner::new(ip.into()).run().await?;
+        let ports = vec![];
         printlog!("Open ports: {:?}", ports);
         let result = Script::new(ip.into(), ports).run();
 
