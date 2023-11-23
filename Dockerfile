@@ -26,13 +26,10 @@ WORKDIR /app
 ARG DATABASE_URL
 RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 
-
-# nmap --script-updatedb
-
-
-# Copy the built binary from the builder stage
-# Replace 'terra_track' with the correct binary name if different
+COPY --from=builder /build/vulscan /usr/share/nmap/scripts
 COPY --from=builder /build/target/release/terra_track /app/terra_track
+
+RUN nmap --script-updatedb
 
 # Set the binary as entrypoint
 ENTRYPOINT ["/app/terra_track"]
