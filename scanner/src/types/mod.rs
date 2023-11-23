@@ -116,8 +116,8 @@ pub struct Script {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleTable {
     pub key: String,
-    pub elem: Option<HilariousElem>,
-    pub table: Option<TableTableUnion>,
+    pub elem: Option<ElemUnion>,
+    pub table: Option<TableUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -141,7 +141,7 @@ pub struct StickyTable {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndigoTable {
     pub key: String,
-    pub elem: CunningElem,
+    pub elem: ElemUnion,
     pub table: Option<Vec<IndecentTable>>,
 }
 
@@ -214,34 +214,14 @@ pub enum ElemUnion {
     Enum(String),
     Elem(Elem),
     ElemArray(Vec<Elem>),
+    ElemUnionArray(Vec<ElemUnion>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum HilariousElem {
-    String(String),
-    UnionArray(Vec<ElemUnion>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum TableTableUnion {
+pub enum TableUnion {
     FluffyTableArray(Vec<FluffyTable>),
     TentacledTable(TentacledTable),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CunningElem {
-    String(String),
-    UnionArray(Vec<MagentaElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum MagentaElem {
-    FluffyElem(Elem),
-    String(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
