@@ -139,9 +139,9 @@ impl Script {
 
         for line in reader.lines() {
             let line = line?;
-            println!("{}", line); // Print each line to terminal
+            // println!("{}", line);
             output.push_str(&line);
-            output.push('\n'); // Append the line to the output string
+            output.push('\n');
         }
 
         let status = child.wait()?;
@@ -174,7 +174,11 @@ impl Script {
 
         File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
-        let nmap: Nmap = serde_json::from_str(json.as_str())?;
-        Ok(nmap)
+        let nmap = serde_json::from_str::<Nmap>(json.as_str());
+        if nmap.is_ok() {
+            return Ok(nmap.unwrap());
+        } else {
+            panic!("{:?}", nmap.err().unwrap());
+        }
     }
 }
