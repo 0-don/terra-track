@@ -40,9 +40,9 @@ pub struct Hostscript {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HostscriptScript {
-    pub elem: Option<Vec<ElemUnion>>,
     pub id: String,
     pub output: String,
+    pub elem: Option<Vec<ElemUnion>>,
     pub table: Option<Table>,
 }
 
@@ -64,14 +64,6 @@ pub struct Osfingerprint {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct OsmatchElement {
-    pub accuracy: i64,
-    pub line: i64,
-    pub name: String,
-    pub osclass: OsclassUnion,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OsclassElement {
     pub accuracy: i64,
     pub cpe: String,
@@ -87,7 +79,7 @@ pub struct Osmatch {
     pub accuracy: i64,
     pub line: i64,
     pub name: String,
-    pub osclass: OsclassElement,
+    pub osclass: OsMatchClassUnion,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -197,13 +189,13 @@ pub enum ScriptUnion {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OsmatchUnion {
-    OsmatchElementArray(Vec<OsmatchElement>),
+    OsmatchElementArray(Vec<Osmatch>),
     Osmatch(Osmatch),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum OsclassUnion {
+pub enum OsMatchClassUnion {
     OsclassElement(OsclassElement),
     OsclassElementArray(Vec<OsclassElement>),
 }
