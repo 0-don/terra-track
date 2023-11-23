@@ -121,29 +121,9 @@ pub struct OsclassElement {
     pub cpe: String,
     pub osfamily: String,
     #[serde(rename = "type")]
-    pub osclass_type: Type,
-    pub vendor: Vendor,
+    pub osclass_type: String,
+    pub vendor: String,
     pub osgen: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Type {
-    #[serde(rename = "general purpose")]
-    GeneralPurpose,
-    #[serde(rename = "media device")]
-    MediaDevice,
-    #[serde(rename = "phone")]
-    Phone,
-    #[serde(rename = "WAP")]
-    Wap,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Vendor {
-    Apple,
-    Linux,
-    Ruckus,
-    Ubiquiti,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -157,21 +137,8 @@ pub struct PurpleOsmatch {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Portused {
     pub portid: i64,
-    pub proto: Proto,
-    pub state: State,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Proto {
-    Tcp,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum State {
-    Open,
-    Up,
+    pub proto: String,
+    pub state: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -182,7 +149,7 @@ pub struct Ports {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
     pub portid: i64,
-    pub protocol: Proto,
+    pub protocol: String,
     pub script: Option<ScriptUnion>,
     pub service: Service,
     pub state: Stat,
@@ -229,7 +196,7 @@ pub enum ScriptTableUnion {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleTable {
     pub elem: Option<HilariousElem>,
-    pub key: PurpleKey,
+    pub key: String,
     pub table: Option<TableTableUnion>,
 }
 
@@ -245,22 +212,6 @@ pub enum HilariousElem {
 pub enum AmbitiousElem {
     FluffyElem(FluffyElem),
     String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PurpleKey {
-    #[serde(rename = "Cache_Control")]
-    CacheControl,
-    #[serde(rename = "Expires")]
-    Expires,
-    Extensions,
-    Issuer,
-    Pubkey,
-    Subject,
-    Validity,
-    #[serde(rename = "X_Frame_Options")]
-    XFrameOptions,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -290,31 +241,13 @@ pub struct TentacledTable {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyTable {
     pub elem: Vec<StickyElem>,
-    pub key: IndigoKey,
+    pub key: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyElem {
-    pub key: StickyKey,
+    pub key: String,
     pub value: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum StickyKey {
-    Curve,
-    Disclosure,
-    #[serde(rename = "ec_curve_type")]
-    EcCurveType,
-    State,
-    Title,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum IndigoKey {
-    #[serde(rename = "curve_params")]
-    CurveParams,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -355,7 +288,7 @@ pub enum FriskyElem {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HilariousTable {
     pub elem: Vec<FluffyElem>,
-    pub key: StickyKey,
+    pub key: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -378,7 +311,7 @@ pub struct Service {
 pub struct Stat {
     pub reason: String,
     pub reason_ttl: i64,
-    pub state: State,
+    pub state: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
