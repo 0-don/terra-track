@@ -56,6 +56,7 @@ impl Script {
             "and not targets-ipv6-multicast-slaac".to_string(),
             "and not http-icloud-sendmsg".to_string(),
             "and not hostmap-robtex".to_string(),
+            "and not http-slowloris".to_string(),
         ]
         .join(" ");
 
