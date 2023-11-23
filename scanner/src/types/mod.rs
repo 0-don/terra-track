@@ -68,7 +68,6 @@ pub enum Value {
 pub struct Os {
     pub osfingerprint: Osfingerprint,
     pub osmatch: OsmatchUnion,
-    pub portused: Portused,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -115,13 +114,6 @@ pub struct PurpleOsmatch {
     pub line: i64,
     pub name: String,
     pub osclass: OsclassElement,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Portused {
-    pub portid: i64,
-    pub proto: String,
-    pub state: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

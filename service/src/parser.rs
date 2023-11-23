@@ -1,6 +1,7 @@
-use crate::entity_mapper::process_scripts;
-use crate::models::{ip_main_service, ip_service_service};
-use crate::utils::{date, parse_os_from_nmap_output};
+use crate::mapper::ip_service_script_mapper::process_scripts;
+use crate::models::ip_main_service::ip_main_m;
+use crate::models::ip_service_service;
+use crate::utils::date;
 use chrono::Duration;
 use entity::ip_main;
 use entity::ip_service;
@@ -12,7 +13,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let ip = &host.address.addr;
     let ports = &host.ports.port;
 
-    let ip_main = ip_main_service::Mutation::upsert_ip_main_by_ip(ip).await?;
+    let ip_main = ip_main_m::Mutation::upsert_ip_main_by_ip(ip).await?;
     for port in ports {
         process_port(&ip_main, port).await?;
     }
@@ -31,7 +32,11 @@ async fn process_port(ip_main: &ip_main::Model, port: &Port) -> anyhow::Result<(
         return Ok(());
     }
     let ip_service = create_ip_service(ip_main.id, port).await?;
-    process_scripts(ip_main.id, ip_service.id, &port.script).await
+    if let Some(script) = &port.script {
+        process_scripts(ip_main.id, ip_service.id, &script).await?;
+    }
+
+    Ok(())
 }
 
 async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_service::Model> {
@@ -45,7 +50,7 @@ async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_se
         name: Set(port.service.name.clone()),
         product: Set(port.service.product.clone()),
         method: Set(format!("{:?}", port.service.method)),
-       
+
         ..Default::default()
     })
     .await

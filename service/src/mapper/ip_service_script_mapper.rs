@@ -1,4 +1,3 @@
-use crate::models::ip_service_extra_service;
 
 use scanner::types::ScriptUnion;
 use serde_json::{json, Value};

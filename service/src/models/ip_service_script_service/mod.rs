@@ -1,38 +1,38 @@
 use crate::db::get_db_connection;
-use entity::ip_service_extra;
+use entity::ip_service_script;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
 
 pub struct Mutation;
 pub struct Query;
 
 impl Mutation {
-    pub async fn create_ip_service_extra(
-        active_model: ip_service_extra::ActiveModel,
-    ) -> anyhow::Result<ip_service_extra::Model> {
+    pub async fn create_ip_service_script(
+        active_model: ip_service_script::ActiveModel,
+    ) -> anyhow::Result<ip_service_script::Model> {
         let db = get_db_connection().await?;
         let model = active_model.save(&db).await?.try_into_model()?;
 
         Ok(model)
     }
 
-    pub async fn upsert_ip_service_extra(
+    pub async fn upsert_ip_service_script(
         ip_main_id: i64,
         ip_service_id: i64,
         key: &str,
         value: serde_json::Value,
-    ) -> anyhow::Result<ip_service_extra::Model> {
+    ) -> anyhow::Result<ip_service_script::Model> {
         let db = get_db_connection().await?;
-        let mut model = ip_service_extra::Entity::find()
-            .filter(ip_service_extra::Column::IpMainId.eq(ip_main_id))
-            .filter(ip_service_extra::Column::IpServiceId.eq(ip_service_id))
-            .filter(ip_service_extra::Column::Key.eq(key))
+        let mut model = ip_service_script::Entity::find()
+            .filter(ip_service_script::Column::IpMainId.eq(ip_main_id))
+            .filter(ip_service_script::Column::IpServiceId.eq(ip_service_id))
+            .filter(ip_service_script::Column::Key.eq(key))
             .one(&db)
             .await?
             .map(|model| model.try_into_model())
             .transpose()?;
 
         if model.is_none() {
-            model = ip_service_extra::ActiveModel {
+            model = ip_service_script::ActiveModel {
                 ip_main_id: Set(ip_main_id),
                 ip_service_id: Set(ip_service_id),
                 key: Set(key.to_string()),
@@ -47,12 +47,12 @@ impl Mutation {
         Ok(model.unwrap())
     }
 
-    pub async fn update_ip_service_extra(
+    pub async fn update_ip_service_script(
         id: i64,
-        model: ip_service_extra::Model,
-    ) -> anyhow::Result<ip_service_extra::Model> {
+        model: ip_service_script::Model,
+    ) -> anyhow::Result<ip_service_script::Model> {
         let db = get_db_connection().await?;
-        let model = ip_service_extra::ActiveModel {
+        let model = ip_service_script::ActiveModel {
             id: Set(id),
             ..model.into()
         }
@@ -63,9 +63,9 @@ impl Mutation {
         Ok(model)
     }
 
-    pub async fn delete_ip_service_extra(id: i64) -> anyhow::Result<bool> {
+    pub async fn delete_ip_service_script(id: i64) -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
-        ip_service_extra::ActiveModel {
+        ip_service_script::ActiveModel {
             id: Set(id),
             ..Default::default()
         }
@@ -75,12 +75,12 @@ impl Mutation {
         Ok(true)
     }
 
-    pub async fn delete_ip_service_extra_by_ip_service_id(
+    pub async fn delete_ip_service_script_by_ip_service_id(
         ip_service_id: i64,
     ) -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
-        ip_service_extra::Entity::delete_many()
-            .filter(ip_service_extra::Column::IpServiceId.eq(ip_service_id))
+        ip_service_script::Entity::delete_many()
+            .filter(ip_service_script::Column::IpServiceId.eq(ip_service_id))
             .exec(&db)
             .await?;
 
@@ -89,11 +89,11 @@ impl Mutation {
 }
 
 impl Query {
-    pub async fn find_ip_service_extra_by_id(
+    pub async fn find_ip_service_script_by_id(
         id: i64,
-    ) -> anyhow::Result<Option<ip_service_extra::Model>> {
+    ) -> anyhow::Result<Option<ip_service_script::Model>> {
         let db = get_db_connection().await?;
-        let model = ip_service_extra::Entity::find_by_id(id).one(&db).await?;
+        let model = ip_service_script::Entity::find_by_id(id).one(&db).await?;
 
         Ok(model)
     }

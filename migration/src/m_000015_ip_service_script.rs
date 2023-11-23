@@ -12,41 +12,41 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(IpServiceExtra::Table)
+                    .table(IpServiceScript::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(IpServiceExtra::Id)
+                        ColumnDef::new(IpServiceScript::Id)
                             .big_integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
                     .col(
-                        ColumnDef::new(IpServiceExtra::IpMainId)
+                        ColumnDef::new(IpServiceScript::IpMainId)
                             .big_integer()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(IpServiceExtra::IpServiceId)
+                        ColumnDef::new(IpServiceScript::IpServiceId)
                             .big_integer()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(IpServiceExtra::Key).string().not_null())
-                    .col(ColumnDef::new(IpServiceExtra::Value).json().not_null())
+                    .col(ColumnDef::new(IpServiceScript::Key).string().not_null())
+                    .col(ColumnDef::new(IpServiceScript::Value).json().not_null())
                     .col(
-                        ColumnDef::new(IpServiceExtra::CreatedAt)
+                        ColumnDef::new(IpServiceScript::CreatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
                     .col(
-                        ColumnDef::new(IpServiceExtra::UpdatedAt)
+                        ColumnDef::new(IpServiceScript::UpdatedAt)
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_service_ip_main")
-                            .from(IpServiceExtra::Table, IpServiceExtra::IpMainId)
+                            .from(IpServiceScript::Table, IpServiceScript::IpMainId)
                             .to(IpMain::Table, IpMain::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
@@ -54,7 +54,7 @@ impl MigrationTrait for Migration {
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_service_ip_service")
-                            .from(IpServiceExtra::Table, IpServiceExtra::IpServiceId)
+                            .from(IpServiceScript::Table, IpServiceScript::IpServiceId)
                             .to(IpService::Table, IpService::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
@@ -66,13 +66,13 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(IpServiceExtra::Table).to_owned())
+            .drop_table(Table::drop().table(IpServiceScript::Table).to_owned())
             .await
     }
 }
 
 #[derive(DeriveIden)]
-pub enum IpServiceExtra {
+pub enum IpServiceScript {
     Table,
     Id,
     IpMainId,

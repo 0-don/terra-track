@@ -14,7 +14,7 @@ mod m_000011_ip_flag;
 mod m_000012_ip_hosting_details;
 mod m_000013_ip_os;
 mod m_000014_ip_service;
-mod m_000015_ip_service_extra;
+mod m_000015_ip_service_script;
 
 pub struct Migrator;
 
@@ -36,7 +36,7 @@ impl MigratorTrait for Migrator {
             Box::new(m_000012_ip_hosting_details::Migration),
             Box::new(m_000013_ip_os::Migration),
             Box::new(m_000014_ip_service::Migration),
-            Box::new(m_000015_ip_service_extra::Migration),
+            Box::new(m_000015_ip_service_script::Migration),
         ]
     }
 }
