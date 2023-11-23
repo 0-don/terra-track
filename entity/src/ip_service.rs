@@ -25,7 +25,6 @@ pub struct Model {
     pub os_type: Option<String>,
     pub cpu_arch: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -40,7 +39,6 @@ pub enum Column {
     OsType,
     CpuArch,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -75,7 +73,6 @@ impl ColumnTrait for Column {
             Self::OsType => ColumnType::String(None).def().null(),
             Self::CpuArch => ColumnType::String(None).def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

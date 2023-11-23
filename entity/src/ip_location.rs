@@ -26,7 +26,6 @@ pub struct Model {
     pub postal: Option<String>,
     pub timezone: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -43,7 +42,6 @@ pub enum Column {
     Postal,
     Timezone,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -79,7 +77,6 @@ impl ColumnTrait for Column {
             Self::Postal => ColumnType::Text.def().null(),
             Self::Timezone => ColumnType::Text.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

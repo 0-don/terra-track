@@ -20,7 +20,6 @@ pub struct Model {
     pub key: String,
     pub value: Json,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -31,7 +30,6 @@ pub enum Column {
     Key,
     Value,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -62,7 +60,6 @@ impl ColumnTrait for Column {
             Self::Key => ColumnType::String(None).def(),
             Self::Value => ColumnType::Json.def(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

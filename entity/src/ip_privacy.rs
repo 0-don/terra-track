@@ -27,7 +27,6 @@ pub struct Model {
     pub is_mobile: Option<bool>,
     pub is_datacenter: Option<bool>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -45,7 +44,6 @@ pub enum Column {
     IsMobile,
     IsDatacenter,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -82,7 +80,6 @@ impl ColumnTrait for Column {
             Self::IsMobile => ColumnType::Boolean.def().null(),
             Self::IsDatacenter => ColumnType::Boolean.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

@@ -20,7 +20,6 @@ pub struct Model {
     pub num_mail_servers: Option<i64>,
     pub num_name_servers: Option<i64>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -31,7 +30,6 @@ pub enum Column {
     NumMailServers,
     NumNameServers,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -61,7 +59,6 @@ impl ColumnTrait for Column {
             Self::NumMailServers => ColumnType::BigInteger.def().null(),
             Self::NumNameServers => ColumnType::BigInteger.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

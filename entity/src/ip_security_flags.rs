@@ -21,7 +21,6 @@ pub struct Model {
     pub hackers: Option<bool>,
     pub open_proxy: Option<bool>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -33,7 +32,6 @@ pub enum Column {
     Hackers,
     OpenProxy,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -64,7 +62,6 @@ impl ColumnTrait for Column {
             Self::Hackers => ColumnType::Boolean.def().null(),
             Self::OpenProxy => ColumnType::Boolean.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

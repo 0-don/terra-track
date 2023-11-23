@@ -23,7 +23,6 @@ pub struct Model {
     pub route: Option<String>,
     pub r#type: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -37,7 +36,6 @@ pub enum Column {
     Route,
     Type,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -70,7 +68,6 @@ impl ColumnTrait for Column {
             Self::Route => ColumnType::Text.def().null(),
             Self::Type => ColumnType::Text.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

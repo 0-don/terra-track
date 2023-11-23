@@ -2,6 +2,7 @@ use crate::mapper::ip_service_script_mapper::process_scripts;
 use crate::models::ip_main_service::ip_main_m;
 use crate::models::ip_service_service::ip_service_m;
 use crate::models::ip_service_service::ip_service_q;
+use crate::printlog;
 use crate::utils::date;
 use chrono::Duration;
 use entity::ip_main;
@@ -12,6 +13,7 @@ use sea_orm::Set;
 pub const BATCH_SIZE: i32 = 1;
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
+    printlog!("Parsing nmap results Start");
     let host = &nmap.nmaprun.host;
     let ip = &host.address.addr;
     let ports = &host.ports.port;
@@ -20,6 +22,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     for port in ports {
         process_port(&ip_main, port).await?;
     }
+    printlog!("Parsing nmap results End");
     Ok(())
 }
 

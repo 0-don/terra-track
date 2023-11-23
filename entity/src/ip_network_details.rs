@@ -21,7 +21,6 @@ pub struct Model {
     pub asn_name: Option<String>,
     pub ip_range: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -33,7 +32,6 @@ pub enum Column {
     AsnName,
     IpRange,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -64,7 +62,6 @@ impl ColumnTrait for Column {
             Self::AsnName => ColumnType::Text.def().null(),
             Self::IpRange => ColumnType::Text.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

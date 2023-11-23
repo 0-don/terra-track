@@ -17,7 +17,6 @@ pub struct Model {
     pub id: i64,
     pub ip_address: String,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -25,7 +24,6 @@ pub enum Column {
     Id,
     IpAddress,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -64,7 +62,6 @@ impl ColumnTrait for Column {
             Self::Id => ColumnType::BigInteger.def(),
             Self::IpAddress => ColumnType::Text.def().unique(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }

@@ -20,7 +20,6 @@ pub struct Model {
     pub emoji: Option<String>,
     pub emoji_unicode: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,
-    pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -31,7 +30,6 @@ pub enum Column {
     Emoji,
     EmojiUnicode,
     CreatedAt,
-    UpdatedAt,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -61,7 +59,6 @@ impl ColumnTrait for Column {
             Self::Emoji => ColumnType::Text.def().null(),
             Self::EmojiUnicode => ColumnType::Text.def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
-            Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
 }
