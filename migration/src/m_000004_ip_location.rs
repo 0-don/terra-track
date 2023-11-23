@@ -35,11 +35,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpLocation::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_location_ip_main")
@@ -75,5 +70,4 @@ enum IpLocation {
     Postal,
     Timezone,
     CreatedAt,
-    UpdatedAt,
 }

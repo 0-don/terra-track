@@ -1,5 +1,5 @@
-use sea_orm_migration::prelude::*;
 use crate::m_000002_ip_main::IpMain;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -39,11 +39,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpAbuseContact::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .to_owned(),
             )
             .await
@@ -68,5 +63,4 @@ enum IpAbuseContact {
     Network,
     Phone,
     CreatedAt,
-    UpdatedAt,
 }

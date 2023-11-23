@@ -63,10 +63,7 @@ fn parse_script_elem(elem_union: &ElemUnion) -> Value {
             json!(map)
         }
         ElemUnion::ElemArray(arr) => {
-            let map: HashMap<_, _> = arr
-                .iter()
-                .map(|e| (&e.key, &e.value))
-                .collect();
+            let map: HashMap<_, _> = arr.iter().map(|e| (&e.key, &e.value)).collect();
             json!(map)
         }
         ElemUnion::ElemUnion(arr) => {
@@ -93,12 +90,18 @@ fn parse_table(table: &Table) -> Value {
         Some(elem_union) => parse_script_elem(elem_union),
         None => Value::Null,
     };
-    map.insert(table.key.clone(), elem_value);
+    
+    if table.key.is_some() {
+        map.insert(table.key.clone().unwrap(), elem_value);
+    } else {
+        map.insert("elem".to_string(), elem_value);
+    }
 
     let table_value = match &table.table {
         Some(table_union) => parse_script_table(table_union),
         None => Value::Null,
     };
+
     map.insert("table".to_string(), table_value);
 
     json!(map)

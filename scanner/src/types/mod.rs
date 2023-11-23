@@ -99,7 +99,7 @@ pub struct Script {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Table {
-    pub key: String,
+    pub key: Option<String>,
     pub elem: Option<ElemUnion>,
     pub table: Option<TableUnion>,
 }

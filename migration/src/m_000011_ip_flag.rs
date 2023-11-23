@@ -28,11 +28,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpFlag::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_flag_ip_main")
@@ -62,5 +57,4 @@ enum IpFlag {
     Emoji,
     EmojiUnicode,
     CreatedAt,
-    UpdatedAt,
 }

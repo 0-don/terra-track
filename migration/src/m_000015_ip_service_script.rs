@@ -38,11 +38,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpServiceScript::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_service_ip_main")
@@ -80,5 +75,4 @@ pub enum IpServiceScript {
     Key,
     Value,
     CreatedAt,
-    UpdatedAt,
 }

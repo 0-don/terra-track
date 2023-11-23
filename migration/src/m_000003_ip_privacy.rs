@@ -44,11 +44,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpPrivacy::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_privacy_ip_main")
@@ -85,5 +80,4 @@ enum IpPrivacy {
     IsDatacenter,
     Service,
     CreatedAt,
-    UpdatedAt,
 }

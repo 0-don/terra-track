@@ -29,11 +29,6 @@ impl MigrationTrait for Migration {
                             .timestamp_with_time_zone()
                             .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
                     )
-                    .col(
-                        ColumnDef::new(IpSecurityFlags::UpdatedAt)
-                            .timestamp_with_time_zone()
-                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
-                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_ip_security_flags_ip_main")
@@ -64,5 +59,4 @@ enum IpSecurityFlags {
     Hackers,
     OpenProxy,
     CreatedAt,
-    UpdatedAt,
 }
