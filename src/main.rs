@@ -16,7 +16,7 @@ async fn main() -> anyhow::Result<()> {
 
     let scan = scan_batch_service::Query::next_scan_batch().await?;
 
-    let _ = remove_dir_all("./output");
+    // let _ = remove_dir_all("./output");
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
