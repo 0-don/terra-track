@@ -46,21 +46,8 @@ impl Script {
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
 
-
-        let srcdir = PathBuf::from("./vulscan/vulscan.nse");
-        let binding = srcdir
-            .canonicalize()
-            .unwrap();
-        let vulscan_path = binding
-            .to_str()
-            .unwrap();
-
-        println!("{}", vulscan_path);
-        
-        
         let scripts = vec![
             format!("default or vulscan"),
- 
             // "and not *enum*".to_string(),
             // "and not broadcast-*",
             // "and not targets-asn",
