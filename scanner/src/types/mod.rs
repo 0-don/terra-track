@@ -50,7 +50,7 @@ pub struct HostscriptScript {
     pub elem: Option<Vec<IndigoElem>>,
     pub id: String,
     pub output: String,
-    pub table: Option<ScriptTableClass>,
+    pub table: Option<FluffyTable>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -60,11 +60,6 @@ pub enum IndigoElem {
     String(String),
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ScriptTableClass {
-    pub elem: Vec<FluffyElem>,
-    pub key: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyElem {
@@ -121,7 +116,7 @@ pub struct OsclassElement {
     pub cpe: String,
     pub osfamily: String,
     #[serde(rename = "type")]
-    pub osclass_type: String,
+    pub osclass_type: Value,
     pub vendor: String,
     pub osgen: Option<String>,
 }
@@ -166,7 +161,7 @@ pub enum ScriptUnion {
 pub struct PurpleScript {
     pub elem: Option<IndecentElem>,
     pub id: String,
-    pub output: Output,
+    pub output: Value,
     pub table: Option<ScriptTableUnion>,
     pub value: Option<bool>,
 }
@@ -177,13 +172,6 @@ pub enum IndecentElem {
     Enum(String),
     FluffyElem(FluffyElem),
     FluffyElemArray(Vec<FluffyElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Output {
-    Bool(bool),
-    String(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -223,13 +211,8 @@ pub enum TableTableUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyTable {
-    pub elem: Vec<TentacledElem>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TentacledElem {
-    pub key: String,
-    pub value: Output,
+    pub elem: Vec<FluffyElem>,
+    pub key: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -275,7 +258,7 @@ pub enum MagentaElem {
 pub struct IndecentTable {
     pub elem: Option<FriskyElem>,
     pub key: String,
-    pub table: Option<HilariousTable>,
+    pub table: Option<FluffyTable>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -283,12 +266,6 @@ pub struct IndecentTable {
 pub enum FriskyElem {
     String(String),
     StringArray(Vec<String>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct HilariousTable {
-    pub elem: Vec<FluffyElem>,
-    pub key: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
