@@ -1,13 +1,10 @@
 use crate::mapper::ip_service_script_mapper::process_scripts;
 use crate::models::ip_main_service::ip_main_m;
+use crate::models::ip_service_script_service::ip_service_script_m;
 use crate::models::ip_service_service::ip_service_m;
-use crate::models::ip_service_service::ip_service_q;
 use crate::printlog;
-use crate::utils::date;
-use chrono::Duration;
-use entity::ip_main;
 use entity::ip_service;
-use scanner::types::{Nmap, Port};
+use scanner::types::Nmap;
 use sea_orm::Set;
 
 pub const BATCH_SIZE: i32 = 1;
@@ -19,44 +16,34 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let ports = &host.ports.port;
 
     let ip_main = ip_main_m::Mutation::upsert_ip_main_by_ip(ip).await?;
+
+    // Collect all ip_service::ActiveModel instances
+    let mut services_to_create = Vec::new();
     for port in ports {
-        process_port(&ip_main, port).await?;
+        services_to_create.push(ip_service::ActiveModel {
+            ip_main_id: Set(ip_main.id),
+            port: Set(port.portid as i16),
+            name: Set(port.service.name.clone()),
+            product: Set(port.service.product.clone()),
+            method: Set(format!("{:?}", port.service.method)),
+            ..Default::default()
+        });
     }
+
+    // Batch create ip_service::ActiveModel instances
+    let created_services =
+        ip_service_m::Mutation::create_many_ip_services(services_to_create).await?;
+
+    // Process and batch create scripts
+    let mut script_models = Vec::new();
+    for (created_service, port) in created_services.iter().zip(ports.iter()) {
+        if let Some(script) = &port.script {
+            script_models.extend(process_scripts(ip_main.id, created_service.id, script));
+        }
+    }
+
+    ip_service_script_m::Mutation::create_many_ip_service_scripts(script_models).await?;
+
     printlog!("Parsing nmap results End");
     Ok(())
-}
-
-async fn process_port(ip_main: &ip_main::Model, port: &Port) -> anyhow::Result<()> {
-    if ip_service_q::Query::find_ip_service_by_port_and_ip_main_id_older_then(
-        port.portid as i16,
-        ip_main.id,
-        Some(date(Duration::days(365))),
-    )
-    .await?
-    .is_some()
-    {
-        return Ok(());
-    }
-    let ip_service = create_ip_service(ip_main.id, port).await?;
-    if let Some(script) = &port.script {
-        process_scripts(ip_main.id, ip_service.id, &script).await?;
-    }
-
-    Ok(())
-}
-
-async fn create_ip_service(ip_main_id: i64, port: &Port) -> anyhow::Result<ip_service::Model> {
-    // let (mut os_type, cpu_arch) = parse_os_from_nmap_output(&port.service.servicefp);
-    // if let Some(ostype) = &port.service.ostype {
-    //     os_type = Some(ostype.clone());
-    // }
-    ip_service_m::Mutation::create_ip_service(ip_service::ActiveModel {
-        ip_main_id: Set(ip_main_id),
-        port: Set(port.portid as i16),
-        name: Set(port.service.name.clone()),
-        product: Set(port.service.product.clone()),
-        method: Set(format!("{:?}", port.service.method)),
-        ..Default::default()
-    })
-    .await
 }

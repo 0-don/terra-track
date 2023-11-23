@@ -1,31 +1,33 @@
-use crate::models::ip_service_script_service::ip_service_script_m;
+use entity::ip_service_script;
 use scanner::types::{ElemUnion, Script, ScriptUnion, Table, TableUnion};
+use sea_orm::Set;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-pub async fn process_scripts(
+pub fn process_scripts(
     ip_main_id: i64,
     ip_service_id: i64,
     script_union: &ScriptUnion,
-) -> anyhow::Result<()> {
+) -> Vec<ip_service_script::ActiveModel> {
     match script_union {
         ScriptUnion::Script(script) => {
-            process_single_script(ip_main_id, ip_service_id, script).await
+            vec![process_single_script(ip_main_id, ip_service_id, script)]
         }
         ScriptUnion::ScriptArray(scripts) => {
+            let mut models = Vec::new();
             for script in scripts {
-                process_single_script(ip_main_id, ip_service_id, script).await?;
+                models.push(process_single_script(ip_main_id, ip_service_id, script));
             }
-            Ok(())
+            models
         }
     }
 }
 
-async fn process_single_script(
+fn process_single_script(
     ip_main_id: i64,
     ip_service_id: i64,
     script: &Script,
-) -> anyhow::Result<()> {
+) -> ip_service_script::ActiveModel {
     let mut json_map = serde_json::Map::new();
 
     json_map.insert("output".to_string(), json!({ &script.id: script.output }));
@@ -42,15 +44,13 @@ async fn process_single_script(
         json_map.insert("table".to_string(), parse_script_table(table_union));
     }
 
-    ip_service_script_m::Mutation::upsert_ip_service_script(
-        ip_main_id,
-        ip_service_id,
-        &script.id,
-        json!(Value::Object(json_map)),
-    )
-    .await?;
-
-    Ok(())
+    ip_service_script::ActiveModel {
+        ip_main_id: Set(ip_main_id),
+        ip_service_id: Set(ip_service_id),
+        key: Set(script.id.clone()),
+        value: Set(json!(Value::Object(json_map))),
+        ..Default::default()
+    }
 }
 
 fn parse_script_elem(elem_union: &ElemUnion) -> Value {
@@ -90,7 +90,7 @@ fn parse_table(table: &Table) -> Value {
         Some(elem_union) => parse_script_elem(elem_union),
         None => Value::Null,
     };
-    
+
     if table.key.is_some() {
         map.insert(table.key.clone().unwrap(), elem_value);
     } else {

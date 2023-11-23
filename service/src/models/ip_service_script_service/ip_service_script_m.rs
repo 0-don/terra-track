@@ -85,4 +85,17 @@ impl Mutation {
 
         Ok(true)
     }
+
+    pub async fn create_many_ip_service_scripts(
+        active_models: Vec<ip_service_script::ActiveModel>,
+    ) -> anyhow::Result<()> {
+        let db = get_db_connection().await?;
+
+        ip_service_script::Entity::insert_many(active_models)
+            .on_empty_do_nothing()
+            .exec(&db)
+            .await?;
+
+        Ok(())
+    }
 }

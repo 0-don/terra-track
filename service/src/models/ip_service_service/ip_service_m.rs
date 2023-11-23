@@ -1,6 +1,7 @@
-use crate::db::get_db_connection;
+use crate::{db::get_db_connection, utils::date};
 use ::entity::ip_service;
-use sea_orm::{ActiveModelTrait, Set, TryIntoModel};
+use chrono::Duration;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
 
 pub struct Mutation;
 
@@ -40,5 +41,30 @@ impl Mutation {
         .await?;
 
         Ok(true)
+    }
+
+    pub async fn create_many_ip_services(
+        active_models: Vec<ip_service::ActiveModel>,
+    ) -> anyhow::Result<Vec<ip_service::Model>> {
+        if active_models.is_empty() {
+            return Ok(vec![]);
+        }
+
+        let db = get_db_connection().await?;
+        let ip_main_id = active_models[0].ip_main_id.clone(); // Assuming ip_main_id is present
+        ip_service::Entity::insert_many(active_models)
+            .on_empty_do_nothing()
+            .exec(&db)
+            .await?;
+
+        // Fetching records created in the last 5 minutes
+        let five_minutes_ago = date(Duration::minutes(5));
+        let inserted_models = ip_service::Entity::find()
+            .filter(ip_service::Column::IpMainId.eq(ip_main_id.unwrap())) // Adjust based on your field's actual name
+            .filter(ip_service::Column::CreatedAt.gt(five_minutes_ago))
+            .all(&db)
+            .await?;
+
+        Ok(inserted_models)
     }
 }
