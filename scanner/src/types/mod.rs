@@ -40,7 +40,7 @@ pub struct Hostscript {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HostscriptScript {
-    pub elem: Option<Vec<AmbitiousElem>>,
+    pub elem: Option<Vec<ElemUnion>>,
     pub id: String,
     pub output: String,
     pub table: Option<FluffyTable>,
@@ -108,7 +108,7 @@ pub struct Port {
 pub struct Script {
     pub id: String,
     pub output: Value,
-    pub elem: Option<IndecentElem>,
+    pub elem: Option<ElemUnion>,
     pub table: Option<ScriptTableUnion>,
     pub value: Option<bool>,
 }
@@ -210,24 +210,17 @@ pub enum OsclassUnion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum IndecentElem {
+pub enum ElemUnion {
     Enum(String),
-    FluffyElem(Elem),
-    FluffyElemArray(Vec<Elem>),
+    Elem(Elem),
+    ElemArray(Vec<Elem>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HilariousElem {
     String(String),
-    UnionArray(Vec<AmbitiousElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AmbitiousElem {
-    FluffyElem(Elem),
-    String(String),
+    UnionArray(Vec<ElemUnion>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
