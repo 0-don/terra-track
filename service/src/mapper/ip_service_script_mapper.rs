@@ -28,7 +28,7 @@ async fn process_single_script(
 ) -> anyhow::Result<()> {
     let mut json_map = serde_json::Map::new();
 
-    json_map.insert("output".to_string(), json!(script.output));
+    json_map.insert("output".to_string(), json!({ &script.id: script.output }));
 
     if let Some(value) = &script.value {
         json_map.insert("value".to_string(), json!(value));
@@ -46,7 +46,7 @@ async fn process_single_script(
         ip_main_id,
         ip_service_id,
         &script.id,
-        json!({ &script.id: Value::Object(json_map) }),
+        json!(Value::Object(json_map)),
     )
     .await?;
 
@@ -59,13 +59,13 @@ fn parse_script_elem(elem_union: &ElemUnion) -> Value {
         ElemUnion::StringArray(arr) => json!(arr),
         ElemUnion::Elem(e) => {
             let mut map = HashMap::new();
-            map.insert(e.key.clone(), e.value.clone());
+            map.insert(&e.key, &e.value);
             json!(map)
         }
         ElemUnion::ElemArray(arr) => {
             let map: HashMap<_, _> = arr
                 .iter()
-                .map(|e| (e.key.clone(), e.value.clone()))
+                .map(|e| (&e.key, &e.value))
                 .collect();
             json!(map)
         }
