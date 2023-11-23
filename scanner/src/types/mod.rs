@@ -20,13 +20,10 @@ pub struct Nmaprun {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Host {
     pub address: Address,
-    pub endtime: i64,
     pub os: Os,
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,
-    pub times: Times,
-    pub trace: Trace,
     pub hostscript: Option<Hostscript>,
 }
 
@@ -50,18 +47,9 @@ pub struct HostscriptScript {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct FluffyElem {
+pub struct Elem {
     pub key: String,
     pub value: Value,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Value {
-    Double(f64),
-    String(String),
-    Integer(i64),
-    Bool(bool),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -76,25 +64,11 @@ pub struct Osfingerprint {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum OsmatchUnion {
-    OsmatchElementArray(Vec<OsmatchElement>),
-    PurpleOsmatch(PurpleOsmatch),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OsmatchElement {
     pub accuracy: i64,
     pub line: i64,
     pub name: String,
     pub osclass: OsclassUnion,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum OsclassUnion {
-    OsclassElement(OsclassElement),
-    OsclassElementArray(Vec<OsclassElement>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -131,34 +105,12 @@ pub struct Port {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ScriptUnion {
-    PrescriptScript(PrescriptScript),
-    PurpleScriptArray(Vec<PurpleScript>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleScript {
-    pub elem: Option<IndecentElem>,
     pub id: String,
     pub output: Value,
+    pub elem: Option<IndecentElem>,
     pub table: Option<ScriptTableUnion>,
     pub value: Option<bool>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum IndecentElem {
-    Enum(String),
-    FluffyElem(FluffyElem),
-    FluffyElemArray(Vec<FluffyElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ScriptTableUnion {
-    IndigoTable(IndigoTable),
-    PurpleTableArray(Vec<PurpleTable>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -169,29 +121,8 @@ pub struct PurpleTable {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum HilariousElem {
-    String(String),
-    UnionArray(Vec<AmbitiousElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AmbitiousElem {
-    FluffyElem(FluffyElem),
-    String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum TableTableUnion {
-    FluffyTableArray(Vec<FluffyTable>),
-    TentacledTable(TentacledTable),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyTable {
-    pub elem: Vec<FluffyElem>,
+    pub elem: Vec<Elem>,
     pub key: Option<String>,
 }
 
@@ -203,14 +134,8 @@ pub struct TentacledTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickyTable {
-    pub elem: Vec<StickyElem>,
+    pub elem: Vec<Elem>,
     pub key: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct StickyElem {
-    pub key: String,
-    pub value: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -221,37 +146,10 @@ pub struct IndigoTable {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CunningElem {
-    String(String),
-    UnionArray(Vec<MagentaElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum MagentaElem {
-    StickyElem(StickyElem),
-    String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndecentTable {
-    pub elem: Option<FriskyElem>,
+    pub elem: Option<StringUnion>,
     pub key: String,
     pub table: Option<FluffyTable>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum FriskyElem {
-    String(String),
-    StringArray(Vec<String>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PrescriptScript {
-    pub id: String,
-    pub output: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -272,29 +170,97 @@ pub struct Stat {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Times {
-    pub rttvar: i64,
-    pub srtt: i64,
-    pub to: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Trace {
-    pub hop: Hop,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Hop {
-    pub ipaddr: String,
-    pub rtt: f64,
-    pub ttl: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scaninfo {
     pub numservices: i64,
     pub protocol: String,
     pub services: String,
     #[serde(rename = "type")]
     pub scaninfo_type: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Value {
+    Double(f64),
+    String(String),
+    Integer(i64),
+    Bool(bool),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum OsmatchUnion {
+    OsmatchElementArray(Vec<OsmatchElement>),
+    PurpleOsmatch(PurpleOsmatch),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum OsclassUnion {
+    OsclassElement(OsclassElement),
+    OsclassElementArray(Vec<OsclassElement>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ScriptUnion {
+    PurpleScript(PurpleScript),
+    PurpleScriptArray(Vec<PurpleScript>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum IndecentElem {
+    Enum(String),
+    FluffyElem(Elem),
+    FluffyElemArray(Vec<Elem>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum HilariousElem {
+    String(String),
+    UnionArray(Vec<AmbitiousElem>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AmbitiousElem {
+    FluffyElem(Elem),
+    String(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TableTableUnion {
+    FluffyTableArray(Vec<FluffyTable>),
+    TentacledTable(TentacledTable),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CunningElem {
+    String(String),
+    UnionArray(Vec<MagentaElem>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum MagentaElem {
+    FluffyElem(Elem),
+    String(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StringUnion {
+    String(String),
+    StringArray(Vec<String>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ScriptTableUnion {
+    IndigoTable(IndigoTable),
+    PurpleTableArray(Vec<PurpleTable>),
 }

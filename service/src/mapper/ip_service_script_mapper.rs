@@ -1,7 +1,9 @@
-
+use entity::ip_service_script;
 use scanner::types::ScriptUnion;
 use serde_json::{json, Value};
 use std::collections::HashMap;
+
+use crate::models::ip_service_script_service::ip_service_script_m;
 
 pub async fn process_scripts(
     ip_main_id: i64,
@@ -9,16 +11,12 @@ pub async fn process_scripts(
     script_union: &ScriptUnion,
 ) -> anyhow::Result<()> {
     match script_union {
-        ScriptUnion::PurpleScript(purple_script) => {
-            ip_service_extra_service::Mutation::upsert_ip_service_extra(
+        ScriptUnion::PurpleScript(script) => {
+            ip_service_script_m::Mutation::upsert_ip_service_script(
                 ip_main_id,
                 ip_service_id,
-                &purple_script.id,
-                json!(purple_script
-                    .elem
-                    .iter()
-                    .map(|elem| (&elem.key, &elem.value))
-                    .collect::<HashMap<_, _>>()),
+                &script.id,
+                json!({ script.id: script.output, "elem": script.elem, "table": script.table, "value": script.value  }),
             )
             .await?;
             Ok(())
@@ -33,7 +31,7 @@ pub async fn process_scripts(
                     (None, Some(table)) => parse_script_table(table),
                     (None, None) => continue,
                 };
-                ip_service_extra_service::Mutation::upsert_ip_service_extra(
+                ip_service_script_m::Mutation::Mutation::upsert_ip_service_script(
                     ip_main_id,
                     ip_service_id,
                     &script.id,
