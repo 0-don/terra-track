@@ -9,7 +9,7 @@ use entity::ip_service;
 use scanner::types::{Nmap, Port};
 use sea_orm::Set;
 
-pub const BATCH_SIZE: i32 = 20;
+pub const BATCH_SIZE: i32 = 1;
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let host = &nmap.nmaprun.host;

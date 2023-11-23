@@ -29,7 +29,10 @@ async fn process_single_script(
     let mut json_map = serde_json::Map::new();
 
     json_map.insert("output".to_string(), json!(script.output));
-    json_map.insert("value".to_string(), json!(script.value));
+
+    if let Some(value) = &script.value {
+        json_map.insert("value".to_string(), json!(value));
+    }
 
     if let Some(elem_union) = &script.elem {
         json_map.insert("elem".to_string(), parse_script_elem(elem_union));
