@@ -9,7 +9,6 @@ pub struct Nmap {
 pub struct Nmaprun {
     pub args: String,
     pub host: Host,
-    pub runstats: Runstats,
     pub scaninfo: Vec<Scaninfo>,
     pub scanner: String,
     pub start: i64,
@@ -23,16 +22,12 @@ pub struct Host {
     pub address: Address,
     pub endtime: i64,
     pub hostnames: Hostnames,
-    pub ipidsequence: Sequence,
     pub os: Os,
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,
-    pub tcpsequence: Tcpsequence,
-    pub tcptssequence: Sequence,
     pub times: Times,
     pub trace: Trace,
-    pub uptime: Uptime,
     pub hostscript: Option<Hostscript>,
 }
 
@@ -61,14 +56,8 @@ pub struct HostscriptScript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IndigoElem {
-    PurpleElem(PurpleElem),
+    FluffyElem(FluffyElem),
     String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PurpleElem {
-    pub key: String,
-    pub value: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -88,12 +77,8 @@ pub struct FluffyElem {
 pub enum Value {
     Double(f64),
     String(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Sequence {
-    pub class: String,
-    pub values: String,
+    Integer(i64),
+    Bool(bool),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -222,20 +207,9 @@ pub struct PurpleScript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IndecentElem {
-    Enum(Product),
+    Enum(String),
     FluffyElem(FluffyElem),
     FluffyElemArray(Vec<FluffyElem>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Product {
-    Cloudflare,
-    #[serde(rename = "Cloudflare http proxy")]
-    CloudflareHttpProxy,
-    Nginx,
-    #[serde(rename = "Unbound")]
-    Unbound,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -303,28 +277,14 @@ pub struct FluffyTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TentacledElem {
-    pub key: FluffyKey,
+    pub key: String,
     pub value: Output,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum FluffyKey {
-    Critical,
-    Name,
-    Value,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TentacledTable {
-    pub key: TentacledKey,
+    pub key: String,
     pub table: StickyTable,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum TentacledKey {
-    Ecdhparams,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -360,7 +320,7 @@ pub enum IndigoKey {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndigoTable {
     pub elem: CunningElem,
-    pub key: IndecentKey,
+    pub key: String,
     pub table: Option<Vec<IndecentTable>>,
 }
 
@@ -379,22 +339,9 @@ pub enum MagentaElem {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
-pub enum IndecentKey {
-    #[serde(rename = "Allowed User Agents")]
-    AllowedUserAgents,
-    #[serde(rename = "CVE-2007-6750")]
-    Cve20076750,
-    #[serde(rename = "Strict_Transport_Security")]
-    StrictTransportSecurity,
-    #[serde(rename = "Supported Methods")]
-    SupportedMethods,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndecentTable {
     pub elem: Option<FriskyElem>,
-    pub key: HilariousKey,
+    pub key: String,
     pub table: Option<HilariousTable>,
 }
 
@@ -406,19 +353,8 @@ pub enum FriskyElem {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum HilariousKey {
-    Dates,
-    Description,
-    #[serde(rename = "exploit_results")]
-    ExploitResults,
-    Ids,
-    Refs,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HilariousTable {
-    pub elem: Vec<PurpleElem>,
+    pub elem: Vec<FluffyElem>,
     pub key: StickyKey,
 }
 
@@ -431,65 +367,18 @@ pub struct PrescriptScript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
     pub conf: i64,
-    pub cpe: Option<Cpe>,
-    pub method: Method,
-    pub name: Name,
-    pub product: Option<Product>,
-    pub tunnel: Option<Tunnel>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Cpe {
-    #[serde(rename = "cpe:/a:igor_sysoev:nginx")]
-    CpeAIgorSysoevNginx,
-    #[serde(rename = "cpe:/a:nlnetlabs:unbound")]
-    CpeANlnetlabsUnbound,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Method {
-    Probed,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum Name {
-    Domain,
-    Http,
-    Https,
-    #[serde(rename = "https-alt")]
-    HttpsAlt,
-    Tcpwrapped,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Tunnel {
-    Ssl,
+    pub cpe: Option<String>,
+    pub method: String,
+    pub name: String,
+    pub product: Option<String>,
+    pub tunnel: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Stat {
-    pub reason: Reason,
+    pub reason: String,
     pub reason_ttl: i64,
     pub state: State,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum Reason {
-    #[serde(rename = "syn-ack")]
-    SynAck,
-    #[serde(rename = "user-set")]
-    UserSet,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Tcpsequence {
-    pub difficulty: String,
-    pub index: i64,
-    pub values: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -509,34 +398,6 @@ pub struct Hop {
     pub ipaddr: String,
     pub rtt: f64,
     pub ttl: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Uptime {
-    pub lastboot: String,
-    pub seconds: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Runstats {
-    pub finished: Finished,
-    pub hosts: Hosts,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Finished {
-    pub elapsed: f64,
-    pub exit: String,
-    pub summary: String,
-    pub time: i64,
-    pub timestr: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Hosts {
-    pub down: i64,
-    pub total: i64,
-    pub up: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
