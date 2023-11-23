@@ -47,8 +47,8 @@ impl Script {
         let ip = self.ip.to_string();
 
         let scripts = vec![
-            format!("(default or version or discovery or auth or vuln or external)"),
-            // "and not *enum*".to_string(),
+            format!("(default or version)"),
+            "and not *enum*".to_string(),
             "and not broadcast-*".to_string(),
             "and not targets-asn".to_string(),
             "and not http-robtex-shared-ns".to_string(),
