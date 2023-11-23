@@ -26,7 +26,7 @@ WORKDIR /app
 ARG DATABASE_URL
 RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 
-COPY --from=builder /build/vulscan /usr/share/nmap/scripts
+# COPY --from=builder /build/vulscan /usr/share/nmap/scripts
 COPY --from=builder /build/target/release/terra_track /app/terra_track
 
 RUN nmap --script-updatedb
