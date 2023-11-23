@@ -105,7 +105,7 @@ pub struct Port {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PurpleScript {
+pub struct Script {
     pub id: String,
     pub output: Value,
     pub elem: Option<IndecentElem>,
@@ -115,15 +115,15 @@ pub struct PurpleScript {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PurpleTable {
-    pub elem: Option<HilariousElem>,
     pub key: String,
+    pub elem: Option<HilariousElem>,
     pub table: Option<TableTableUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FluffyTable {
-    pub elem: Vec<Elem>,
     pub key: Option<String>,
+    pub elem: Vec<Elem>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -140,8 +140,8 @@ pub struct StickyTable {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndigoTable {
-    pub elem: CunningElem,
     pub key: String,
+    pub elem: CunningElem,
     pub table: Option<Vec<IndecentTable>>,
 }
 
@@ -189,6 +189,13 @@ pub enum Value {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+pub enum ScriptUnion {
+    Script(Script),
+    ScriptArray(Vec<Script>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum OsmatchUnion {
     OsmatchElementArray(Vec<OsmatchElement>),
     PurpleOsmatch(PurpleOsmatch),
@@ -199,13 +206,6 @@ pub enum OsmatchUnion {
 pub enum OsclassUnion {
     OsclassElement(OsclassElement),
     OsclassElementArray(Vec<OsclassElement>),
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ScriptUnion {
-    PurpleScript(PurpleScript),
-    PurpleScriptArray(Vec<PurpleScript>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -1,5 +1,4 @@
-use entity::ip_service_script;
-use scanner::types::ScriptUnion;
+use scanner::types::{ScriptUnion, Script};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -11,17 +10,17 @@ pub async fn process_scripts(
     script_union: &ScriptUnion,
 ) -> anyhow::Result<()> {
     match script_union {
-        ScriptUnion::PurpleScript(script) => {
+        ScriptUnion::Script(script) => {
             ip_service_script_m::Mutation::upsert_ip_service_script(
                 ip_main_id,
                 ip_service_id,
                 &script.id,
-                json!({ script.id: script.output, "elem": script.elem, "table": script.table, "value": script.value  }),
+                json!({ &script.id: script.output, "elem": script.elem, "table": script.table, "value": script.value  }),
             )
             .await?;
             Ok(())
         }
-        ScriptUnion::ScriptElementArray(script_elements) => {
+        ScriptUnion::ScriptArray(script_elements) => {
             for script in script_elements {
                 let value = match (&script.elem, &script.table) {
                     (Some(elem), Some(table)) => {
@@ -31,7 +30,7 @@ pub async fn process_scripts(
                     (None, Some(table)) => parse_script_table(table),
                     (None, None) => continue,
                 };
-                ip_service_script_m::Mutation::Mutation::upsert_ip_service_script(
+                ip_service_script_m::Mutation::upsert_ip_service_script(
                     ip_main_id,
                     ip_service_id,
                     &script.id,
@@ -44,7 +43,7 @@ pub async fn process_scripts(
     }
 }
 
-pub fn parse_script_table(script_table: &ScriptTable) -> Value {
+pub fn parse_script_table(script_table: &Script) -> Value {
     match script_table {
         ScriptTable::IndigoTable(elem) => json!({ elem.key.as_str(): &elem.elem }),
         ScriptTable::PurpleTableArray(elem_array) => json!(elem_array
