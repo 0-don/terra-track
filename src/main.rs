@@ -1,7 +1,9 @@
+use std::fs::remove_dir_all;
+
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, scripts::Script};
+use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
 use service::{
     models::{
         ip_main_service::ip_main_q,
@@ -16,10 +18,10 @@ async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
     let scan = scan_batch_q::Query::next_scan_batch().await?;
-    // only in dev mode
-    // if cfg!(debug_assertions) {
-    //     let _ = remove_dir_all("./output");
-    // }
+
+    if cfg!(debug_assertions) {
+        let _ = remove_dir_all("./output");
+    }
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
@@ -41,9 +43,9 @@ async fn main() -> anyhow::Result<()> {
 
         // remove folder recursively
 
-        // let ports = Scanner::new(ip.into()).run().await?;
-        // printlog!("Open ports: {:?}", ports);
-        let result = Script::new(ip.into(), vec![]).run();
+        let ports = Scanner::new(ip.into()).run().await?;
+        printlog!("Open ports: {:?}", ports);
+        let result = Script::new(ip.into(), ports).run();
 
         if let Ok(nmap) = result {
             parse_nmap_results(&nmap).await?;
