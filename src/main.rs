@@ -13,7 +13,7 @@ use service::{
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
-    while true {}
+
     let scan = scan_batch_service::Query::next_scan_batch().await?;
 
     let _ = remove_dir_all("./output");
