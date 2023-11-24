@@ -1,12 +1,10 @@
-use std::fs::remove_dir_all;
-
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
+use scanner::{ip_iterator::Ipv4Iter, scripts::Script};
 use service::{
     models::{
-        ip_main::ip_main_q,
+        ip_main::{ip_main_m, ip_main_q},
         scan_batch::{scan_batch_m, scan_batch_q},
     },
     parser::parse_nmap_results,
@@ -18,7 +16,7 @@ async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
     let scan = scan_batch_q::Query::next_scan_batch().await?;
-
+    ip_main_m::Mutation::delete_all_ip_main().await?;
     // if cfg!(debug_assertions) {
     //     let _ = remove_dir_all("./output");
     // }
@@ -37,7 +35,6 @@ async fn main() -> anyhow::Result<()> {
             printlog!("IP already scanned: {}", ip);
             continue;
         }
-
 
         // remove folder recursively
 

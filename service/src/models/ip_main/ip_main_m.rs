@@ -79,4 +79,11 @@ impl Mutation {
 
         Ok(true)
     }
+
+    pub async fn delete_all_ip_main() -> anyhow::Result<bool> {
+        let db = get_db_connection().await?;
+        ip_main::Entity::delete_many().exec(&db).await?;
+
+        Ok(true)
+    }
 }
