@@ -106,12 +106,22 @@ pub struct Table {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
-    pub conf: i64,
-    pub cpe: Option<String>,
-    pub method: String,
     pub name: String,
+    pub conf: i64,
+    pub method: String,
+    pub version: Option<String>,
     pub product: Option<String>,
+    pub extrainfo: Option<String>,
     pub tunnel: Option<String>,
+    pub proto: Option<String>,
+    pub rpcnum: Option<String>,
+    pub lowver: Option<String>,
+    pub highver: Option<String>,
+    pub hostname: Option<String>,
+    pub ostype: Option<String>,
+    pub devicetype: Option<String>,
+    pub servicefp: Option<String>,
+    pub cpe: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
