@@ -4,10 +4,50 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "protocol")]
-pub enum Protocol {
-    #[sea_orm(string_value = "TCP")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "ip_type")]
+pub enum IpType {
+    #[sea_orm(string_value = "ipv4")]
+    Ipv4,
+    #[sea_orm(string_value = "ipv6")]
+    Ipv6,
+    #[sea_orm(string_value = "mac")]
+    Mac,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "service_conf")]
+pub enum ServiceConf {
+    #[sea_orm(string_value = "0")]
+    _0,
+    #[sea_orm(string_value = "1")]
+    _1,
+    #[sea_orm(string_value = "10")]
+    _10,
+    #[sea_orm(string_value = "2")]
+    _2,
+    #[sea_orm(string_value = "3")]
+    _3,
+    #[sea_orm(string_value = "4")]
+    _4,
+    #[sea_orm(string_value = "5")]
+    _5,
+    #[sea_orm(string_value = "6")]
+    _6,
+    #[sea_orm(string_value = "7")]
+    _7,
+    #[sea_orm(string_value = "8")]
+    _8,
+    #[sea_orm(string_value = "9")]
+    _9,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "service_protocol")]
+pub enum ServiceProtocol {
+    #[sea_orm(string_value = "ip")]
+    Ip,
+    #[sea_orm(string_value = "sctp")]
+    Sctp,
+    #[sea_orm(string_value = "tcp")]
     Tcp,
-    #[sea_orm(string_value = "UPD")]
-    Upd,
+    #[sea_orm(string_value = "udp")]
+    Udp,
 }
