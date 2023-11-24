@@ -6,8 +6,8 @@ use migration::sea_orm::Set;
 use scanner::{ip_iterator::Ipv4Iter, scanner::Scanner, scripts::Script};
 use service::{
     models::{
-        ip_main_service::ip_main_q,
-        scan_batch_service::{scan_batch_m, scan_batch_q},
+        ip_main::ip_main_q,
+        scan_batch::{scan_batch_m, scan_batch_q},
     },
     parser::parse_nmap_results,
     utils::date,

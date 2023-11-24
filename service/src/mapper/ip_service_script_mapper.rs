@@ -30,9 +30,8 @@ fn process_single_script(
 ) -> ip_service_script::ActiveModel {
     let mut json_map = serde_json::Map::new();
 
-    // Merge the script output into json_map
     json_map.insert(script.id.clone(), json!(script.output));
-    
+
     if let Some(value) = &script.value {
         json_map.insert("value".to_string(), json!(value));
     }
@@ -99,11 +98,13 @@ fn parse_table(table: &Table) -> Value {
     }
 
     let table_value = match &table.table {
-        Some(table_union) => parse_script_table(table_union),
-        None => Value::Null,
+        Some(table_union) => Some(parse_script_table(table_union)),
+        None => None,
     };
 
-    map.insert("table".to_string(), table_value);
+    if let Some(table_value) = table_value {
+        map.insert("table".to_string(), table_value);
+    }
 
     json!(map)
 }

@@ -1,7 +1,7 @@
 use crate::mapper::ip_service_script_mapper::process_scripts;
-use crate::models::ip_main_service::ip_main_m;
-use crate::models::ip_service_script_service::ip_service_script_m;
-use crate::models::ip_service_service::ip_service_m;
+use crate::models::ip_main::ip_main_m;
+use crate::models::ip_service_script::ip_service_script_m;
+use crate::models::ip_service::ip_service_m;
 use crate::printlog;
 use entity::ip_service;
 use scanner::types::Nmap;
