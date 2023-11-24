@@ -32,7 +32,7 @@ impl Mutation {
         Ok(model.unwrap())
     }
 
-    pub async fn upsert_ip_main_by_ip(ip: &String) -> anyhow::Result<ip_main::Model> {
+    pub async fn upsert_ip_main_by_ip(ip: &String, ip_type: &String) -> anyhow::Result<ip_main::Model> {
         println!("upsert_ip_main_by_ip: {}", ip);
         let db = get_db_connection().await?;
         let mut model = ip_main::Entity::find()
@@ -44,6 +44,7 @@ impl Mutation {
 
         if model.is_none() {
             model = ip_main::ActiveModel {
+                ip_type: Set(ip_type.to_string()),
                 ip_address: Set(ip.to_string()),
                 ..Default::default()
             }

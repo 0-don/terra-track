@@ -16,7 +16,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     let ip = &host.address.addr;
     let ports = &host.ports.port;
 
-    let ip_main = ip_main_m::Mutation::upsert_ip_main_by_ip(ip).await?;
+    let ip_main = ip_main_m::Mutation::upsert_ip_main_by_ip(ip, &host.address.addrtype).await?;
 
     let mut services_to_create = Vec::new();
     for port in ports {
