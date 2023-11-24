@@ -32,7 +32,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         services_to_create.push(ip_service::ActiveModel {
             ip_main_id: Set(ip_main.id),
             protocol: Set(port.protocol.clone()),
-            port: Set(port.portid as i16),
+            port: Set(port.portid),
             name: Set(port.service.name.clone()),
             conf: Set(port.service.conf),
             version: Set(port.service.version.clone()),

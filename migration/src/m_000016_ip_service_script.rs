@@ -1,4 +1,4 @@
-use crate::{m_000002_ip_main::IpMain, m_000014_ip_service::IpService};
+use crate::{m_000002_ip_main::IpMain, m_000015_ip_service::IpService};
 use sea_orm_migration::prelude::*;
 use sea_query::{Keyword, SimpleExpr};
 

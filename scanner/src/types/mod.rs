@@ -81,7 +81,7 @@ pub struct Ports {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
-    pub portid: i64,
+    pub portid: i16,
     pub protocol: String,
     pub script: Option<ScriptUnion>,
     pub service: Service,
