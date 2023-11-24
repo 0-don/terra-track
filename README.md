@@ -38,10 +38,3 @@ Join us in refining TerraTrack! Be it bug reports, feature suggestions, or direc
 5. Submit a pull request.
 
 For a detailed walkthrough on contributing, please refer to our [CONTRIBUTING.md](https://github.com/don-cryptus/terra-track/CONTRIBUTING.md).
-
-## License:
-
-TerraTrack is licensed under the MIT License. Dive into the specifics in our [LICENSE.md](https://github.com/don-cryptus/terra-track/LICENSE.md) file.
-
-
-"SF-Port80-TCP:V=7.80%I=7%D=11/18%Time=6558F9B6%P=x86_64-pc-linux-gnu%r(GetRequest,14F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nDate:\x20Sat,\x2018\x20Nov\x202023\x2017:51:50\x20GMT\r\nContent-Type:\x20text/html\r\nContent-Length:\x20155\r\nConnection:\x20close\r\nServer:\x20cloudflare\r\nCF-RAY:\x20828210556b864541-TXL\r\n\r\n<html>\r\n<head><title>400\x20Bad\x20Request</title></head>\r\n<body>\r\n<center><h1>400\x20Bad\x20Request</h1></center>\r\n<hr><center>cloudflare</center>\r\n</body>\r\n</html>\r\n")%r(HTTPOptions,14F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nDate:\x20Sat,\x2018\x20Nov\x202023\x2017:51:50\x20GMT\r\nContent-Type:\x20text/html\r\nContent-Length:\x20155\r\nConnection:\x20close\r\nServer:\x20cloudflare\r\nCF-RAY:\x20828210564d804541-TXL\r\n\r\n<html>\r\n<head><title>400\x20Bad\x20Request</title></head>\r\n<body>\r\n<center><h1>400\x20Bad\x20Request</h1></center>\r\n<hr><center>cloudflare</center>\r\n</body>\r\n</html>\r\n")%r(RTSPRequest,9B,"<html>\r\n<head><title>400\x20Bad\x20Request</title></..."
