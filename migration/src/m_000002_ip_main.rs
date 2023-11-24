@@ -1,31 +1,11 @@
-use sea_orm_migration::{
-    prelude::*,
-    sea_orm::{EnumIter, Iterable},
-    sea_query::extension::postgres::Type,
-};
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
-#[derive(Iden, EnumIter)]
-pub enum IpType {
-    Table,
-    IPV4,
-    IPV6,
-    MAC,
-}
-
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager
-            .create_type(
-                Type::create()
-                    .as_enum(IpType::Table)
-                    .values(IpType::iter().skip(1))
-                    .to_owned(),
-            )
-            .await?;
         manager
             .create_table(
                 Table::create()
@@ -38,12 +18,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(IpMain::IpType)
-                            .enumeration(IpType::Table, IpType::iter().skip(1))
-                            .default(SimpleExpr::Value(IpType::IPV4.to_string().into()))
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(IpMain::IpType).string().not_null())
                     .col(
                         ColumnDef::new(IpMain::IpAddress)
                             .text()

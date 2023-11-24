@@ -1,7 +1,6 @@
+use crate::{m_000002_ip_main::IpMain, m_000014_ip_service::IpService};
 use sea_orm_migration::prelude::*;
 use sea_query::{Keyword, SimpleExpr};
-
-use crate::{m_000002_ip_main::IpMain, m_000014_ip_service::IpService};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
