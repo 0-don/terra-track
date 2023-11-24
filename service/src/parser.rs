@@ -4,7 +4,6 @@ use crate::models::ip_service::ip_service_m;
 use crate::models::ip_service_script::ip_service_script_m;
 use crate::printlog;
 use entity::ip_service;
-use entity::sea_orm_active_enums::ServiceConf;
 use scanner::types::Nmap;
 use sea_orm::Set;
 

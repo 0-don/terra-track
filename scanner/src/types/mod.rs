@@ -107,7 +107,7 @@ pub struct Table {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
     pub name: String,
-    pub conf: i64,
+    pub conf: i8,
     pub method: String,
     pub version: Option<String>,
     pub product: Option<String>,
