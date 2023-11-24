@@ -15,6 +15,7 @@ use service::{
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
+    scan_batch_m::Mutation::delete_all_scan_batch().await?;
     let scan = scan_batch_q::Query::next_scan_batch().await?;
     ip_main_m::Mutation::delete_all_ip_main().await?;
     // if cfg!(debug_assertions) {

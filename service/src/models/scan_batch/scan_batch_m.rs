@@ -1,6 +1,6 @@
 use crate::db::get_db_connection;
 use ::entity::scan_batch;
-use sea_orm::{ActiveModelTrait, Set, TryIntoModel};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel};
 
 pub struct Mutation;
 
@@ -37,6 +37,13 @@ impl Mutation {
         }
         .delete(&db)
         .await?;
+
+        Ok(true)
+    }
+
+    pub async fn delete_all_scan_batch() -> anyhow::Result<bool> {
+        let db = get_db_connection().await?;
+        scan_batch::Entity::delete_many().exec(&db).await?;
 
         Ok(true)
     }
