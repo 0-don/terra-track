@@ -17,7 +17,6 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
 
     let ip_main = ip_main_m::Mutation::upsert_ip_main_by_ip(ip).await?;
 
-    // Collect all ip_service::ActiveModel instances
     let mut services_to_create = Vec::new();
     for port in ports {
         services_to_create.push(ip_service::ActiveModel {
@@ -30,15 +29,13 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         });
     }
 
-    // Batch create ip_service::ActiveModel instances
     let created_services =
         ip_service_m::Mutation::create_many_ip_services(services_to_create).await?;
 
-    // Process and batch create scripts
     let mut script_models = Vec::new();
     for (created_service, port) in created_services.iter().zip(ports.iter()) {
         if let Some(script) = &port.script {
-            script_models.extend(process_scripts(ip_main.id, created_service.id, script));
+            script_models.extend( process_scripts(ip_main.id, created_service.id, script));
         }
     }
 

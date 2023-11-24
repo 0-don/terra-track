@@ -30,8 +30,9 @@ fn process_single_script(
 ) -> ip_service_script::ActiveModel {
     let mut json_map = serde_json::Map::new();
 
-    json_map.insert("output".to_string(), json!({ &script.id: script.output }));
-
+    // Merge the script output into json_map
+    json_map.insert(script.id.clone(), json!(script.output));
+    
     if let Some(value) = &script.value {
         json_map.insert("value".to_string(), json!(value));
     }
