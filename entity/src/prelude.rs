@@ -4,6 +4,7 @@ pub use super::ip_abuse_contact::Entity as IpAbuseContact;
 pub use super::ip_connection::Entity as IpConnection;
 pub use super::ip_contact_details::Entity as IpContactDetails;
 pub use super::ip_flag::Entity as IpFlag;
+pub use super::ip_host_script::Entity as IpHostScript;
 pub use super::ip_hosting_details::Entity as IpHostingDetails;
 pub use super::ip_location::Entity as IpLocation;
 pub use super::ip_main::Entity as IpMain;

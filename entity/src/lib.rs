@@ -6,6 +6,7 @@ pub mod ip_abuse_contact;
 pub mod ip_connection;
 pub mod ip_contact_details;
 pub mod ip_flag;
+pub mod ip_host_script;
 pub mod ip_hosting_details;
 pub mod ip_location;
 pub mod ip_main;

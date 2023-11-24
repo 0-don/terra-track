@@ -46,6 +46,7 @@ pub enum Relation {
     IpConnection,
     IpContactDetails,
     IpFlag,
+    IpHostScript,
     IpHostingDetails,
     IpLocation,
     IpNetworkDetails,
@@ -76,6 +77,7 @@ impl RelationTrait for Relation {
             Self::IpConnection => Entity::has_many(super::ip_connection::Entity).into(),
             Self::IpContactDetails => Entity::has_many(super::ip_contact_details::Entity).into(),
             Self::IpFlag => Entity::has_many(super::ip_flag::Entity).into(),
+            Self::IpHostScript => Entity::has_many(super::ip_host_script::Entity).into(),
             Self::IpHostingDetails => Entity::has_many(super::ip_hosting_details::Entity).into(),
             Self::IpLocation => Entity::has_many(super::ip_location::Entity).into(),
             Self::IpNetworkDetails => Entity::has_many(super::ip_network_details::Entity).into(),
@@ -110,6 +112,12 @@ impl Related<super::ip_contact_details::Entity> for Entity {
 impl Related<super::ip_flag::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IpFlag.def()
+    }
+}
+
+impl Related<super::ip_host_script::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IpHostScript.def()
     }
 }
 
