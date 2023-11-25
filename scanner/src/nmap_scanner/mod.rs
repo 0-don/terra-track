@@ -192,10 +192,8 @@ impl NmapScanner {
         match nmap {
             Ok(n) => Ok(n),
             Err(err) => {
-                let path = err.path().to_string();
-                let error = err.to_string();
-                println!("\n\n{}", path);
-                println!("{}\n\n", error);
+                println!("\n\n{}", err.path().to_string());
+                println!("{}\n\n", err.to_string());
                 panic!();
             }
         }
