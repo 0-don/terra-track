@@ -39,8 +39,8 @@ async fn main() -> anyhow::Result<()> {
 
         // remove folder recursively
 
-        let ports = PortScanner::new(ip.into()).run().await?;
-        // let ports = vec![];
+        // let ports = PortScanner::new(ip.into()).run().await?;
+        let ports = vec![];
         printlog!("Open ports: {:?}", ports);
         let result = NmapScanner::new(ip.into(), ports).run();
 

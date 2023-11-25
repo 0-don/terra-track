@@ -116,20 +116,16 @@ impl NmapScanner {
     }
 
     fn get_file_if_exist(&self) -> anyhow::Result<Nmap> {
-        if Path::new(&self.xml_file_path).exists() {
-            let nmap = self.parse_nmap_xml();
-            if let Ok(nmap) = nmap {
-                if nmap.nmaprun.host.address.addr == self.ip.to_string() {
-                    return Ok(nmap);
-                }
-                println!("IP does not match");
-                return Err(anyhow::anyhow!("IP does not match"));
-            }
-            println!("Failed to parse XML");
-            return Err(anyhow::anyhow!("Failed to parse XML"));
+        match Path::new(&self.xml_file_path).exists() {
+            true => match self.parse_nmap_xml() {
+                Ok(nmap) => match nmap.nmaprun.host.address.addr == self.ip.to_string() {
+                    true => Ok(nmap),
+                    false => Err(anyhow::anyhow!("IP does not match")),
+                },
+                Err(_) => Err(anyhow::anyhow!("Failed to parse XML")),
+            },
+            false => Err(anyhow::anyhow!("File does not exist")),
         }
-        println!("File does not exist");
-        Err(anyhow::anyhow!("File does not exist"))
     }
 
     fn execute_script(&self, arguments: Vec<&str>) -> anyhow::Result<String> {
@@ -166,13 +162,12 @@ impl NmapScanner {
 
     pub fn parse_nmap_xml(&self) -> anyhow::Result<Nmap> {
         self.create_directory()?;
-        let mut file = File::open(self.xml_file_path.clone())?;
+        let mut file = File::open(&self.xml_file_path)?;
         let mut contents = String::new();
-
         file.read_to_string(&mut contents)?;
 
         let json = xml_string_to_json(
-            contents.clone(),
+            contents,
             &Config {
                 xml_attr_prefix: "".to_string(),
                 xml_text_node_prop_name: "value".to_string(),
@@ -183,16 +178,9 @@ impl NmapScanner {
 
         File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
-        let deserializer = &mut serde_json::Deserializer::from_str(&json);
-
-        let nmap: Result<Nmap, _> = serde_path_to_error::deserialize(deserializer);
-        match nmap {
-            Ok(n) => Ok(n),
-            Err(err) => {
-                println!("\n\n{}", err.path().to_string());
-                println!("{}\n\n", err.to_string());
-                panic!();
-            }
-        }
+        serde_json::from_str(&json).map_err(|e| {
+            println!("Error deserializing JSON: {}", e);
+            anyhow::anyhow!("Deserialization failed")
+        })
     }
 }
