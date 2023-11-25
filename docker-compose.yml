@@ -25,13 +25,12 @@ services:
     environment:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
-      # - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
       - SERVER_CITIES=${SERVER_CITIES}
       - LOG_LEVEL=debug
     links:
       - terra-track-db
-    # No 'networks' specified, uses default bridge network
 
   terra-track-db:
     container_name: terra-track-db

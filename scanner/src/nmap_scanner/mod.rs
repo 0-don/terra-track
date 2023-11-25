@@ -60,7 +60,7 @@ impl NmapScanner {
             "and not hostmap-robtex".to_string(),
             "and not http-virustotal".to_string(),
             // HOST SCRIPTS
-            // "and not dns-blacklist".to_string(),
+            "and not dns-blacklist".to_string(),
             "and not dns-brute".to_string(),
             "and not whois-domain".to_string(),
             "and not asn-query".to_string(),
