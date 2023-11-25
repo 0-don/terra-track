@@ -41,7 +41,7 @@ pub struct Hostscript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Elem {
     pub key: String,
-    pub value: Value,
+    pub value: Option<Value>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

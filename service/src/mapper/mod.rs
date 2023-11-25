@@ -3,7 +3,7 @@ pub mod ip_os_mapper;
 pub mod ip_service_mapper;
 pub mod ip_service_script_mapper;
 use scanner::types::{ElemUnion, Script, Table, TableUnion};
-use serde_json::{json, Value};
+use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 
 pub fn process_single_script(script: &Script) -> Value {
@@ -23,7 +23,43 @@ pub fn process_single_script(script: &Script) -> Value {
         json_map.insert("table".to_string(), parse_script_table(table_union));
     }
 
+    json_map = flatten_script_elem(json_map);
+
     json!(json_map)
+}
+
+fn flatten_script_elem(mut json_map: Map<String, Value>) -> Map<String, Value> {
+    let mut root_map = Map::new();
+    flatten_map(&mut json_map, &mut root_map);
+    root_map
+}
+
+fn flatten_map(current_map: &mut Map<String, Value>, root_map: &mut Map<String, Value>) {
+    let keys_to_process: Vec<String> = current_map.keys().cloned().collect();
+    
+    for key in keys_to_process {
+        if let Some(value) = current_map.remove(&key) {
+            match &value {
+                Value::Object(obj) if key == "elem" || key == "table" => {
+                    let mut nested_obj = obj.clone();
+                    flatten_map(&mut nested_obj, root_map);
+                },
+                Value::Object(obj) => {
+                    let mut nested_obj = obj.clone();
+                    let mut nested_root_map = Map::new();
+                    flatten_map(&mut nested_obj, &mut nested_root_map);
+                    root_map.insert(key, Value::Object(nested_root_map));
+                },
+                _ => {
+                    merge_into_root_map(root_map, key, value.clone());
+                }
+            }
+        }
+    }
+}
+
+fn merge_into_root_map(root_map: &mut Map<String, Value>, key: String, value: Value) {
+    root_map.insert(key, value);
 }
 
 pub fn parse_script_elem(elem_union: &ElemUnion) -> Value {

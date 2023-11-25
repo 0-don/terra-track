@@ -54,7 +54,7 @@ impl NmapScanner {
                 "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
                 "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
                 "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
-                "and not (http-chrono or eap-info)".to_string(),
+                "and not (http-chrono or eap-info or port-states)".to_string(),
             ]
             .join(" "),
         );
@@ -79,6 +79,8 @@ impl NmapScanner {
             &full_ports_str,
             "--script",
             &scripts,
+            "--script-args",
+            "http.max-cache-size=2000000",
             &ip,
         ];
 

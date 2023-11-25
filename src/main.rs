@@ -16,7 +16,7 @@ use std::fs::remove_dir_all;
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
     // reset().await?;
-    // loop_scan().await?;
+    loop_scan().await?;
 
     Ok(())
 }
@@ -39,6 +39,8 @@ async fn loop_scan() -> anyhow::Result<()> {
     while let Some(ip) = ip_iter.next() {
         printlog!("Scanning IP: {}", ip);
 
+        let mut result = NmapScanner::new(ip.into(), vec![]).parse_nmap_xml();
+
         let ip_main = ip_main_q::Query::find_ip_main_by_ip_older_then(
             &ip.to_string(),
             Some(date(Duration::days(365))),
@@ -49,14 +51,13 @@ async fn loop_scan() -> anyhow::Result<()> {
             printlog!("IP already scanned: {}", ip);
             continue;
         }
-
-        // remove folder recursively
-        #[allow(unused_variables)]
-        let ports: Vec<u16> = vec![];
-        let ports = PortScanner::new(ip.into()).run().await?;
-
-        printlog!("Open ports: {:?}", ports);
-        let result = NmapScanner::new(ip.into(), ports).run();
+        #[allow(unused_variables, unused_mut, unused_assignments)]
+        let mut ports: Vec<u16> = vec![];
+        if result.is_err() {
+            ports = PortScanner::new(ip.into()).run().await?;
+            printlog!("Open ports: {:?}", ports);
+            result = NmapScanner::new(ip.into(), ports).run();
+        }
 
         if let Ok(nmap) = result {
             parse_nmap_results(&nmap).await?;
