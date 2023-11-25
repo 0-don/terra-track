@@ -48,7 +48,7 @@ impl NmapScanner {
 
         let scripts = vec![
             // CATEGORIES
-            format!("(default or version or discovery or auth or vuln or external)"),
+            format!("(default )"),
             // BROADCAST BLOAT
             "and not broadcast-*".to_string(),
             "and not targets-asn".to_string(),
@@ -58,7 +58,7 @@ impl NmapScanner {
             "and not targets-ipv6-multicast-echo".to_string(),
             "and not http-icloud-sendmsg".to_string(),
             "and not hostmap-robtex".to_string(),
-            "and not http-virustotal".to_string(),
+            // "and not http-virustotal".to_string(),
             // HOST SCRIPTS
             "and not dns-blacklist".to_string(),
             "and not dns-brute".to_string(),

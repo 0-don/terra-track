@@ -1,3 +1,5 @@
+use std::fs::remove_dir_all;
+
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
@@ -15,12 +17,12 @@ use service::{
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
-    // scan_batch_m::Mutation::delete_all_scan_batch().await?;
+    scan_batch_m::Mutation::delete_all_scan_batch().await?;
     let scan = scan_batch_q::Query::next_scan_batch().await?;
-    // ip_main_m::Mutation::delete_all_ip_main().await?;
-    // if cfg!(debug_assertions) {
-    //     let _ = remove_dir_all("./output");
-    // }
+    ip_main_m::Mutation::delete_all_ip_main().await?;
+    if cfg!(debug_assertions) {
+        let _ = remove_dir_all("./output");
+    }
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
     while let Some(ip) = ip_iter.next() {
