@@ -1,11 +1,11 @@
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner};
+use scanner::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner, port_scanner::PortScanner};
 use service::{
     entity::{
-        ip_main::{ip_main_m, ip_main_q},
-        scan_batch::{scan_batch_m, scan_batch_q},
+        ip_main_e::{ip_main_m, ip_main_q},
+        scan_batch_e::{scan_batch_m, scan_batch_q},
     },
     parser::parse_nmap_results,
     utils::date,
@@ -39,8 +39,8 @@ async fn main() -> anyhow::Result<()> {
 
         // remove folder recursively
 
-        // let ports = Scanner::new(ip.into()).run().await?;
-        let ports = vec![];
+        let ports = PortScanner::new(ip.into()).run().await?;
+        // let ports = vec![];
         printlog!("Open ports: {:?}", ports);
         let result = NmapScanner::new(ip.into(), ports).run();
 

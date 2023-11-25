@@ -1,4 +1,4 @@
-use anyhow::{Result, Error};
+use anyhow::{Error, Result};
 use futures::Future;
 use futures::{stream::FuturesUnordered, StreamExt};
 use rand::seq::SliceRandom;
@@ -14,14 +14,14 @@ pub const LOWEST_PORT_NUMBER: u16 = 1;
 pub const TOP_PORT_NUMBER: u16 = 65535;
 
 #[derive(Debug)]
-pub struct Scanner {
+pub struct PortScanner {
     ip: IpAddr,
     batch_size: u16,
     timeout: Duration,
     tries: u8,
 }
 
-impl Scanner {
+impl PortScanner {
     pub fn new(ip: IpAddr) -> Self {
         Self {
             ip,

@@ -1,8 +1,8 @@
-use crate::entity::ip_host_script::ip_host_script_m;
-use crate::entity::ip_main::ip_main_m;
-use crate::entity::ip_os::ip_os_m;
-use crate::entity::ip_service::ip_service_m;
-use crate::entity::ip_service_script::ip_service_script_m;
+use crate::entity::ip_host_script_e::ip_host_script_m;
+use crate::entity::ip_main_e::ip_main_m;
+use crate::entity::ip_os_e::ip_os_m;
+use crate::entity::ip_service_e::ip_service_m;
+use crate::entity::ip_service_script_e::ip_service_script_m;
 use crate::mapper::ip_host_script_mapper;
 use crate::mapper::ip_os_mapper::process_os;
 use crate::mapper::ip_service_mapper::process_service;
