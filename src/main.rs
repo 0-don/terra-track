@@ -15,9 +15,9 @@ use service::{
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
 
-    scan_batch_m::Mutation::delete_all_scan_batch().await?;
+    // scan_batch_m::Mutation::delete_all_scan_batch().await?;
     let scan = scan_batch_q::Query::next_scan_batch().await?;
-    ip_main_m::Mutation::delete_all_ip_main().await?;
+    // ip_main_m::Mutation::delete_all_ip_main().await?;
     // if cfg!(debug_assertions) {
     //     let _ = remove_dir_all("./output");
     // }
@@ -38,9 +38,9 @@ async fn main() -> anyhow::Result<()> {
         }
 
         // remove folder recursively
+        let ports: Vec<u16> = vec![];
+        let ports = PortScanner::new(ip.into()).run().await?;
 
-        // let ports = PortScanner::new(ip.into()).run().await?;
-        let ports = vec![];
         printlog!("Open ports: {:?}", ports);
         let result = NmapScanner::new(ip.into(), ports).run();
 
