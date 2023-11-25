@@ -1,28 +1,26 @@
 use crate::db::get_db_connection;
-use ::entity::ip_service;
+use ::entity::ip_os;
 use sea_orm::{prelude::DateTimeWithTimeZone, ColumnTrait, EntityTrait, QueryFilter, QueryTrait};
 
 pub struct Query;
 
 impl Query {
-    pub async fn find_ip_os_by_id(id: i64) -> anyhow::Result<Option<ip_service::Model>> {
+    pub async fn find_ip_os_by_id(id: i64) -> anyhow::Result<Option<ip_os::Model>> {
         let db = get_db_connection().await?;
-        let model = ip_service::Entity::find_by_id(id).one(&db).await?;
+        let model = ip_os::Entity::find_by_id(id).one(&db).await?;
 
         Ok(model)
     }
 
     pub async fn find_ip_os_by_ip_main_id_older_then(
-        port: i16,
         ip_main_id: i64,
         time_ago: Option<DateTimeWithTimeZone>,
-    ) -> anyhow::Result<Option<ip_service::Model>> {
+    ) -> anyhow::Result<Option<ip_os::Model>> {
         let db = get_db_connection().await?;
-        let model = ip_service::Entity::find()
-            .filter(ip_service::Column::Port.eq(port))
-            .filter(ip_service::Column::IpMainId.eq(ip_main_id))
+        let model = ip_os::Entity::find()
+            .filter(ip_os::Column::IpMainId.eq(ip_main_id))
             .apply_if(time_ago, |query, date| {
-                query.filter(ip_service::Column::CreatedAt.lt(date))
+                query.filter(ip_os::Column::CreatedAt.lt(date))
             })
             .one(&db)
             .await?;
@@ -30,10 +28,10 @@ impl Query {
         Ok(model)
     }
 
-    // pub async fn find_ip_service_by_ip(ip: &String) -> anyhow::Result<Option<ip_service::Model>> {
+    // pub async fn find_ip_os_by_ip(ip: &String) -> anyhow::Result<Option<ip_os::Model>> {
     //     let db = get_db_connection().await?;
-    //     let model = ip_service::Entity::find()
-    //         .filter(ip_service::Column::IpAddress.contains(ip))
+    //     let model = ip_os::Entity::find()
+    //         .filter(ip_os::Column::IpAddress.contains(ip))
     //         .one(&db)
     //         .await?;
 
