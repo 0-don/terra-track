@@ -1,8 +1,10 @@
 use crate::entity::ip_host_script::ip_host_script_m;
 use crate::entity::ip_main::ip_main_m;
+use crate::entity::ip_os::ip_os_m;
 use crate::entity::ip_service::ip_service_m;
 use crate::entity::ip_service_script::ip_service_script_m;
 use crate::mapper::ip_host_script_mapper;
+use crate::mapper::ip_os_mapper::process_os;
 use crate::mapper::ip_service_mapper::process_service;
 use crate::mapper::ip_service_script_mapper::process_service_scripts;
 use crate::printlog;
@@ -32,6 +34,14 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         let host_scripts =
             ip_host_script_mapper::process_host_script(ip_main.id, host_script).await?;
         ip_host_script_m::Mutation::create_many_ip_host_script(host_scripts).await?;
+    }
+
+    // OS
+    if let Some(os) = &host.os {
+        let os = process_os(ip_main.id, os);
+        if let Some(os) = os {
+            ip_os_m::Mutation::create_ip_os(os).await?;
+        }
     }
 
     // PORT SCRIPTS

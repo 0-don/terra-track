@@ -20,7 +20,7 @@ pub struct Nmaprun {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Host {
     pub address: Address,
-    pub os: Os,
+    pub os: Option<Os>,
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,

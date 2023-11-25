@@ -1,6 +1,6 @@
+use crate::m_000002_ip_main::IpMain;
 use sea_orm_migration::prelude::*;
 use sea_query::{Keyword, SimpleExpr};
-use crate::m_000002_ip_main::IpMain;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -21,13 +21,13 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpOs::IpMainId).big_integer().not_null())
-                    .col(ColumnDef::new(IpOs::Fingerprint).text())
-                    .col(ColumnDef::new(IpOs::Name).string())
-                    .col(ColumnDef::new(IpOs::Cpe).string())
-                    .col(ColumnDef::new(IpOs::Osfamily).string())
-                    .col(ColumnDef::new(IpOs::Type).string())
-                    .col(ColumnDef::new(IpOs::Vendor).string())
-                    .col(ColumnDef::new(IpOs::OsType).string())
+                    .col(ColumnDef::new(IpOs::Fingerprint).text().not_null())
+                    .col(ColumnDef::new(IpOs::Name).string().not_null())
+                    .col(ColumnDef::new(IpOs::Cpe).string().not_null())
+                    .col(ColumnDef::new(IpOs::Osfamily).string().not_null())
+                    .col(ColumnDef::new(IpOs::Type).string().not_null())
+                    .col(ColumnDef::new(IpOs::Vendor).string().not_null())
+                    .col(ColumnDef::new(IpOs::OsGen).string())
                     .col(ColumnDef::new(IpOs::CpuArch).string())
                     .col(
                         ColumnDef::new(IpOs::CreatedAt)
@@ -65,7 +65,7 @@ pub enum IpOs {
     Osfamily,
     Type,
     Vendor,
-    OsType,
+    OsGen,
     CpuArch,
     CreatedAt,
 }
