@@ -19,8 +19,8 @@ dotenvy = "0"
 chrono = "0"
 
 [profile.release]
-panic = "abort"
-codegen-units = 1
-lto = true
-opt-level = "s"
-strip = true
+# panic = "abort"
+# codegen-units = 1
+# lto = true
+# opt-level = "s"
+# strip = true
