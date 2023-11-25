@@ -3,8 +3,8 @@ use dotenvy::dotenv;
 use migration::sea_orm::Set;
 use scanner::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner};
 use service::{
-    models::{
-        ip_main::{ip_main_m, ip_main_q},
+    entity::{
+        ip_main_m::{ip_main_m, ip_main_q},
         scan_batch::{scan_batch_m, scan_batch_q},
     },
     parser::parse_nmap_results,

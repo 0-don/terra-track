@@ -1,5 +1,5 @@
 pub mod db;
-pub mod models;
+pub mod entity;
 pub mod parser;
 pub mod utils;
 pub mod mapper;
