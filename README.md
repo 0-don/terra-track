@@ -1,5 +1,7 @@
 # TerraTrack: World Port Scanner Database.
 
+<!-- sudo make uninstall && sudo ./configure && sudo make && sudo make install && sudo chmod u+s /usr/local/bin/nmap  -->
+
 <!-- ![TerraTrack Logo](https://path-to-your-logo-if-you-have-one.png) -->
 
 Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our comprehensive global port scanner database offers an exhaustive breakdown of open ports, the services they run, operating system details, and so much more. Gain unparalleled insights to bolster your threat intelligence, research, and network monitoring capabilities.

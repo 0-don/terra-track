@@ -46,33 +46,36 @@ impl NmapScanner {
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
 
-        let scripts = vec![
-            // CATEGORIES
-            format!("(default )"),
-            // BROADCAST BLOAT
-            "and not broadcast-*".to_string(),
-            "and not targets-asn".to_string(),
-            "and not http-robtex-shared-ns".to_string(),
-            "and not http-icloud-findmyiphone".to_string(),
-            "and not targets-ipv6-multicast-slaac".to_string(),
-            "and not targets-ipv6-multicast-echo".to_string(),
-            "and not http-icloud-sendmsg".to_string(),
-            "and not hostmap-robtex".to_string(),
-            // "and not http-virustotal".to_string(),
-            // HOST SCRIPTS
-            "and not dns-blacklist".to_string(),
-            "and not dns-brute".to_string(),
-            "and not whois-domain".to_string(),
-            "and not asn-query".to_string(),
-            "and not fcrdns".to_string(),
-            // PORT SCRIPTS
-            "and not http-google-malware".to_string(),
-            // SLOW SCRIPTS
-            "and not qscan".to_string(),
-            "and not *slowloris*".to_string(),
-            "and not *enum*".to_string(),
-        ]
-        .join(" ");
+        let scripts = format!(
+            "{}",
+            vec![
+                // CATEGORIES
+                format!("(default or version or discovery or auth or vuln or external)"),
+                // BROADCAST BLOAT
+                "and not broadcast-*".to_string(),
+                "and not targets-asn".to_string(),
+                "and not http-robtex-shared-ns".to_string(),
+                "and not http-icloud-findmyiphone".to_string(),
+                "and not targets-ipv6-multicast-slaac".to_string(),
+                "and not targets-ipv6-multicast-echo".to_string(),
+                "and not http-icloud-sendmsg".to_string(),
+                "and not hostmap-robtex".to_string(),
+                "and not http-virustotal".to_string(),
+                // HOST SCRIPTS
+                "and not dns-blacklist".to_string(),
+                "and not dns-brute".to_string(),
+                "and not whois-domain".to_string(),
+                "and not asn-query".to_string(),
+                "and not fcrdns".to_string(),
+                // // PORT SCRIPTS
+                "and not http-google-malware".to_string(),
+                // // SLOW SCRIPTS
+                "and not qscan".to_string(),
+                "and not *slowloris*".to_string(),
+                "and not *enum*".to_string(),
+            ]
+            .join(" "),
+        );
 
         let arguments = vec![
             "nmap",
