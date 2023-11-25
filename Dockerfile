@@ -20,7 +20,7 @@ RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 
 COPY --from=builder /build/target/release/terra_track /app/terra_track
 
-# Modify the nse_main.lua script
+# patch nmap to always run scripts
 RUN sed -i 's/if T:match(rule) then/if true then/g' /usr/share/nmap/nse_main.lua
 
 RUN nmap --script-updatedb
