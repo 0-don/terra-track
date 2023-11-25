@@ -3,7 +3,7 @@ use entity::ip_service;
 use scanner::types::Port;
 use sea_orm::Set;
 
-pub async fn process_service(ip_main_id: i64, port: &Port) -> anyhow::Result<()> {
+pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel {
     let service = &port.service;
     let mut cpuarch = None;
     let mut ostype = port.service.ostype.clone();
@@ -36,6 +36,5 @@ pub async fn process_service(ip_main_id: i64, port: &Port) -> anyhow::Result<()>
         service_fp: Set(service.servicefp.clone()),
         cpe: Set(service.cpe.clone()),
         ..Default::default()
-    };
-    Ok(())
+    }
 }

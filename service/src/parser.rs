@@ -1,4 +1,4 @@
-use crate::entity::ip_main_m;
+use crate::entity::ip_main::ip_main_m;
 use crate::entity::ip_service::ip_service_m;
 use crate::entity::ip_service_script::ip_service_script_m;
 use crate::mapper::ip_host_script_mapper;
