@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
     let scan = scan_batch_q::Query::next_scan_batch().await?;
     ip_main_m::Mutation::delete_all_ip_main().await?;
     if cfg!(debug_assertions) {
-        let _ = remove_dir_all("./output");
+        // let _ = remove_dir_all("./output");
     }
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
