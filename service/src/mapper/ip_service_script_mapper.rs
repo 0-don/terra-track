@@ -3,7 +3,7 @@ use entity::ip_service_script;
 use scanner::types::ScriptUnion;
 use sea_orm::Set;
 
-pub fn process_scripts(
+pub fn process_service_scripts(
     ip_main_id: i64,
     ip_service_id: i64,
     script_union: &ScriptUnion,

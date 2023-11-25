@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use chrono::{DateTime, Duration, FixedOffset};
 use regex::Regex;
+use std::collections::HashMap;
 
 pub fn convert_ipv4_string_to_i32(ipv4_string: &str) -> i32 {
     let octets: Vec<&str> = ipv4_string.split('.').collect();
