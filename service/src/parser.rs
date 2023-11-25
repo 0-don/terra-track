@@ -1,3 +1,4 @@
+use crate::mapper::ip_host_script_mapper;
 use crate::mapper::ip_service_script_mapper::process_scripts;
 use crate::models::ip_main::ip_main_m;
 use crate::models::ip_service::ip_service_m;
@@ -56,6 +57,10 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
 
     let created_services =
         ip_service_m::Mutation::create_many_ip_services(services_to_create).await?;
+
+    if let Some(host_script) = &host.hostscript {
+        ip_host_script_mapper::process_host_script(ip_main.id, host_script).await?;
+    }
 
     let mut script_models = Vec::new();
     for (created_service, port) in created_services.iter().zip(ports.iter()) {

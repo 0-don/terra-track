@@ -6,7 +6,7 @@ use std::net::IpAddr;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-pub struct Script {
+pub struct NmapScanner {
     ip: IpAddr,
     open_ports: Vec<u16>,
     xml_path: String,
@@ -14,7 +14,7 @@ pub struct Script {
     xml_nmap_path: String,
 }
 
-impl Script {
+impl NmapScanner {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
         let xml_path = format!("./output/{}", ip.to_string());
         let xml_file_path = format!("./output/{}/{}.xml", ip.to_string(), ip.to_string());
