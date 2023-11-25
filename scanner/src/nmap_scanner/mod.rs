@@ -50,10 +50,11 @@ impl NmapScanner {
             "{}",
             vec![
                 // CATEGORIES
-                format!("(default or version or discovery or auth or vuln or external)"),
+                format!("(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)"),
                 "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
                 "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
-                "and not (http-google-malware or qscan or http-useragent-tester or *slowloris* or *enum*)".to_string(),
+                "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
+                "and not (http-chrono)".to_string(),
             ]
             .join(" "),
         );
@@ -162,9 +163,18 @@ impl NmapScanner {
 
         File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
 
-        serde_json::from_str(&json).map_err(|e| {
-            println!("Error deserializing JSON: {}", e);
-            anyhow::anyhow!("Deserialization failed")
-        })
+        let deserializer = &mut serde_json::Deserializer::from_str(&json);
+
+        let nmap: Result<Nmap, _> = serde_path_to_error::deserialize(deserializer);
+        match nmap {
+            Ok(n) => Ok(n),
+            Err(err) => {
+                let path = err.path().to_string();
+                let error = err.to_string();
+                println!("\n\n{}", path);
+                println!("{}\n\n", error);
+                panic!();
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@ use crate::mapper::ip_service_script_mapper::process_service_scripts;
 use crate::printlog;
 use scanner::types::Nmap;
 
-pub const BATCH_SIZE: i32 = 20;
+pub const BATCH_SIZE: i32 = 1;
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     printlog!("Parsing nmap results Start");

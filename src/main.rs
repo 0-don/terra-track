@@ -1,5 +1,3 @@
-use std::fs::remove_dir_all;
-
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
@@ -12,6 +10,7 @@ use service::{
     parser::parse_nmap_results,
     utils::date,
 };
+use std::fs::remove_dir_all;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -21,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     let scan = scan_batch_q::Query::next_scan_batch().await?;
     ip_main_m::Mutation::delete_all_ip_main().await?;
     if cfg!(debug_assertions) {
-        // let _ = remove_dir_all("./output");
+        let _ = remove_dir_all("./output");
     }
 
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
@@ -53,7 +52,12 @@ async fn main() -> anyhow::Result<()> {
 
     // let ports = Scanner::new("45.33.32.156".parse()?).run().await?;
     // printlog!("Open ports: {:?}", ports);
-    // let result = Script::new("45.33.32.156".parse()?, ports).run();
+    // let result = NmapScanner::new("1.0.0.4".parse()?, vec![]).run();
+
+    // println!("{:?}", result);
+    // if let Ok(nmap) = result {
+    //     parse_nmap_results(&nmap).await?;
+    // }
 
     scan_batch_m::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
         id: Set(scan.id),
