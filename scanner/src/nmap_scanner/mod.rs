@@ -1,7 +1,7 @@
 use crate::types::Nmap;
 use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -99,7 +99,7 @@ impl NmapScanner {
 
         println!("{:?}", arguments.join(" "));
 
-        self.create_directory();
+        self.create_directory()?;
 
         let script = self.execute_script(arguments);
         match script {
@@ -111,10 +111,8 @@ impl NmapScanner {
         }
     }
 
-    fn create_directory(&self) {
-        if !Path::new(&self.xml_path).exists() {
-            create_dir_all(&self.xml_path).expect("Failed to create directory");
-        }
+    fn create_directory(&self) -> io::Result<()> {
+        create_dir_all(&self.xml_path)
     }
 
     fn get_file_if_exist(&self) -> anyhow::Result<Nmap> {
@@ -143,32 +141,31 @@ impl NmapScanner {
 
         let stdout = child
             .stdout
-            .take()
-            .ok_or(anyhow::anyhow!("Failed to take stdout"))?;
+            .as_mut()
+            .ok_or_else(|| anyhow::anyhow!("Failed to capture stdout"))?;
         let reader = BufReader::new(stdout);
 
         let mut output = String::new();
 
-        for line in reader.lines() {
-            let line = line?;
-            println!("{}", line);
+        for line_result in reader.lines() {
+            let line = line_result?;
+            println!("{}", line); // Print each line as it's read
             output.push_str(&line);
             output.push('\n');
         }
 
-        let status = child.wait()?;
-        if status.success() {
-            Ok(output)
-        } else {
-            Err(anyhow::anyhow!(
-                "Exit code = {}",
+        match child.wait() {
+            Ok(status) if status.success() => Ok(output),
+            Ok(status) => Err(anyhow::anyhow!(
+                "Script execution failed with exit code: {}",
                 status.code().unwrap_or(-1)
-            ))
+            )),
+            Err(e) => Err(anyhow::anyhow!("Failed to wait for child process: {}", e)),
         }
     }
 
     pub fn parse_nmap_xml(&self) -> anyhow::Result<Nmap> {
-        self.create_directory();
+        self.create_directory()?;
         let mut file = File::open(self.xml_file_path.clone())?;
         let mut contents = String::new();
 
