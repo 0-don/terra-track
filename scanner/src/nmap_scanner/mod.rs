@@ -51,7 +51,7 @@ impl NmapScanner {
             // CATEGORIES
             "(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)".to_string(),
             "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
-            "and not (*dns* or tor-consensus-checker or *domain* or asn-query or http-config-backup)".to_string(),
+            "and not (*dns* or tor-consensus-checker or *domain* or asn-query or http-config-backup or mrinfo or http-iis-short-name-brute or http-vuln-cve2013-7091)".to_string(),
             "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
             "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
         ]

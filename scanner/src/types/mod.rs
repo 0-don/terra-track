@@ -25,7 +25,7 @@ pub struct Host {
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,
-    pub hostscript: Option<ScriptUnion>,
+    pub hostscript: Option<Hostscript>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
