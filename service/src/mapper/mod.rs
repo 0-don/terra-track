@@ -22,8 +22,11 @@ pub fn process_single_script(script: &Script) -> Value {
         json_map.insert(ELEM.to_string(), parse_script_elem(elem_union));
     }
 
+    // Special handling for script with 'table' field
     if let Some(table_union) = &script.table {
-        json_map.insert(TABLE.to_string(), parse_script_table(table_union));
+        let mut script_table = serde_json::Map::new();
+        script_table.insert(TABLE.to_string(), parse_script_table(table_union));
+        json_map.insert(script.id.clone(), json!(script_table));
     }
 
     json_map = flatten_script_elem(json_map);

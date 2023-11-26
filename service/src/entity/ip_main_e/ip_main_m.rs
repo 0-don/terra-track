@@ -1,6 +1,8 @@
 use crate::db::get_db_connection;
 use entity::ip_main;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set, TryIntoModel,
+};
 
 pub struct Mutation;
 
@@ -32,7 +34,10 @@ impl Mutation {
         Ok(model.unwrap())
     }
 
-    pub async fn upsert_ip_main_by_ip(ip: &String, ip_type: &String) -> anyhow::Result<ip_main::Model> {
+    pub async fn upsert_ip_main_by_ip(
+        ip: &String,
+        ip_type: &String,
+    ) -> anyhow::Result<ip_main::Model> {
         println!("upsert_ip_main_by_ip: {}", ip);
         let db = get_db_connection().await?;
         let mut model = ip_main::Entity::find()
@@ -84,6 +89,23 @@ impl Mutation {
     pub async fn delete_all_ip_main() -> anyhow::Result<bool> {
         let db = get_db_connection().await?;
         ip_main::Entity::delete_many().exec(&db).await?;
+
+        Ok(true)
+    }
+
+    pub async fn delete_latest_ip_main() -> anyhow::Result<bool> {
+        let db = get_db_connection().await?;
+        ip_main::Entity::find()
+            .order_by_desc(ip_main::Column::Id)
+            .one(&db)
+            .await?
+            .map(|model| ip_main::ActiveModel {
+                id: Set(model.id),
+                ..Default::default()
+            })
+            .unwrap()
+            .delete(&db)
+            .await?;
 
         Ok(true)
     }

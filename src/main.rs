@@ -16,6 +16,7 @@ use std::fs::remove_dir_all;
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
     // reset().await?;
+    delete_last().await?;
     loop_scan().await?;
 
     Ok(())
@@ -95,5 +96,12 @@ async fn single_scan(str: &str) -> anyhow::Result<()> {
         parse_nmap_results(&nmap).await?;
     }
 
+    Ok(())
+}
+
+#[allow(dead_code)]
+async fn delete_last() -> anyhow::Result<()> {
+    scan_batch_m::Mutation::delete_latest_scan_batch().await?;
+    ip_main_m::Mutation::delete_latest_ip_main().await?;
     Ok(())
 }
