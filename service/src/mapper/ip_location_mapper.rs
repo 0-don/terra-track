@@ -62,7 +62,7 @@ pub struct IpGeolocaionGeoplugin {
     pub city: Option<String>,
     pub region: String,
     pub country: String,
-    pub latitute: f32,
+    pub latitude: f32,
     pub longitude: f32,
 }
 

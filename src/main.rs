@@ -16,7 +16,7 @@ use std::fs::remove_dir_all;
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
     // reset().await?;
-    // delete_last().await?;
+    delete_last().await?;
     loop_scan().await?;
 
     Ok(())
