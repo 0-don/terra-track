@@ -1956,7 +1956,6 @@ name = "scanner"
 version = "1.0.0"
 dependencies = [
  "anyhow",
- "chrono",
  "futures",
  "quickxml_to_serde",
  "rand",
