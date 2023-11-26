@@ -21,7 +21,6 @@ Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our 
 - parse both geolocations if one is not found
 - parse os based on probability osgen + family
 - parse postscript to get more info
-- minify json structures
 
 ## Installation:
 

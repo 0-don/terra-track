@@ -9,7 +9,8 @@ pub struct Nmap {
 pub struct Nmaprun {
     pub args: String,
     pub host: Host,
-    pub scaninfo: Vec<Scaninfo>,
+    pub postscript: Option<Hostscript>,
+    pub scaninfo: ScanInfoUnion,
     pub scanner: String,
     pub start: i64,
     pub startstr: String,
@@ -185,4 +186,11 @@ pub enum ElemUnion {
 pub enum TableUnion {
     TableArray(Vec<Table>),
     Table(Box<Table>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ScanInfoUnion {
+    ScaninfoArray(Vec<Scaninfo>),
+    Scaninfo(Scaninfo),
 }

@@ -11,7 +11,7 @@ RUN cargo build --release
 # Second stage: Construct the final image
 FROM alpine:latest
 
-RUN apk update && apk add --no-cache nmap nmap-scripts wget curl sed
+RUN apk update && apk add --no-cache nmap nmap-scripts wget curl
 
 WORKDIR /app
 
