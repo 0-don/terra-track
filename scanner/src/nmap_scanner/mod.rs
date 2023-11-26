@@ -1,5 +1,5 @@
-use crate::VALUE;
 use crate::types::Nmap;
+use crate::VALUE;
 use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
 use std::io::{self, BufRead, BufReader, Read, Write};
@@ -47,18 +47,15 @@ impl NmapScanner {
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
 
-        let scripts = format!(
-            "{}",
-            vec![
-                // CATEGORIES
-                format!("(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)"),
-                "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
-                "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
-                "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
-                "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index)".to_string(),
-            ]
-            .join(" "),
-        );
+        let scripts = vec![
+            // CATEGORIES
+            "(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)".to_string(),
+            "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
+            "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
+            "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
+            "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
+        ]
+        .join(" ");
 
         let arguments = vec![
             "nmap",

@@ -2,9 +2,7 @@ pub use sea_orm_migration::prelude::*;
 
 mod m_000001_scan_batch;
 mod m_000002_ip_main;
-mod m_000003_ip_privacy;
 mod m_000004_ip_location;
-mod m_000005_ip_connection;
 mod m_000006_ip_network_details;
 mod m_000007_ip_security_flags;
 mod m_000008_ip_organization;
@@ -25,9 +23,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m_000001_scan_batch::Migration),
             Box::new(m_000002_ip_main::Migration),
-            Box::new(m_000003_ip_privacy::Migration),
             Box::new(m_000004_ip_location::Migration),
-            Box::new(m_000005_ip_connection::Migration),
             Box::new(m_000006_ip_network_details::Migration),
             Box::new(m_000007_ip_security_flags::Migration),
             Box::new(m_000008_ip_organization::Migration),

@@ -20,6 +20,10 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpNetworkDetails::IpMainId).big_integer())
+                    .col(ColumnDef::new(IpNetworkDetails::Asn).big_integer())
+                    .col(ColumnDef::new(IpNetworkDetails::Org).text())
+                    .col(ColumnDef::new(IpNetworkDetails::Isp).text())
+                    .col(ColumnDef::new(IpNetworkDetails::Domain).text())
                     .col(ColumnDef::new(IpNetworkDetails::PtrRecord).text())
                     .col(ColumnDef::new(IpNetworkDetails::AsnNumber).big_integer())
                     .col(ColumnDef::new(IpNetworkDetails::AsnName).text())
@@ -54,6 +58,10 @@ enum IpNetworkDetails {
     Table,
     Id,
     IpMainId,
+    Asn,
+    Org,
+    Isp,
+    Domain,
     PtrRecord,
     AsnNumber,
     AsnName,

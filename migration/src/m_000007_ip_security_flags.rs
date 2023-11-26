@@ -1,5 +1,6 @@
 use crate::m_000002_ip_main::IpMain;
 use sea_orm_migration::prelude::*;
+use sea_query::{ForeignKey, ForeignKeyAction, Keyword, SimpleExpr};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -20,10 +21,87 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpSecurityFlags::IpMainId).big_integer())
-                    .col(ColumnDef::new(IpSecurityFlags::SpamDatabase).text())
-                    .col(ColumnDef::new(IpSecurityFlags::AdultHosting).boolean())
-                    .col(ColumnDef::new(IpSecurityFlags::Hackers).boolean())
-                    .col(ColumnDef::new(IpSecurityFlags::OpenProxy).boolean())
+                    // Security risk related columns
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsSpamDatabase)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsAdultHosting)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsHackers)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsOpenProxy)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    // Privacy related columns
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsTor)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsProxy)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsVpn)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsAbuser)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsRelay)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsHosting)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsBogon)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsMobile)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(IpSecurityFlags::IsDatacenter)
+                            .boolean()
+                            .default(false)
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(IpSecurityFlags::Service).text())
                     .col(
                         ColumnDef::new(IpSecurityFlags::CreatedAt)
                             .timestamp_with_time_zone()
@@ -54,9 +132,21 @@ enum IpSecurityFlags {
     Table,
     Id,
     IpMainId,
-    SpamDatabase,
-    AdultHosting,
-    Hackers,
-    OpenProxy,
+    // Security risk related columns
+    IsSpamDatabase,
+    IsAdultHosting,
+    IsHackers,
+    IsOpenProxy,
+    // Privacy related columns
+    IsTor,
+    IsProxy,
+    IsVpn,
+    IsAbuser,
+    IsRelay,
+    IsHosting,
+    IsBogon,
+    IsMobile,
+    IsDatacenter,
+    Service,
     CreatedAt,
 }
