@@ -1,3 +1,4 @@
+use crate::VALUE;
 use crate::types::Nmap;
 use quickxml_to_serde::{xml_string_to_json, Config};
 use std::fs::{create_dir_all, File};
@@ -157,7 +158,7 @@ impl NmapScanner {
             contents,
             &Config {
                 xml_attr_prefix: "".to_string(),
-                xml_text_node_prop_name: "value".to_string(),
+                xml_text_node_prop_name: VALUE.to_string(),
                 ..Default::default()
             },
         )?

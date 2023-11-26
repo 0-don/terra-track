@@ -2,7 +2,10 @@ pub mod ip_host_script_mapper;
 pub mod ip_os_mapper;
 pub mod ip_service_mapper;
 pub mod ip_service_script_mapper;
-use scanner::types::{ElemUnion, Script, Table, TableUnion};
+use scanner::{
+    types::{ElemUnion, Script, Table, TableUnion},
+    ELEM, TABLE, VALUE,
+};
 use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 
@@ -12,15 +15,15 @@ pub fn process_single_script(script: &Script) -> Value {
     json_map.insert(script.id.clone(), json!(script.output));
 
     if let Some(value) = &script.value {
-        json_map.insert("value".to_string(), json!(value));
+        json_map.insert(VALUE.to_string(), json!(value));
     }
 
     if let Some(elem_union) = &script.elem {
-        json_map.insert("elem".to_string(), parse_script_elem(elem_union));
+        json_map.insert(ELEM.to_string(), parse_script_elem(elem_union));
     }
 
     if let Some(table_union) = &script.table {
-        json_map.insert("table".to_string(), parse_script_table(table_union));
+        json_map.insert(TABLE.to_string(), parse_script_table(table_union));
     }
 
     json_map = flatten_script_elem(json_map);
@@ -40,17 +43,21 @@ fn flatten_map(current_map: &mut Map<String, Value>, root_map: &mut Map<String, 
     for key in keys_to_process {
         if let Some(value) = current_map.remove(&key) {
             match &value {
-                Value::Object(obj) if key == "elem" || key == "table" || key == "value" => {
+                Value::Object(obj) if key == ELEM || key == TABLE => {
                     // Directly flatten the contents of 'elem' or 'table' into the root map
                     let mut nested_obj = obj.clone();
                     flatten_map(&mut nested_obj, root_map);
                 }
                 Value::Object(obj) => {
-                    // For other objects, flatten them and add to the root map with their key
-                    let mut nested_obj = obj.clone();
-                    let mut nested_root_map = Map::new();
-                    flatten_map(&mut nested_obj, &mut nested_root_map);
-                    merge_into_root_map(root_map, key, Value::Object(nested_root_map));
+                    // Check if the object contains a 'value' key
+                    if let Some(inner_value) = obj.get(VALUE) {
+                        merge_into_root_map(root_map, key, inner_value.clone());
+                    } else {
+                        let mut nested_obj = obj.clone();
+                        let mut nested_root_map = Map::new();
+                        flatten_map(&mut nested_obj, &mut nested_root_map);
+                        merge_into_root_map(root_map, key, Value::Object(nested_root_map));
+                    }
                 }
                 Value::Array(arr) => {
                     // Flatten each element in the array
