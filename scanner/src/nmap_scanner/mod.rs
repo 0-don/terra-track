@@ -49,52 +49,23 @@ impl NmapScanner {
         let ip = self.ip.to_string();
 
         let scripts = vec![
-            // CATEGORY: Discovery
-            "and not (lltd-discovery or *multicast* or mrinfo)".to_string(),
+            // CATEGORY: Default, Version, Discovery, Auth, Vuln, External, Exploit, Malware, Safe, Intrusive
+            "(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)".to_string(),
         
-            // CATEGORY: Auth
-            // [No specific scripts excluded for this category]
+            // CATEGORY: Exclude - Broadcast, ASN targets, Robtex, Multicast, iCloud, Hostmap Robtex, Virustotal
+            "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
         
-            // CATEGORY: Vuln
-            "and not (http-vuln-cve2013-7091)".to_string(),
+            // CATEGORY: Exclude - DNS, Tor, Domain, ASN query, Config Backup, Mrinfo, IIS Short Name Brute, CVE 2013-7091 Vulnerability
+            "and not (*dns* or tor-consensus-checker or *domain* or asn-query or http-config-backup or mrinfo or http-iis-short-name-brute or http-vuln-cve2013-7091)".to_string(),
         
-            // CATEGORY: External
-            "and not (http-robtex-shared-ns or hostmap-robtex or http-virustotal)".to_string(),
+            // CATEGORY: Exclude - Google Malware, IP Geolocation (Google, Bing), Qscan, Useragent Tester, Mobileversion Checker, Slowloris, Enum
+            "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
         
-            // CATEGORY: Exploit
-            // [No specific scripts excluded for this category]
-        
-            // CATEGORY: Malware
-            "and not (http-google-malware)".to_string(),
-        
-            // CATEGORY: Safe
-            // [No specific scripts excluded for this category]
-        
-            // CATEGORY: Intrusive
-            "and not (*slowloris* or *enum*)".to_string(),
-        
-            // CATEGORY: DNS/Domain/ASN
-            "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
-        
-            // CATEGORY: Broadcast/ASN Targets
-            "and not (broadcast-* or targets-asn)".to_string(),
-        
-            // CATEGORY: iCloud/Hostmap Robtex/Virustotal
-            // [Already covered under 'External']
-        
-            // CATEGORY: IP Geolocation/Mapping
-            "and not (ip-geolocation-map-google or ip-geolocation-map-bing or ip-geolocation-map-kml)".to_string(),
-        
-            // CATEGORY: HTTP Specific
-            "and not (http-iis-short-name-brute or http-config-backup or http-fetch)".to_string(),
-        
-            // CATEGORY: User Agent/Mobile Version Testing
-            "and not (http-useragent-tester or http-mobileversion-checker)".to_string(),
-        
-            // CATEGORY: Miscellaneous
-            "and not (http-chrono or eap-info or port-states or reverse-index or citrix-brute-xml or qscan)".to_string(),
+            // CATEGORY: Exclude - Chrono, EAP info, Port States, Geolocation KML, Reverse Index, Citrix Brute, HTTP Fetch
+            "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
         ]
         .join(" ");
+        
 
         let arguments = vec![
             "nmap",
