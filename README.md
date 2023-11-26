@@ -16,10 +16,6 @@ Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our 
 - **Regular Updates**: Stay updated with our continuously refreshed database that mirrors the ever-evolving landscape of the internet's open ports.
 - **Exhaustive Scan Data**: For each scan, we ensure you have a comprehensive breakdown, leaving no detail overlooked.
 
-## TODO
-
-- parse both geolocations if one is not found
-
 ## Installation:
 
 ```bash
