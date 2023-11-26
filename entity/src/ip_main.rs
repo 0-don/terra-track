@@ -16,6 +16,7 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: i64,
     pub ip_type: String,
+    pub registry: String,
     pub ip_address: String,
     pub created_at: Option<DateTimeWithTimeZone>,
 }
@@ -24,6 +25,7 @@ pub struct Model {
 pub enum Column {
     Id,
     IpType,
+    Registry,
     IpAddress,
     CreatedAt,
 }
@@ -42,9 +44,6 @@ impl PrimaryKeyTrait for PrimaryKey {
 
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
-    IpAbuseContact,
-    IpConnection,
-    IpContactDetails,
     IpFlag,
     IpHostScript,
     IpHostingDetails,
@@ -52,7 +51,6 @@ pub enum Relation {
     IpNetworkDetails,
     IpOrganization,
     IpOs,
-    IpPrivacy,
     IpSecurityFlags,
     IpService,
     IpServiceScript,
@@ -64,6 +62,7 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::BigInteger.def(),
             Self::IpType => ColumnType::String(None).def(),
+            Self::Registry => ColumnType::String(None).def(),
             Self::IpAddress => ColumnType::Text.def().unique(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
@@ -73,9 +72,6 @@ impl ColumnTrait for Column {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::IpAbuseContact => Entity::has_many(super::ip_abuse_contact::Entity).into(),
-            Self::IpConnection => Entity::has_many(super::ip_connection::Entity).into(),
-            Self::IpContactDetails => Entity::has_many(super::ip_contact_details::Entity).into(),
             Self::IpFlag => Entity::has_many(super::ip_flag::Entity).into(),
             Self::IpHostScript => Entity::has_many(super::ip_host_script::Entity).into(),
             Self::IpHostingDetails => Entity::has_many(super::ip_hosting_details::Entity).into(),
@@ -83,29 +79,10 @@ impl RelationTrait for Relation {
             Self::IpNetworkDetails => Entity::has_many(super::ip_network_details::Entity).into(),
             Self::IpOrganization => Entity::has_many(super::ip_organization::Entity).into(),
             Self::IpOs => Entity::has_many(super::ip_os::Entity).into(),
-            Self::IpPrivacy => Entity::has_many(super::ip_privacy::Entity).into(),
             Self::IpSecurityFlags => Entity::has_many(super::ip_security_flags::Entity).into(),
             Self::IpService => Entity::has_many(super::ip_service::Entity).into(),
             Self::IpServiceScript => Entity::has_many(super::ip_service_script::Entity).into(),
         }
-    }
-}
-
-impl Related<super::ip_abuse_contact::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IpAbuseContact.def()
-    }
-}
-
-impl Related<super::ip_connection::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IpConnection.def()
-    }
-}
-
-impl Related<super::ip_contact_details::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IpContactDetails.def()
     }
 }
 
@@ -148,12 +125,6 @@ impl Related<super::ip_organization::Entity> for Entity {
 impl Related<super::ip_os::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IpOs.def()
-    }
-}
-
-impl Related<super::ip_privacy::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IpPrivacy.def()
     }
 }
 

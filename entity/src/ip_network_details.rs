@@ -16,6 +16,10 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: i64,
     pub ip_main_id: Option<i64>,
+    pub asn: Option<i64>,
+    pub org: Option<String>,
+    pub isp: Option<String>,
+    pub domain: Option<String>,
     pub ptr_record: Option<String>,
     pub asn_number: Option<i64>,
     pub asn_name: Option<String>,
@@ -27,6 +31,10 @@ pub struct Model {
 pub enum Column {
     Id,
     IpMainId,
+    Asn,
+    Org,
+    Isp,
+    Domain,
     PtrRecord,
     AsnNumber,
     AsnName,
@@ -57,6 +65,10 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::BigInteger.def(),
             Self::IpMainId => ColumnType::BigInteger.def().null(),
+            Self::Asn => ColumnType::BigInteger.def().null(),
+            Self::Org => ColumnType::Text.def().null(),
+            Self::Isp => ColumnType::Text.def().null(),
+            Self::Domain => ColumnType::Text.def().null(),
             Self::PtrRecord => ColumnType::Text.def().null(),
             Self::AsnNumber => ColumnType::BigInteger.def().null(),
             Self::AsnName => ColumnType::Text.def().null(),

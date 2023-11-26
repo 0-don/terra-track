@@ -19,6 +19,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(IpMain::IpType).string().not_null())
+                    .col(ColumnDef::new(IpMain::Registry).string().not_null())
                     .col(
                         ColumnDef::new(IpMain::IpAddress)
                             .text()
@@ -66,6 +67,7 @@ pub(crate) enum IpMain {
     Table,
     Id,
     IpType,
+    Registry,
     IpAddress,
     CreatedAt,
 }

@@ -2,9 +2,6 @@
 
 pub mod prelude;
 
-pub mod ip_abuse_contact;
-pub mod ip_connection;
-pub mod ip_contact_details;
 pub mod ip_flag;
 pub mod ip_host_script;
 pub mod ip_hosting_details;
@@ -13,7 +10,6 @@ pub mod ip_main;
 pub mod ip_network_details;
 pub mod ip_organization;
 pub mod ip_os;
-pub mod ip_privacy;
 pub mod ip_security_flags;
 pub mod ip_service;
 pub mod ip_service_script;
