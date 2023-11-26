@@ -1,34 +1,60 @@
 use super::process_single_script;
 use entity::ip_host_script;
-use scanner::types::Hostscript;
+use scanner::types::ScriptUnion;
 use sea_orm::Set;
 
 pub async fn process_host_script(
     ip_main_id: i64,
-    host_script: &Option<Hostscript>,
-    post_script: &Option<Hostscript>,
+    host_script: &Option<ScriptUnion>,
+    post_script: &Option<ScriptUnion>,
 ) -> anyhow::Result<Vec<ip_host_script::ActiveModel>> {
     let mut scripts = Vec::new();
 
+    // Process host_script
     if let Some(host_script) = host_script {
-        for script in &host_script.script {
-            scripts.push(ip_host_script::ActiveModel {
-                ip_main_id: Set(ip_main_id),
-                value: Set(process_single_script(&script)),
-                key: Set(script.id.clone()),
-                ..Default::default()
-            });
+        match host_script {
+            ScriptUnion::Script(script) => {
+                scripts.push(ip_host_script::ActiveModel {
+                    ip_main_id: Set(ip_main_id),
+                    value: Set(process_single_script(script)),
+                    key: Set(script.id.clone()),
+                    ..Default::default()
+                });
+            }
+            ScriptUnion::ScriptArray(script_array) => {
+                for script in script_array {
+                    scripts.push(ip_host_script::ActiveModel {
+                        ip_main_id: Set(ip_main_id),
+                        value: Set(process_single_script(script)),
+                        key: Set(script.id.clone()),
+                        ..Default::default()
+                    });
+                }
+            }
         }
     }
 
+    // Process post_script
     if let Some(post_script) = post_script {
-        for script in &post_script.script {
-            scripts.push(ip_host_script::ActiveModel {
-                ip_main_id: Set(ip_main_id),
-                value: Set(process_single_script(&script)),
-                key: Set(script.id.clone()),
-                ..Default::default()
-            });
+        match post_script {
+            ScriptUnion::Script(script) => {
+                scripts.push(ip_host_script::ActiveModel {
+                    ip_main_id: Set(ip_main_id),
+                    value: Set(process_single_script(script)),
+                    key: Set(script.id.clone()),
+                    ..Default::default()
+                });
+            }
+            ScriptUnion::ScriptArray(script_array) => {
+                for script in script_array {
+                    scripts.push(ip_host_script::ActiveModel {
+                        ip_main_id: Set(ip_main_id),
+                        value: Set(process_single_script(script)),
+                        key: Set(script.id.clone()),
+                        ..Default::default()
+                    });
+                }
+            }
         }
     }
 

@@ -51,7 +51,7 @@ impl NmapScanner {
             // CATEGORIES
             "(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)".to_string(),
             "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
-            "and not (*dns* or tor-consensus-checker or *domain* or asn-query)".to_string(),
+            "and not (*dns* or tor-consensus-checker or *domain* or asn-query or http-config-backup)".to_string(),
             "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
             "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
         ]
@@ -158,12 +158,16 @@ impl NmapScanner {
                 xml_text_node_prop_name: VALUE.to_string(),
                 ..Default::default()
             },
-        )?
-        .to_string();
+        )?;
 
-        File::create(self.xml_file_path.replace(".xml", ".json"))?.write_all(json.as_bytes())?;
+        // Serialize the JSON with pretty formatting
+        let pretty_json = serde_json::to_string_pretty(&json)?;
 
-        let deserializer = &mut serde_json::Deserializer::from_str(&json);
+        // Write the prettified JSON to a file
+        File::create(self.xml_file_path.replace(".xml", ".json"))?
+            .write_all(pretty_json.as_bytes())?;
+
+        let deserializer = &mut serde_json::Deserializer::from_str(&pretty_json);
 
         let nmap: Result<Nmap, _> = serde_path_to_error::deserialize(deserializer);
         match nmap {

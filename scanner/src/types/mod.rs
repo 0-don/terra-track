@@ -25,7 +25,7 @@ pub struct Host {
     pub ports: Ports,
     pub starttime: i64,
     pub status: Stat,
-    pub hostscript: Option<Hostscript>,
+    pub hostscript: Option<ScriptUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -36,7 +36,7 @@ pub struct Address {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hostscript {
-    pub script: Vec<Script>,
+    pub script: Option<ScriptUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -35,7 +35,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         let host_scripts = ip_host_script_mapper::process_host_script(
             ip_main.id,
             &host.hostscript,
-            &nmap.nmaprun.postscript,
+            &nmap.nmaprun.postscript.as_ref().unwrap().script,
         )
         .await?;
 
