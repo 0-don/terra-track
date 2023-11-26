@@ -83,7 +83,7 @@ fn merge_into_root_map(root_map: &mut Map<String, Value>, key: String, value: Va
 
 pub fn parse_script_elem(elem_union: &ElemUnion) -> Value {
     match elem_union {
-        ElemUnion::String(s) => json!({ "value": s }),
+        ElemUnion::String(s) => json!({ VALUE: s }),
         ElemUnion::StringArray(arr) => json!(arr),
         ElemUnion::Elem(e) => {
             let mut map = HashMap::new();
@@ -112,26 +112,33 @@ pub fn parse_script_table(table_union: &TableUnion) -> Value {
 }
 
 fn parse_table(table: &Table) -> Value {
-    let mut map = HashMap::new();
+    let mut map = Map::new();
 
-    let elem_value = match &table.elem {
-        Some(elem_union) => parse_script_elem(elem_union),
-        None => Value::Null,
-    };
-
-    if table.key.is_some() {
-        map.insert(table.key.clone().unwrap(), elem_value);
-    } else {
-        map.insert("elem".to_string(), elem_value);
+    if let Some(elem_union) = &table.elem {
+        map.insert(ELEM.to_string(), parse_script_elem(elem_union));
     }
 
-    let table_value = match &table.table {
-        Some(table_union) => Some(parse_script_table(table_union)),
-        None => None,
-    };
-
-    if let Some(table_value) = table_value {
-        map.insert("table".to_string(), table_value);
+    if let Some(table_union) = &table.table {
+        match table_union {
+            TableUnion::Table(inner_table) => {
+                // Nest the inner table within the current table's key if it exists
+                if let Some(key) = &table.key {
+                    let inner_table_value = parse_table(inner_table);
+                    map.insert(key.clone(), inner_table_value);
+                } else {
+                    map.insert(TABLE.to_string(), parse_table(inner_table));
+                }
+            }
+            TableUnion::TableArray(inner_tables) => {
+                // Nest each inner table within the current table's key if it exists
+                let values: Vec<_> = inner_tables.iter().map(parse_table).collect();
+                if let Some(key) = &table.key {
+                    map.insert(key.clone(), json!(values));
+                } else {
+                    map.insert(TABLE.to_string(), json!(values));
+                }
+            }
+        }
     }
 
     json!(map)
