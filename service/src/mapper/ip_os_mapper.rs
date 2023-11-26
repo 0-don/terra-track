@@ -2,7 +2,6 @@ use crate::utils::parse_os_from_nmap_output;
 use entity::ip_os;
 use scanner::types::{Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
 use sea_orm::Set;
-use serde_json::json;
 
 pub fn process_os(ip_main_id: i64, os: &Os) -> Option<ip_os::ActiveModel> {
     if os.osmatch.is_none() {
@@ -30,7 +29,7 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch: &Osmatch) -> ip_os::Acti
         name: Set(osmatch.name.clone()),
         fingerprint: Set(os.osfingerprint.fingerprint.clone()),
         osfamily: Set(os_class_element.osfamily.clone()),
-        r#type: Set(json!(os_class_element.osclass_type.clone()).to_string()),
+        r#type: Set(os_class_element.osclass_type.clone()),
         vendor: Set(os_class_element.vendor.clone()),
         os_gen: Set(os_class_element.osgen.clone()),
         cpu_arch: Set(cpu_arch),

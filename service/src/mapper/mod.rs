@@ -36,20 +36,32 @@ fn flatten_script_elem(mut json_map: Map<String, Value>) -> Map<String, Value> {
 
 fn flatten_map(current_map: &mut Map<String, Value>, root_map: &mut Map<String, Value>) {
     let keys_to_process: Vec<String> = current_map.keys().cloned().collect();
-    
+
     for key in keys_to_process {
         if let Some(value) = current_map.remove(&key) {
             match &value {
-                Value::Object(obj) if key == "elem" || key == "table" => {
+                Value::Object(obj) if key == "elem" || key == "table" || key == "value" => {
+                    // Directly flatten the contents of 'elem' or 'table' into the root map
                     let mut nested_obj = obj.clone();
                     flatten_map(&mut nested_obj, root_map);
-                },
+                }
                 Value::Object(obj) => {
+                    // For other objects, flatten them and add to the root map with their key
                     let mut nested_obj = obj.clone();
                     let mut nested_root_map = Map::new();
                     flatten_map(&mut nested_obj, &mut nested_root_map);
-                    root_map.insert(key, Value::Object(nested_root_map));
-                },
+                    merge_into_root_map(root_map, key, Value::Object(nested_root_map));
+                }
+                Value::Array(arr) => {
+                    // Flatten each element in the array
+                    for elem in arr {
+                        if let Value::Object(obj) = elem {
+                            let mut nested_obj = obj.clone();
+                            flatten_map(&mut nested_obj, root_map);
+                        }
+                        // Additional handling for non-object elements within the array if needed
+                    }
+                }
                 _ => {
                     merge_into_root_map(root_map, key, value.clone());
                 }

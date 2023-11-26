@@ -61,7 +61,7 @@ pub struct OsclassElement {
     pub cpe: String,
     pub osfamily: String,
     #[serde(rename = "type")]
-    pub osclass_type: Value,
+    pub osclass_type: String,
     pub vendor: String,
     pub osgen: Option<String>,
 }
