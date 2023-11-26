@@ -37,6 +37,8 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
             &nmap.nmaprun.postscript,
         )
         .await?;
+
+    
         ip_host_script_m::Mutation::create_many_ip_host_script(host_scripts).await?;
     }
 

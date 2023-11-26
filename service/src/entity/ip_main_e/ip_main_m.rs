@@ -51,6 +51,7 @@ impl Mutation {
             model = ip_main::ActiveModel {
                 ip_type: Set(ip_type.to_string()),
                 ip_address: Set(ip.to_string()),
+                registry: Set("".to_string()),
                 ..Default::default()
             }
             .insert(&db)
