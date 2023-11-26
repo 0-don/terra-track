@@ -1,33 +1,43 @@
-use entity::ip_host_script;
+use entity::{ip_host_script, ip_location};
+use sea_orm::Set;
 use serde::{Deserialize, Serialize};
 
 pub static IP_GEOLOCATION_GEOPLUGIN: &str = "ip-geolocation-geoplugin";
 pub static TRACEROUTE_GEOLOCATION: &str = "traceroute-geolocation";
 
-pub fn parse_location(scripts: Vec<ip_host_script::ActiveModel>) -> anyhow::Result<()> {
-    let geoplugin = scripts
-        .iter()
-        .find(|script| script.key.clone().unwrap() == IP_GEOLOCATION_GEOPLUGIN);
-    let traceroute = scripts
-        .iter()
-        .find(|script| script.key.clone().unwrap() == TRACEROUTE_GEOLOCATION);
+pub fn parse_location(
+    ip_main_id: i64,
+    scripts: Vec<ip_host_script::ActiveModel>,
+) -> anyhow::Result<ip_location::ActiveModel> {
+    let mut geoplugin_json: Option<IpGeolocaionGeoplugin> = None;
+    let mut traceroute_json: Option<TracerouteGeolocation> = None;
 
-    if geoplugin.is_some() {
-        let geoplugin_json = serde_json::from_str::<IpGeolocaionGeoplugin>(
-            &geoplugin.unwrap().value.clone().unwrap().as_str().unwrap(),
-        )?;
+    for script in &scripts {
+        if let Some(key) = &script.key {
+            if key == IP_GEOLOCATION_GEOPLUGIN {
+                geoplugin_json =
+                    serde_json::from_str(&script.value.as_deref().unwrap_or_default()).ok();
+            } else if key == TRACEROUTE_GEOLOCATION {
+                traceroute_json =
+                    serde_json::from_str(&script.value.as_deref().unwrap_or_default()).ok();
+            }
+        }
     }
 
-    if traceroute.is_some() {
-        let traceroute_json = serde_json::from_str::<TracerouteGeolocation>(
-            &traceroute.unwrap().value.clone().unwrap().as_str().unwrap(),
-        )?;
-    }
+    let mut model = ip_location::ActiveModel {
+        ip_main_id: Set(ip_main_id),
+        continent: Set(Default::default()),
+        country: Set(geoplugin_json.as_ref().and_then(|g| g.country.clone())),
+        country_code: Set(Default::default()),
+        state: Set(geoplugin_json.as_ref().and_then(|g| g.region.clone())),
+        city: Set(geoplugin_json.and_then(|g| g.city)),
+        latitude: Set(traceroute_json.map(|t| t.lat)),
+        longitude: Set(traceroute_json.map(|t| t.lon)),
+        ..Default::default() // ... set other fields as needed ...
+    };
 
-    Ok(())
+    Ok(model)
 }
-
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IpGeolocaionGeoplugin {
     #[serde(deserialize_with = "deserialize_nil_as_none")]

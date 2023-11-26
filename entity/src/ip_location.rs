@@ -15,7 +15,7 @@ impl EntityName for Entity {
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Serialize, Deserialize)]
 pub struct Model {
     pub id: i64,
-    pub ip_main_id: Option<i64>,
+    pub ip_main_id: i64,
     pub continent: Option<String>,
     pub country: Option<String>,
     pub country_code: Option<String>,
@@ -66,16 +66,16 @@ impl ColumnTrait for Column {
     fn def(&self) -> ColumnDef {
         match self {
             Self::Id => ColumnType::BigInteger.def(),
-            Self::IpMainId => ColumnType::BigInteger.def().null(),
-            Self::Continent => ColumnType::Text.def().null(),
-            Self::Country => ColumnType::Text.def().null(),
-            Self::CountryCode => ColumnType::Text.def().null(),
-            Self::State => ColumnType::Text.def().null(),
-            Self::City => ColumnType::Text.def().null(),
+            Self::IpMainId => ColumnType::BigInteger.def(),
+            Self::Continent => ColumnType::String(None).def().null(),
+            Self::Country => ColumnType::String(None).def().null(),
+            Self::CountryCode => ColumnType::String(None).def().null(),
+            Self::State => ColumnType::String(None).def().null(),
+            Self::City => ColumnType::String(None).def().null(),
             Self::Latitude => ColumnType::Float.def().null(),
             Self::Longitude => ColumnType::Float.def().null(),
-            Self::Postal => ColumnType::Text.def().null(),
-            Self::Timezone => ColumnType::Text.def().null(),
+            Self::Postal => ColumnType::String(None).def().null(),
+            Self::Timezone => ColumnType::String(None).def().null(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def().null(),
         }
     }
