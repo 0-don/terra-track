@@ -1,6 +1,6 @@
 use entity::ip_os;
 use regex::Regex;
-use scanner::types::{Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
+use scanner::types::{CpeUnion, Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
 use sea_orm::Set;
 use std::collections::HashMap;
 
@@ -55,7 +55,10 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch_array: &[Osmatch]) -> ip_
         vendor: Set(best_os_class.vendor.clone()),
         os_gen: Set(best_os_class.osgen.clone()),
         cpu_arch: Set(cpu_arch),
-        cpe: Set(best_os_class.cpe.clone()),
+        cpe: Set(match best_os_class.cpe.clone() {
+            CpeUnion::CpeArray(cpe) => cpe.join(","),
+            CpeUnion::Cpe(cpe) => cpe,
+        }),
         ..Default::default()
     }
 }

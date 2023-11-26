@@ -59,7 +59,7 @@ pub struct Osfingerprint {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OsclassElement {
     pub accuracy: i64,
-    pub cpe: String,
+    pub cpe: CpeUnion,
     pub osfamily: String,
     #[serde(rename = "type")]
     pub osclass_type: String,
@@ -193,4 +193,11 @@ pub enum TableUnion {
 pub enum ScanInfoUnion {
     ScaninfoArray(Vec<Scaninfo>),
     Scaninfo(Scaninfo),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CpeUnion {
+    CpeArray(Vec<String>),
+    Cpe(String),
 }
