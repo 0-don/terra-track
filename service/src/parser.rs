@@ -1,12 +1,13 @@
 use crate::entity::ip_host_script_e::ip_host_script_m;
+use crate::entity::ip_location_e::ip_location_m;
 use crate::entity::ip_main_e::ip_main_m;
 use crate::entity::ip_os_e::ip_os_m;
 use crate::entity::ip_service_e::ip_service_m;
 use crate::entity::ip_service_script_e::ip_service_script_m;
-use crate::mapper::ip_host_script_mapper;
 use crate::mapper::ip_os_mapper::process_os;
 use crate::mapper::ip_service_mapper::process_service;
 use crate::mapper::ip_service_script_mapper::process_service_scripts;
+use crate::mapper::{ip_host_script_mapper, ip_location_mapper};
 use crate::printlog;
 use scanner::types::Nmap;
 
@@ -38,7 +39,12 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         )
         .await?;
 
-    
+        // IP LOCATION
+        let ip_location = ip_location_mapper::parse_location(&ip_main.id, &host_scripts);
+        if let Ok(ip_location) = ip_location {
+            ip_location_m::Mutation::create_ip_location(ip_location).await?;
+        }
+
         ip_host_script_m::Mutation::create_many_ip_host_script(host_scripts).await?;
     }
 

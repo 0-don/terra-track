@@ -6,38 +6,56 @@ pub static IP_GEOLOCATION_GEOPLUGIN: &str = "ip-geolocation-geoplugin";
 pub static TRACEROUTE_GEOLOCATION: &str = "traceroute-geolocation";
 
 pub fn parse_location(
-    ip_main_id: i64,
-    scripts: Vec<ip_host_script::ActiveModel>,
+    ip_main_id: &i64,
+    scripts: &Vec<ip_host_script::ActiveModel>,
 ) -> anyhow::Result<ip_location::ActiveModel> {
     let mut geoplugin_json: Option<IpGeolocaionGeoplugin> = None;
     let mut traceroute_json: Option<TracerouteGeolocation> = None;
 
-    for script in &scripts {
-        if let Some(key) = &script.key {
-            if key == IP_GEOLOCATION_GEOPLUGIN {
-                geoplugin_json =
-                    serde_json::from_str(&script.value.as_deref().unwrap_or_default()).ok();
-            } else if key == TRACEROUTE_GEOLOCATION {
-                traceroute_json =
-                    serde_json::from_str(&script.value.as_deref().unwrap_or_default()).ok();
+    for script in scripts {
+        let key = script.key.clone().unwrap();
+        if key == IP_GEOLOCATION_GEOPLUGIN {
+            if let sea_orm::ActiveValue::Set(value) = &script.value {
+                if let Ok(parsed) =
+                    serde_json::from_str::<IpGeolocaionGeoplugin>(value.to_string().as_str())
+                {
+                    geoplugin_json = Some(parsed);
+                }
+            }
+        } else if key == TRACEROUTE_GEOLOCATION {
+            if let sea_orm::ActiveValue::Set(value) = &script.value {
+                if let Ok(parsed) =
+                    serde_json::from_str::<TracerouteGeolocation>(value.to_string().as_str())
+                {
+                    traceroute_json = Some(parsed);
+                }
             }
         }
     }
 
-    let mut model = ip_location::ActiveModel {
-        ip_main_id: Set(ip_main_id),
-        continent: Set(Default::default()),
-        country: Set(geoplugin_json.as_ref().and_then(|g| g.country.clone())),
-        country_code: Set(Default::default()),
-        state: Set(geoplugin_json.as_ref().and_then(|g| g.region.clone())),
+    if geoplugin_json.is_none() && traceroute_json.is_none() {
+        return Err(anyhow::anyhow!("No location found"));
+    }
+
+    let model = ip_location::ActiveModel {
+        ip_main_id: Set(ip_main_id.clone()),
+        continent: Set(None),
+        country: Set(geoplugin_json
+            .as_ref()
+            .and_then(|g| Some(g.country.clone()))),
+        country_code: Set(None),
+        state: Set(geoplugin_json.as_ref().and_then(|g| Some(g.region.clone()))),
         city: Set(geoplugin_json.and_then(|g| g.city)),
-        latitude: Set(traceroute_json.map(|t| t.lat)),
+        latitude: Set(traceroute_json.as_ref().map(|t| t.lat)),
         longitude: Set(traceroute_json.map(|t| t.lon)),
-        ..Default::default() // ... set other fields as needed ...
+        postal: Set(None),
+        timezone: Set(None),
+        ..Default::default()
     };
 
     Ok(model)
 }
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IpGeolocaionGeoplugin {
     #[serde(deserialize_with = "deserialize_nil_as_none")]
