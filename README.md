@@ -19,7 +19,6 @@ Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our 
 ## TODO
 
 - parse both geolocations if one is not found
-- parse os based on probability osgen + family
 
 ## Installation:
 
