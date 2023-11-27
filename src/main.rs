@@ -17,8 +17,8 @@ async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
     // reset().await?;
     // delete_last().await?;
-    // loop_scan().await?;
-    single_scan("1.0.0.255").await?;
+    loop_scan().await?;
+    // single_scan("1.0.0.255").await?;
 
     Ok(())
 }
