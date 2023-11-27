@@ -77,7 +77,7 @@ pub struct Osmatch {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ports {
-    pub port: Vec<Port>,
+    pub port: PortUnion,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -200,4 +200,12 @@ pub enum ScanInfoUnion {
 pub enum CpeUnion {
     CpeArray(Vec<String>),
     Cpe(String),
+}
+
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PortUnion {
+    PortArray(Vec<Port>),  
+    Port(Port),
 }
