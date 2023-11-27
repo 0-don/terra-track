@@ -136,7 +136,7 @@ pub struct Stat {
 pub struct Scaninfo {
     pub numservices: i64,
     pub protocol: String,
-    pub services: String,
+    pub services: Value,
     #[serde(rename = "type")]
     pub scaninfo_type: String,
 }
