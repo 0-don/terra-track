@@ -15,10 +15,10 @@ use std::fs::remove_dir_all;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
-    reset(false).await?;
+    // reset(false).await?;
     // delete_last().await?;
-    // loop_scan().await?;
-    single_scan("1.0.4.4").await?;
+    loop_scan().await?;
+    // single_scan("1.0.4.4").await?;
 
     Ok(())
 }

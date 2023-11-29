@@ -122,7 +122,7 @@ pub struct Service {
     pub ostype: Option<String>,
     pub devicetype: Option<String>,
     pub servicefp: Option<String>,
-    pub cpe: Option<String>,
+    pub cpe: Option<CpeUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

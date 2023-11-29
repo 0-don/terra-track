@@ -1,5 +1,5 @@
 use entity::ip_service;
-use scanner::types::Port;
+use scanner::types::{CpeUnion, Port};
 use sea_orm::Set;
 
 use super::ip_os_mapper::parse_os_from_nmap_output;
@@ -15,6 +15,16 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
         }
         cpuarch = cpu_arch;
     }
+
+    let mut cpe: Option<String> = None;
+
+    if service.cpe.is_some() {
+        cpe = match &service.cpe.clone().unwrap() {
+            CpeUnion::CpeArray(cpe_array) => Some(cpe_array.join(",")),
+            CpeUnion::Cpe(cpe) => Some(cpe.clone()),
+        };
+    }
+
     ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
         protocol: Set(port.protocol.clone()),
@@ -35,7 +45,7 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
         cpu_arch: Set(cpuarch),
         device_type: Set(service.devicetype.clone()),
         service_fp: Set(service.servicefp.clone()),
-        cpe: Set(service.cpe.clone()),
+        cpe: Set(cpe),
         ..Default::default()
     }
 }
