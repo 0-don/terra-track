@@ -15,19 +15,19 @@ use std::fs::remove_dir_all;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
-    // reset().await?;
+    reset(false).await?;
     // delete_last().await?;
-    loop_scan().await?;
-    // single_scan("1.0.0.255").await?;
+    // loop_scan().await?;
+    single_scan("1.0.4.4").await?;
 
     Ok(())
 }
 
 #[allow(dead_code)]
-async fn reset() -> anyhow::Result<()> {
+async fn reset(delete_folder: bool) -> anyhow::Result<()> {
     scan_batch_m::Mutation::delete_all_scan_batch().await?;
     ip_main_m::Mutation::delete_all_ip_main().await?;
-    if cfg!(debug_assertions) {
+    if cfg!(debug_assertions) && delete_folder {
         let _ = remove_dir_all("./output");
     }
 
@@ -38,33 +38,11 @@ async fn reset() -> anyhow::Result<()> {
 async fn loop_scan() -> anyhow::Result<()> {
     let scan = scan_batch_q::Query::next_scan_batch().await?;
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
+
     while let Some(ip) = ip_iter.next() {
-        printlog!("Scanning IP: {}", ip);
-
-        let mut result = NmapScanner::new(ip.into(), vec![]).parse_nmap_xml();
-
-        let ip_main = ip_main_q::Query::find_ip_main_by_ip_older_then(
-            &ip.to_string(),
-            Some(date(Duration::days(365))),
-        )
-        .await?;
-
-        if ip_main.is_some() {
-            printlog!("IP already scanned: {}", ip);
-            continue;
-        }
-        #[allow(unused_variables, unused_mut, unused_assignments)]
-        let mut ports: Vec<u16> = vec![];
-        if result.is_err() {
-            ports = PortScanner::new(ip.into()).run().await?;
-            printlog!("Open ports: {:?}", ports);
-            result = NmapScanner::new(ip.into(), ports).run();
-        }
-
-        if let Ok(nmap) = result {
-            parse_nmap_results(&nmap).await?;
-        }
+        single_scan(&ip.to_string()).await?;
     }
+
     scan_batch_m::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
         id: Set(scan.id),
         end: Set(Some(date(Duration::zero()))),
@@ -89,9 +67,29 @@ macro_rules! printlog {
 
 #[allow(dead_code)]
 async fn single_scan(str: &str) -> anyhow::Result<()> {
-    let ports = PortScanner::new(str.parse()?).run().await?;
-    printlog!("Open ports: {:?}", ports);
-    let result = NmapScanner::new(str.parse()?, ports).run();
+    let ip = str.parse::<std::net::IpAddr>()?;
+    printlog!("Scanning IP: {}", ip);
+
+    let mut result = NmapScanner::new(ip, vec![]).parse_nmap_xml();
+
+    let ip_main = ip_main_q::Query::find_ip_main_by_ip_older_then(
+        &ip.to_string(),
+        Some(date(Duration::days(365))),
+    )
+    .await?;
+
+    if ip_main.is_some() {
+        printlog!("IP already scanned: {}", ip);
+        return Ok(());
+    }
+    #[allow(unused_variables, unused_mut, unused_assignments)]
+    let mut ports: Vec<u16> = vec![];
+    if result.is_err() {
+        ports = PortScanner::new(ip).run().await?;
+        printlog!("Open ports: {:?}", ports);
+
+        result = NmapScanner::new(ip, ports).run();
+    }
 
     if let Ok(nmap) = result {
         parse_nmap_results(&nmap).await?;
