@@ -15,7 +15,7 @@ pub const BATCH_SIZE: i32 = 20;
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     printlog!("Parsing nmap results Start");
-    let host = &nmap.nmaprun.host;
+    let host = nmap.nmaprun.host.as_ref().unwrap();
     let ip = &host.address.addr;
     let ports = &host.ports.port;
 

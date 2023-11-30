@@ -113,9 +113,12 @@ impl NmapScanner {
     fn get_file_if_exist(&self) -> anyhow::Result<Nmap> {
         match Path::new(&self.xml_file_path).exists() {
             true => match self.parse_nmap_xml() {
-                Ok(nmap) => match nmap.nmaprun.host.address.addr == self.ip.to_string() {
-                    true => Ok(nmap),
-                    false => Err(anyhow::anyhow!("IP does not match")),
+                Ok(nmap) => match &nmap.nmaprun.host {
+                    Some(host) => match host.address.addr == self.ip.to_string() {
+                        true => Ok(nmap),
+                        false => Err(anyhow::anyhow!("IP does not match")),
+                    },
+                    None => Err(anyhow::anyhow!("Failed to parse XML")),
                 },
                 Err(_) => Err(anyhow::anyhow!("Failed to parse XML")),
             },
@@ -181,7 +184,13 @@ impl NmapScanner {
 
         let nmap: Result<Nmap, _> = serde_path_to_error::deserialize(deserializer);
         match nmap {
-            Ok(n) => Ok(n),
+            Ok(n) => match &n.nmaprun.host {
+                Some(host) => match host.address.addr == self.ip.to_string() {
+                    true => Ok(n),
+                    false => Err(anyhow::anyhow!("IP does not match")),
+                },
+                None => Err(anyhow::anyhow!("Failed to parse XML")),
+            },
             Err(err) => {
                 let path = err.path().to_string();
                 let error = err.to_string();

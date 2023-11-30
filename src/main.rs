@@ -15,10 +15,10 @@ use std::fs::remove_dir_all;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().expect(".env file not found");
-    // reset(false).await?;
+    reset(false).await?;
     // delete_last().await?;
-    loop_scan().await?;
-    // single_scan("1.0.4.4").await?;
+    // loop_scan().await?;
+    single_scan("1.0.1.63").await?;
 
     Ok(())
 }
@@ -88,6 +88,10 @@ async fn single_scan(str: &str) -> anyhow::Result<()> {
         ports = PortScanner::new(ip).run().await?;
         printlog!("Open ports: {:?}", ports);
 
+        if ports.is_empty() {
+            printlog!("No open ports found: {}", ip);
+            return Ok(());
+        }
         result = NmapScanner::new(ip, ports).run();
     }
 

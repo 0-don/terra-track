@@ -7,15 +7,15 @@ pub struct Nmap {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Nmaprun {
-    pub args: String,
-    pub host: Host,
+    pub args: Option<String>,
+    pub host: Option<Host>,
     pub postscript: Option<Hostscript>,
-    pub scaninfo: ScanInfoUnion,
-    pub scanner: String,
-    pub start: i64,
-    pub startstr: String,
-    pub version: f64,
-    pub xmloutputversion: f64,
+    pub scaninfo: Option<ScanInfoUnion>,
+    pub scanner: Option<String>,
+    pub start: Option<i64>,
+    pub startstr: Option<String>,
+    pub version: Option<f64>,
+    pub xmloutputversion: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -202,10 +202,9 @@ pub enum CpeUnion {
     Cpe(String),
 }
 
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PortUnion {
-    PortArray(Vec<Port>),  
+    PortArray(Vec<Port>),
     Port(Port),
 }
