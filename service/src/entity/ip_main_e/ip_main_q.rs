@@ -13,7 +13,7 @@ impl Query {
     }
 
     pub async fn find_ip_main_by_ip_older_then(
-        ip: &String,
+        ip: &str,
         date: Option<DateTimeWithTimeZone>,
     ) -> anyhow::Result<Option<ip_main::Model>> {
         let db = get_db_connection().await?;

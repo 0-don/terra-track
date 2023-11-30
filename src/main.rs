@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
@@ -10,31 +11,31 @@ use service::{
     parser::parse_nmap_results,
     utils::date,
 };
-use std::fs::remove_dir_all;
+use std::{fs::remove_dir_all, net::IpAddr};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenv().expect(".env file not found");
-    // reset(false).await?;
-    // delete_last().await?;
+    dotenv().ok(); // Changed to ok() to handle the absence of .env file gracefully
+                   // reset(false).await?;
+                   // single_scan("1.0.1.63").await?;
     loop_scan().await?;
-    // single_scan("1.0.1.63").await?;
 
     Ok(())
 }
 
-#[allow(dead_code)]
+/// Resets the scan batches and IP main data.
+/// Optionally deletes the output folder in debug configuration.
 async fn reset(delete_folder: bool) -> anyhow::Result<()> {
     scan_batch_m::Mutation::delete_all_scan_batch().await?;
     ip_main_m::Mutation::delete_all_ip_main().await?;
     if cfg!(debug_assertions) && delete_folder {
-        let _ = remove_dir_all("./output");
+        remove_dir_all("./output").ok(); // Changed to handle errors gracefully
     }
 
     Ok(())
 }
 
-#[allow(dead_code)]
+/// Performs a loop scan based on the next scan batch.
 async fn loop_scan() -> anyhow::Result<()> {
     let scan = scan_batch_q::Query::next_scan_batch().await?;
     let mut ip_iter = Ipv4Iter::batched(&scan.ip, scan.batch_size);
@@ -53,48 +54,43 @@ async fn loop_scan() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[macro_export]
+/// Logs the given message with a timestamp.
 macro_rules! printlog {
-    ($($arg:tt)*) => {
-        {
-            use chrono::{Local, DateTime};
-            let now: DateTime<Local> = Local::now();
-            let millis = now.timestamp_subsec_millis();
-            println!("{}.{:03}: {}", now.format("%Y-%m-%d %H:%M:%S"), millis, format!($($arg)*));
-        }
-    };
+    ($($arg:tt)*) => {{
+        let now = chrono::Local::now();
+        println!("{}.{:03}: {}", now.format("%Y-%m-%d %H:%M:%S"), now.timestamp_subsec_millis(), format!($($arg)*));
+    }};
 }
 
-#[allow(dead_code)]
-async fn single_scan(str: &str) -> anyhow::Result<()> {
-    let ip = str.parse::<std::net::IpAddr>()?;
+/// Performs a single scan on the specified IP address.
+async fn single_scan(ip_str: &str) -> anyhow::Result<()> {
+    let ip: IpAddr = ip_str.parse()?;
     printlog!("Scanning IP: {}", ip);
 
     let mut result = NmapScanner::new(ip, vec![]).parse_nmap_xml();
-
-    let ip_main = ip_main_q::Query::find_ip_main_by_ip_older_then(
-        &ip.to_string(),
-        Some(date(Duration::days(365))),
-    )
-    .await?;
+    let ip_main =
+        ip_main_q::Query::find_ip_main_by_ip_older_then(ip_str, Some(date(Duration::days(365))))
+            .await?;
 
     if ip_main.is_some() {
         printlog!("IP already scanned: {}", ip);
         return Ok(());
     }
-    #[allow(unused_variables, unused_mut, unused_assignments)]
-    let mut ports: Vec<u16> = vec![];
-    if result.is_err() {
-        ports = PortScanner::new(ip).run().await?;
-        printlog!("Open ports: {:?}", ports);
 
-        if ports.is_empty() {
+    let ports = if result.is_err() {
+        let scanned_ports = PortScanner::new(ip).run().await?;
+        printlog!("Open ports: {:?}", scanned_ports);
+
+        if scanned_ports.is_empty() {
             printlog!("No open ports found: {}", ip);
             return Ok(());
         }
-        result = NmapScanner::new(ip, ports).run();
-    }
+        scanned_ports
+    } else {
+        vec![]
+    };
 
+    result = NmapScanner::new(ip, ports).run();
     if let Ok(nmap) = result {
         parse_nmap_results(&nmap).await?;
     }
@@ -102,7 +98,7 @@ async fn single_scan(str: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[allow(dead_code)]
+/// Deletes the latest scan batch and IP main data.
 async fn delete_last() -> anyhow::Result<()> {
     scan_batch_m::Mutation::delete_latest_scan_batch().await?;
     ip_main_m::Mutation::delete_latest_ip_main().await?;
