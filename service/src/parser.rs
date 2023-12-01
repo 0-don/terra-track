@@ -24,14 +24,17 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
 
     // SERVICES
     let mut services_to_create = Vec::new();
-    match ports {
-        PortUnion::PortArray(ports) => {
-            for port in ports {
-                services_to_create.push(process_service(ip_main.id, &port));
+
+    if ports.is_some() {
+        match ports.as_ref().unwrap() {
+            PortUnion::PortArray(ports) => {
+                for port in ports {
+                    services_to_create.push(process_service(ip_main.id, &port));
+                }
             }
-        }
-        PortUnion::Port(port) => services_to_create.push(process_service(ip_main.id, &port)),
-    };
+            PortUnion::Port(port) => services_to_create.push(process_service(ip_main.id, &port)),
+        };
+    }
 
     let created_services =
         ip_service_m::Mutation::create_many_ip_services(services_to_create).await?;
@@ -64,30 +67,32 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
 
     // PORT SCRIPTS
     let mut script_models = Vec::new();
-    match ports {
-        PortUnion::PortArray(ports_array) => {
-            for (created_service, port) in created_services.iter().zip(ports_array.iter()) {
-                if let Some(script) = &port.script {
-                    script_models.extend(process_service_scripts(
-                        ip_main.id,
-                        created_service.id,
-                        script,
-                    ));
+    if ports.is_some() {
+        match ports.as_ref().unwrap() {
+            PortUnion::PortArray(ports_array) => {
+                for (created_service, port) in created_services.iter().zip(ports_array.iter()) {
+                    if let Some(script) = &port.script {
+                        script_models.extend(process_service_scripts(
+                            ip_main.id,
+                            created_service.id,
+                            script,
+                        ));
+                    }
                 }
             }
-        }
-        PortUnion::Port(single_port) => {
-            if let Some(created_service) = created_services.first() {
-                if let Some(script) = &single_port.script {
-                    script_models.extend(process_service_scripts(
-                        ip_main.id,
-                        created_service.id,
-                        script,
-                    ));
+            PortUnion::Port(single_port) => {
+                if let Some(created_service) = created_services.first() {
+                    if let Some(script) = &single_port.script {
+                        script_models.extend(process_service_scripts(
+                            ip_main.id,
+                            created_service.id,
+                            script,
+                        ));
+                    }
                 }
             }
-        }
-    };
+        };
+    }
     ip_service_script_m::Mutation::create_many_ip_service_scripts(script_models).await?;
 
     printlog!("Parsing nmap results End");

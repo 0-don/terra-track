@@ -1,6 +1,7 @@
 use entity::ip_service;
 use scanner::types::{CpeUnion, Port};
 use sea_orm::Set;
+use serde_json::json;
 
 use super::ip_os_mapper::parse_os_from_nmap_output;
 
@@ -25,13 +26,18 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
         };
     }
 
+    let version = match service.version.clone() {
+        Some(version) => Some(json!(version).to_string().replace("\"", "")),
+        None => None,
+    };
+
     ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
         protocol: Set(port.protocol.clone()),
         port: Set(port.portid),
         name: Set(service.name.clone()),
         conf: Set(service.conf),
-        version: Set(service.version.clone()),
+        version: Set(version),
         product: Set(service.product.clone()),
         extra_info: Set(service.extrainfo.clone()),
         tunnel: Set(service.tunnel.clone()),

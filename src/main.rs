@@ -16,9 +16,9 @@ use std::{fs::remove_dir_all, net::IpAddr};
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().ok(); // Changed to ok() to handle the absence of .env file gracefully
-                   // reset(false).await?;
-                   // single_scan("1.0.1.63").await?;
-    loop_scan().await?;
+    reset(false).await?;
+    single_scan("1.0.5.5").await?;
+    // loop_scan().await?;
 
     Ok(())
 }

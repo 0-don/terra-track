@@ -24,7 +24,7 @@ pub struct Host {
     pub os: Option<Os>,
     pub ports: Ports,
     pub starttime: i64,
-    pub status: Stat,
+    pub status: State,
     pub hostscript: Option<Hostscript>,
 }
 
@@ -77,7 +77,7 @@ pub struct Osmatch {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ports {
-    pub port: PortUnion,
+    pub port: Option<PortUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -86,7 +86,7 @@ pub struct Port {
     pub protocol: String,
     pub script: Option<ScriptUnion>,
     pub service: Service,
-    pub state: Stat,
+    pub state: State,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -110,7 +110,7 @@ pub struct Service {
     pub name: String,
     pub conf: i16,
     pub method: String,
-    pub version: Option<String>,
+    pub version: Option<Value>,
     pub product: Option<String>,
     pub extrainfo: Option<String>,
     pub tunnel: Option<String>,
@@ -126,7 +126,7 @@ pub struct Service {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Stat {
+pub struct State {
     pub reason: String,
     pub reason_ttl: i64,
     pub state: String,
