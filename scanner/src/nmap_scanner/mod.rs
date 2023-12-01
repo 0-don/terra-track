@@ -62,7 +62,7 @@ impl NmapScanner {
             "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
         
             // CATEGORY: Exclude - Chrono, EAP info, Port States, Geolocation KML, Reverse Index, Citrix Brute, HTTP Fetch
-            "and not (http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
+            "and not (mysql-vuln-cve2012-2122 or http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
         ]
         .join(" ");
         
