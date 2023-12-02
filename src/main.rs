@@ -69,17 +69,16 @@ async fn single_scan(ip_str: &str) -> anyhow::Result<()> {
     let ip: IpAddr = ip_str.parse()?;
     printlog!("Scanning IP: {}", ip);
 
-    let mut result = NmapScanner::new(ip, vec![]).parse_nmap_xml();
-    let ip_main =
+    if let Some(_) =
         ip_main_q::Query::find_ip_main_by_ip_older_then(ip_str, Some(date(Duration::days(365))))
-            .await?;
-
-    if ip_main.is_some() {
+            .await?
+    {
         printlog!("IP already scanned: {}", ip);
         return Ok(());
     }
 
-    let ports = if result.is_err() {
+    let mut nmap = NmapScanner::new(ip, vec![]).parse_nmap_xml();
+    if nmap.is_err() {
         let scanned_ports = PortScanner::new(ip).run().await?;
         printlog!("Open ports: {:?}", scanned_ports);
 
@@ -87,14 +86,12 @@ async fn single_scan(ip_str: &str) -> anyhow::Result<()> {
             printlog!("No open ports found: {}", ip);
             return Ok(());
         }
-        scanned_ports
-    } else {
-        vec![]
-    };
 
-    result = NmapScanner::new(ip, ports).run();
-    if let Ok(nmap) = result {
-        parse_nmap_results(&nmap).await?;
+        nmap = NmapScanner::new(ip, scanned_ports).run();
+    }
+
+    if let Ok(nmap_results) = nmap {
+        parse_nmap_results(&nmap_results).await?;
     }
 
     Ok(())
