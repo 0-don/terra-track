@@ -45,6 +45,13 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch_array: &[Osmatch]) -> ip_
         .clone(); // Clone the key here
 
     let best_os_class = os_class_map.get(&best_key).unwrap().first().unwrap();
+    let cpe = match &best_os_class.cpe {
+        Some(cpe) => match cpe {
+            CpeUnion::CpeArray(cpe) => Some(cpe.join(",")),
+            CpeUnion::Cpe(cpe) => Some(cpe.clone()),
+        },
+        None => None,
+    };
 
     ip_os::ActiveModel {
         ip_main_id: Set(ip_main_id),
@@ -55,10 +62,7 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch_array: &[Osmatch]) -> ip_
         vendor: Set(best_os_class.vendor.clone()),
         os_gen: Set(best_os_class.osgen.clone()),
         cpu_arch: Set(cpu_arch),
-        cpe: Set(match best_os_class.cpe.clone() {
-            CpeUnion::CpeArray(cpe) => cpe.join(","),
-            CpeUnion::Cpe(cpe) => cpe,
-        }),
+        cpe: Set(cpe),
         ..Default::default()
     }
 }

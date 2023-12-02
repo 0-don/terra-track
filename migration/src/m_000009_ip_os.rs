@@ -23,7 +23,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(IpOs::IpMainId).big_integer().not_null())
                     .col(ColumnDef::new(IpOs::Fingerprint).text().not_null())
                     .col(ColumnDef::new(IpOs::Name).string().not_null())
-                    .col(ColumnDef::new(IpOs::Cpe).string().not_null())
+                    .col(ColumnDef::new(IpOs::Cpe).string())
                     .col(ColumnDef::new(IpOs::Osfamily).string().not_null())
                     .col(ColumnDef::new(IpOs::Type).string().not_null())
                     .col(ColumnDef::new(IpOs::Vendor).string().not_null())

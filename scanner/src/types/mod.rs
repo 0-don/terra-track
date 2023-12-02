@@ -59,7 +59,7 @@ pub struct Osfingerprint {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OsclassElement {
     pub accuracy: i64,
-    pub cpe: CpeUnion,
+    pub cpe: Option<CpeUnion>,
     pub osfamily: String,
     #[serde(rename = "type")]
     pub osclass_type: String,
