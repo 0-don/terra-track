@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(while_true)]
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
