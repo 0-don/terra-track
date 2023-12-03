@@ -1978,21 +1978,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "parser"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "futures",
- "quickxml_to_serde",
- "rand",
- "sea-orm",
- "serde",
- "serde_json",
- "serde_path_to_error",
- "tokio",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2565,9 +2550,15 @@ dependencies = [
  "chrono",
  "dotenvy",
  "entity",
+ "futures",
  "migration",
- "parser",
- "service",
+ "quickxml_to_serde",
+ "rand",
+ "regex",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
  "tokio",
 ]
 
@@ -2815,22 +2806,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "service"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "chrono",
- "entity",
- "migration",
- "parser",
- "regex",
- "sea-orm",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
