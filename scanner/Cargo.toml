@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 migration = { path = "../migration" }
 entity = { path = "../entity" }
+sea-orm = { version = "0", features = ["runtime-tokio-rustls"] }
 tokio = { version = "1" }
 futures = "0"
 
@@ -20,7 +21,3 @@ rand = "0"
 anyhow = "1"
 dotenvy = "0"
 chrono = "0"
-
-[dependencies.sea-orm]
-version = "0"
-features = ["debug-print", "runtime-tokio-rustls", "sqlx-postgres"]
