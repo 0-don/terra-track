@@ -44,7 +44,7 @@ pub fn process_host_script(
             });
         } else if let Some(ScriptUnion::ScriptArray(script_array)) = post_script.script.as_ref() {
             for script in script_array {
-                scripts.push(ip_host::ActiveModel {
+                scripts.push(ip_host_script::ActiveModel {
                     ip_main_id: Set(ip_main_id),
                     value: Set(process_single_script(script)),
                     key: Set(script.id.clone()),

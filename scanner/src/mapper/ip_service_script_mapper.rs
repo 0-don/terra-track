@@ -1,6 +1,5 @@
-use crate::mapper::process_single_script;
+use crate::{mapper::process_single_script, types::ScriptUnion};
 use entity::ip_service_script;
-use parser::types::ScriptUnion;
 use sea_orm::Set;
 
 pub fn process_service_scripts(

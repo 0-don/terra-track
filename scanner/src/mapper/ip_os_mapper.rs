@@ -1,8 +1,9 @@
 use entity::ip_os;
 use regex::Regex;
-use parser::types::{CpeUnion, Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
 use sea_orm::Set;
 use std::collections::HashMap;
+
+use crate::types::{OsmatchUnion, Os, Osmatch, OsMatchClassUnion, CpeUnion};
 
 pub fn process_os(ip_main_id: i64, os: &Os) -> Option<ip_os::ActiveModel> {
     os.osmatch.as_ref().map(|osmatch| match osmatch {

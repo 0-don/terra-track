@@ -45,8 +45,7 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
             ip_main.id,
             &host.hostscript,
             &nmap.nmaprun.postscript,
-        )
-        .await?;
+        )?;
 
         // IP LOCATION
         let ip_location = ip_location_mapper::parse_location(&ip_main.id, &host_scripts);

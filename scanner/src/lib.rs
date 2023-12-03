@@ -7,7 +7,7 @@ pub mod scanner;
 pub mod service;
 pub mod types;
 pub mod utils;
-
+use crate::{parser::parse_nmap_results, service::ip_main_e::ip_main_q};
 use chrono::Duration;
 use dotenvy::dotenv;
 use entity::scan_batch;
@@ -20,7 +20,9 @@ use service::{
 use std::{fs::remove_dir_all, net::IpAddr};
 use utils::date;
 
-use crate::{parser::parse_nmap_results, service::ip_main_e::ip_main_q};
+pub static VALUE: &str = "value";
+pub static ELEM: &str = "elem";
+pub static TABLE: &str = "table";
 
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {

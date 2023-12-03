@@ -1,7 +1,8 @@
 use entity::ip_service;
-use parser::types::{CpeUnion, Port};
 use sea_orm::Set;
 use serde_json::json;
+
+use crate::types::{CpeUnion, Port};
 
 use super::ip_os_mapper::parse_os_from_nmap_output;
 
