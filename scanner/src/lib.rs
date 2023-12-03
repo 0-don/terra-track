@@ -23,6 +23,7 @@ use utils::date;
 pub static VALUE: &str = "value";
 pub static ELEM: &str = "elem";
 pub static TABLE: &str = "table";
+pub static BATCH_SIZE: i32 = 20;
 
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {

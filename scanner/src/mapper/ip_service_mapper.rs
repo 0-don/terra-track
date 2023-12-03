@@ -1,10 +1,8 @@
+use super::ip_os_mapper::parse_os_from_nmap_output;
+use crate::types::{CpeUnion, Port};
 use entity::ip_service;
 use sea_orm::Set;
 use serde_json::json;
-
-use crate::types::{CpeUnion, Port};
-
-use super::ip_os_mapper::parse_os_from_nmap_output;
 
 pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel {
     let service = &port.service;

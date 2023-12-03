@@ -1,8 +1,6 @@
-use crate::types::{Hostscript, ScriptUnion};
-
 use super::process_single_script;
+use crate::types::{Hostscript, ScriptUnion};
 use entity::ip_host_script;
-
 use sea_orm::Set;
 
 pub fn process_host_script(
