@@ -5,6 +5,8 @@ edition = "2021"
 
 
 [dependencies]
+entity = { path = "../entity" }
+migration = { path = "../migration" }
 poem = { version = "1" }
 sea-orm = { version = "0" }
 seaography = { version = "1.0.0-rc.2", features = [
@@ -20,8 +22,8 @@ async-graphql = { version = "6", features = [
 async-graphql-poem = { version = "6" }
 async-trait = { version = "0" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-dotenv = "0.15.0"
+dotenvy = "0"
 
 [dev-dependencies]
 serde = "1"
-serde_json = { version = "1.0.103" }
+serde_json = { version = "1" }
