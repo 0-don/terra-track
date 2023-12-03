@@ -19,8 +19,8 @@ pub struct NmapScanner {
 impl NmapScanner {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
         let xml_path = format!("./output/{}", ip.to_string());
-        let xml_file_path = format!("./output/{}/{}.xml", ip.to_string(), ip.to_string());
-        let xml_nmap_path = format!("./output/{}/{}", ip.to_string(), ip.to_string());
+        let xml_file_path = format!("{}/{}.xml", xml_path, ip.to_string());
+        let xml_nmap_path = format!("{}/{}", xml_path, ip.to_string());
         Self {
             ip,
             open_ports,
