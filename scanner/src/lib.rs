@@ -14,6 +14,18 @@ use service::{
 };
 use std::{fs::remove_dir_all, net::IpAddr};
 
+#[tokio::main]
+async fn start() -> anyhow::Result<()> {
+    dotenv().ok(); // Changed to ok() to handle the absence of .env file gracefully
+                   // reset(false).await?;
+                   // single_scan("1.0.15.178").await?;
+    while true {
+        loop_scan().await?;
+    }
+
+    Ok(())
+}
+
 /// Resets the scan batches and IP main data.
 /// Optionally deletes the output folder in debug configuration.
 async fn reset(delete_folder: bool) -> anyhow::Result<()> {
@@ -90,18 +102,6 @@ async fn single_scan(ip_str: &str) -> anyhow::Result<()> {
 async fn delete_last() -> anyhow::Result<()> {
     scan_batch_m::Mutation::delete_latest_scan_batch().await?;
     ip_main_m::Mutation::delete_latest_ip_main().await?;
-    Ok(())
-}
-
-#[tokio::main]
-async fn start() -> anyhow::Result<()> {
-    dotenv().ok(); // Changed to ok() to handle the absence of .env file gracefully
-                   // reset(false).await?;
-                   // single_scan("1.0.15.178").await?;
-    while true {
-        loop_scan().await?;
-    }
-
     Ok(())
 }
 
