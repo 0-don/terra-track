@@ -9,7 +9,7 @@ use crate::mapper::ip_service_mapper::process_service;
 use crate::mapper::ip_service_script_mapper::process_service_scripts;
 use crate::mapper::{ip_host_script_mapper, ip_location_mapper};
 use crate::printlog;
-use scanner::types::{Nmap, PortUnion};
+use parser::types::{Nmap, PortUnion};
 
 pub const BATCH_SIZE: i32 = 20;
 

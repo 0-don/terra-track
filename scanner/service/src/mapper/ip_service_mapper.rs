@@ -1,5 +1,5 @@
 use entity::ip_service;
-use scanner::types::{CpeUnion, Port};
+use parser::types::{CpeUnion, Port};
 use sea_orm::Set;
 use serde_json::json;
 

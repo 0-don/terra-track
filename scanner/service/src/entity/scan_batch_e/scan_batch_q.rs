@@ -5,7 +5,7 @@ use crate::{
     utils::{convert_i32_to_ipv4_string, convert_ipv4_string_to_i32},
 };
 use ::entity::scan_batch;
-use scanner::ip_iterator::Ipv4Iter;
+use parser::ip_iterator::Ipv4Iter;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set};
 
 pub struct Query;

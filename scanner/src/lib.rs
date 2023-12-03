@@ -3,7 +3,7 @@
 use chrono::Duration;
 use dotenvy::dotenv;
 use migration::sea_orm::Set;
-use scanner::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner, port_scanner::PortScanner};
+use parser::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner, port_scanner::PortScanner};
 use service::{
     entity::{
         ip_main_e::{ip_main_m, ip_main_q},

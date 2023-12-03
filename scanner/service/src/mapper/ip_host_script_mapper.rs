@@ -1,6 +1,6 @@
 use super::process_single_script;
 use entity::ip_host_script;
-use scanner::types::{Hostscript, ScriptUnion};
+use parser::types::{Hostscript, ScriptUnion};
 use sea_orm::Set;
 
 pub async fn process_host_script(

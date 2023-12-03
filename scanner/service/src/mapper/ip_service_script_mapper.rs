@@ -1,6 +1,6 @@
 use crate::mapper::process_single_script;
 use entity::ip_service_script;
-use scanner::types::ScriptUnion;
+use parser::types::ScriptUnion;
 use sea_orm::Set;
 
 pub fn process_service_scripts(

@@ -1,6 +1,6 @@
 use entity::ip_os;
 use regex::Regex;
-use scanner::types::{CpeUnion, Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
+use parser::types::{CpeUnion, Os, OsMatchClassUnion, Osmatch, OsmatchUnion};
 use sea_orm::Set;
 use std::collections::HashMap;
 
