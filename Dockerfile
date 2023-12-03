@@ -20,6 +20,4 @@ RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 
 COPY --from=builder /build/target/release/terra_track /app/terra_track
 
-RUN nmap --script-updatedb
-
 ENTRYPOINT ["/app/terra_track"]
