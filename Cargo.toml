@@ -13,7 +13,7 @@ migration = { path = "migration" }
 scanner = { path = "scanner" }
 api = { path = "api" }
 
-# [profile.release]
+[profile.release]
 # panic = "abort"
 # codegen-units = 1
 # lto = true
