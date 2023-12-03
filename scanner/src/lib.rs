@@ -1,18 +1,26 @@
 #![allow(dead_code)]
 #![allow(while_true)]
+pub mod db;
+pub mod mapper;
+pub mod parser;
+pub mod scanner;
+pub mod service;
+pub mod types;
+pub mod utils;
+
 use chrono::Duration;
 use dotenvy::dotenv;
+use entity::scan_batch;
 use migration::sea_orm::Set;
-use parser::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner, port_scanner::PortScanner};
+use scanner::{ip_iterator::Ipv4Iter, nmap_scanner::NmapScanner, port_scanner::PortScanner};
 use service::{
-    entity::{
-        ip_main_e::{ip_main_m, ip_main_q},
-        scan_batch_e::{scan_batch_m, scan_batch_q},
-    },
-    parser::parse_nmap_results,
-    utils::date,
+    ip_main_e::ip_main_m,
+    scan_batch_e::{scan_batch_m, scan_batch_q},
 };
 use std::{fs::remove_dir_all, net::IpAddr};
+use utils::date;
+
+use crate::{parser::parse_nmap_results, service::ip_main_e::ip_main_q};
 
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {
@@ -47,7 +55,7 @@ async fn loop_scan() -> anyhow::Result<()> {
         single_scan(&ip.to_string()).await?;
     }
 
-    scan_batch_m::Mutation::update_scan_batch(entity::scan_batch::ActiveModel {
+    scan_batch_m::Mutation::update_scan_batch(scan_batch::ActiveModel {
         id: Set(scan.id),
         end: Set(Some(date(Duration::zero()))),
         ..Default::default()
@@ -112,8 +120,6 @@ pub fn main() {
         println!("Error: {err}");
     }
 }
-
-
 
 #[macro_export]
 macro_rules! printlog {

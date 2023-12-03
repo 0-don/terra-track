@@ -1,9 +1,11 @@
+use crate::types::{Hostscript, ScriptUnion};
+
 use super::process_single_script;
 use entity::ip_host_script;
-use parser::types::{Hostscript, ScriptUnion};
+
 use sea_orm::Set;
 
-pub async fn process_host_script(
+pub fn process_host_script(
     ip_main_id: i64,
     host_script: &Option<Hostscript>,
     post_script: &Option<Hostscript>,
@@ -42,7 +44,7 @@ pub async fn process_host_script(
             });
         } else if let Some(ScriptUnion::ScriptArray(script_array)) = post_script.script.as_ref() {
             for script in script_array {
-                scripts.push(ip_host_script::ActiveModel {
+                scripts.push(ip_host::ActiveModel {
                     ip_main_id: Set(ip_main_id),
                     value: Set(process_single_script(script)),
                     key: Set(script.id.clone()),

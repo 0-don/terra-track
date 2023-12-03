@@ -2,10 +2,9 @@ use super::scan_batch_m;
 use crate::{
     db::get_db_connection,
     parser::BATCH_SIZE,
-    utils::{convert_i32_to_ipv4_string, convert_ipv4_string_to_i32},
+    utils::{convert_i32_to_ipv4_string, convert_ipv4_string_to_i32}, scanner::ip_iterator::Ipv4Iter,
 };
 use ::entity::scan_batch;
-use parser::ip_iterator::Ipv4Iter;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set};
 
 pub struct Query;

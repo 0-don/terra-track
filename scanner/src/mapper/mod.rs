@@ -3,10 +3,6 @@ pub mod ip_os_mapper;
 pub mod ip_service_mapper;
 pub mod ip_service_script_mapper;
 pub mod ip_location_mapper;
-use parser::{
-    types::{ElemUnion, Script, Table, TableUnion},
-    ELEM, TABLE, VALUE,
-};
 use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 
