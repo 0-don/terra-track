@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 sea-orm = { version = "0" }
 serde = "1"
+seaography = { version = "1.0.0-rc.2"}
+async-graphql = { version = "5" }

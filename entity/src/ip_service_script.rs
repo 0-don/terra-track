@@ -92,3 +92,11 @@ impl Related<super::ip_service::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::ip_main::Entity")]
+    IpMain,
+    #[sea_orm(entity = "super::ip_service::Entity")]
+    IpService,
+}

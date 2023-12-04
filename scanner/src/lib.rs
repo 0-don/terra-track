@@ -27,9 +27,9 @@ pub static BATCH_SIZE: i32 = 20;
 
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {
-    dotenv().ok(); // Changed to ok() to handle the absence of .env file gracefully
-                   // reset(false).await?;
-                   // single_scan("1.0.15.178").await?;
+    dotenv().ok();
+    // reset(false).await?;
+    // single_scan("1.0.15.178").await?;
     while true {
         loop_scan().await?;
     }

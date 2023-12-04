@@ -12,8 +12,8 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 sea-orm = { version = "0", features = ["runtime-tokio-rustls"] }
 
 poem = { version = "1" }
-async-graphql-poem = { version = "6" }
-async-graphql = { version = "6", features = [
+async-graphql-poem = { version = "5" }
+async-graphql = { version = "5", features = [
   "decimal",
   "chrono",
   "dataloader",

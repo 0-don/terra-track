@@ -147,3 +147,27 @@ impl Related<super::ip_service_script::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::ip_flag::Entity")]
+    IpFlag,
+    #[sea_orm(entity = "super::ip_host_script::Entity")]
+    IpHostScript,
+    #[sea_orm(entity = "super::ip_hosting_details::Entity")]
+    IpHostingDetails,
+    #[sea_orm(entity = "super::ip_location::Entity")]
+    IpLocation,
+    #[sea_orm(entity = "super::ip_network_details::Entity")]
+    IpNetworkDetails,
+    #[sea_orm(entity = "super::ip_organization::Entity")]
+    IpOrganization,
+    #[sea_orm(entity = "super::ip_os::Entity")]
+    IpOs,
+    #[sea_orm(entity = "super::ip_security_flags::Entity")]
+    IpSecurityFlags,
+    #[sea_orm(entity = "super::ip_service::Entity")]
+    IpService,
+    #[sea_orm(entity = "super::ip_service_script::Entity")]
+    IpServiceScript,
+}
