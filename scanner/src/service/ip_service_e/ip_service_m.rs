@@ -1,6 +1,7 @@
-use crate::{db::get_db_connection, utils::date};
+use crate::utils::date;
 use ::entity::ip_service;
 use chrono::Duration;
+use migration::db::get_db_connection;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TryIntoModel};
 
 pub struct Mutation;

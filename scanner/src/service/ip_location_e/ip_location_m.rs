@@ -1,4 +1,4 @@
-use crate::db::get_db_connection;
+use migration::db::get_db_connection;
 use ::entity::ip_location;
 use sea_orm::{ActiveModelTrait, Set, TryIntoModel};
 

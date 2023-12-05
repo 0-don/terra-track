@@ -1,5 +1,5 @@
-use crate::db::get_db_connection;
 use entity::ip_main;
+use migration::db::get_db_connection;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set, TryIntoModel,
 };

@@ -1,5 +1,5 @@
-use crate::db::get_db_connection;
 use ::entity::ip_os;
+use migration::db::get_db_connection;
 use sea_orm::{prelude::DateTimeWithTimeZone, ColumnTrait, EntityTrait, QueryFilter, QueryTrait};
 
 pub struct Query;

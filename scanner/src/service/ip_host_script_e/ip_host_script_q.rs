@@ -1,4 +1,4 @@
-use crate::db::get_db_connection;
+use migration::db::get_db_connection;
 use ::entity::ip_host_script;
 use sea_orm::{prelude::DateTimeWithTimeZone, ColumnTrait, EntityTrait, QueryFilter, QueryTrait};
 

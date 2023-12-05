@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 #![allow(while_true)]
-pub mod db;
 pub mod mapper;
 pub mod parser;
 pub mod scanner;

@@ -1,5 +1,5 @@
-use crate::db::get_db_connection;
 use ::entity::ip_host_script;
+use migration::db::get_db_connection;
 use sea_orm::{ActiveModelTrait, EntityTrait, Set, TryIntoModel};
 
 pub struct Mutation;

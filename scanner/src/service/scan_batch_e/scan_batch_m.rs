@@ -1,5 +1,5 @@
-use crate::db::get_db_connection;
 use ::entity::scan_batch;
+use migration::db::get_db_connection;
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryOrder, Set, TryIntoModel};
 
 pub struct Mutation;
