@@ -13,7 +13,7 @@ pub fn schema(
     depth: Option<usize>,
     complexity: Option<usize>,
 ) -> Result<Schema, SchemaError> {
-    CONTEXT.set(BuilderContext::default());
+    let _ = CONTEXT.set(BuilderContext::default());
     let mut builder = Builder::new(&CONTEXT.get().unwrap());
     seaography::register_entities!(builder, [ip_main]);
     let schema = builder.schema_builder();
