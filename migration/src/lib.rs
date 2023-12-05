@@ -1,4 +1,5 @@
 pub use sea_orm_migration::prelude::*;
+pub mod db;
 
 mod m_000001_scan_batch;
 mod m_000002_ip_main;

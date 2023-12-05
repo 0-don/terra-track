@@ -33,7 +33,7 @@ async fn graphql_playground() -> impl IntoResponse {
 async fn start() -> anyhow::Result<()> {
     dotenv().ok();
     setup();
-
+    println!("Running asdasdas...");
     let database = Database::connect(DATABASE_URL.get().unwrap())
         .await
         .expect("Fail to initialize database connection");

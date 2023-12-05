@@ -33,6 +33,8 @@ async fn start() -> anyhow::Result<()> {
     while true {
         if !cfg!(debug_assertions) {
             loop_scan().await?;
+        } else {
+            loop_scan().await?;
         }
     }
 
