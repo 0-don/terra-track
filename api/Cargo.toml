@@ -23,4 +23,6 @@ seaography = { version = "1.0.0-rc.2", features = [
   "with-decimal",
   "with-chrono",
 ] }
+
+anyhow = "1"
 dotenvy = "0"
