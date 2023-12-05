@@ -52,7 +52,7 @@ async fn start() -> anyhow::Result<()> {
     .unwrap();
 
     let cors = Cors::new()
-        .allow_origin("http://localhost:8000")
+        .allow_origin("http://localhost:4000")
         .allow_origin("https://studio.apollographql.com")
         .allow_methods(["POST", "GET", "OPTIONS"])
         .allow_credentials(true);
@@ -74,7 +74,7 @@ async fn start() -> anyhow::Result<()> {
 
 fn setup() {
     dotenv().ok();
-    let _ = URL.set(std::env::var("URL").unwrap_or("0.0.0.0:8000".into()));
+    let _ = URL.set(std::env::var("URL").unwrap_or("0.0.0.0:4000".into()));
     let _ = ENDPOINT.set(std::env::var("ENDPOINT").unwrap_or("/graphql".into()));
     let _ = DATABASE_URL.set(std::env::var("DATABASE_URL").unwrap_or("".into()));
     let _ = DEPTH_LIMIT.set(
