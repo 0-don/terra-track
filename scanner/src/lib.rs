@@ -31,7 +31,9 @@ async fn start() -> anyhow::Result<()> {
     // reset(false).await?;
     // single_scan("1.0.15.178").await?;
     while true {
-        // loop_scan().await?;
+        if !cfg!(debug_assertions) {
+            loop_scan().await?;
+        }
     }
 
     Ok(())
