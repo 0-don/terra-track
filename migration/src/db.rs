@@ -2,14 +2,14 @@ use crate::Migrator;
 use async_std::sync::Mutex;
 use lazy_static::lazy_static;
 use sea_orm_migration::sea_orm::{Database, DatabaseConnection};
-use sea_orm_migration::MigratorTrait;
+use sea_orm_migration::{DbErr, MigratorTrait};
 use std::env;
 
 lazy_static! {
     static ref MIGRATION_DONE: Mutex<bool> = Mutex::new(false);
 }
 
-pub async fn get_db_connection() -> anyhow::Result<DatabaseConnection> {
+pub async fn get_db_connection() -> Result<DatabaseConnection, DbErr> {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
 
     let conn = Database::connect(db_url)

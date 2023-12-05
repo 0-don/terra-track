@@ -31,7 +31,6 @@ async fn graphql_playground() -> impl IntoResponse {
 async fn start() -> anyhow::Result<()> {
     dotenv().ok();
     setup();
-    println!("Running asdasdas...");
     let database = get_db_connection().await?;
     let orm_dataloader: DataLoader<OrmDataloader> = DataLoader::new(
         OrmDataloader {
