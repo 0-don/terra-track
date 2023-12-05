@@ -1,24 +1,26 @@
 use crate::Migrator;
+use async_std::sync::Mutex;
+use lazy_static::lazy_static;
 use sea_orm_migration::sea_orm::{Database, DatabaseConnection};
-use sea_orm_migration::{DbErr, MigratorTrait};
+use sea_orm_migration::MigratorTrait;
 use std::env;
-use std::sync::Once;
 
-#[allow(dead_code)]
-static INIT: Once = Once::new();
+lazy_static! {
+    static ref MIGRATION_DONE: Mutex<bool> = Mutex::new(false);
+}
 
-pub async fn get_db_connection() -> Result<DatabaseConnection, DbErr> {
+pub async fn get_db_connection() -> anyhow::Result<DatabaseConnection> {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
 
     let conn = Database::connect(db_url)
         .await
         .expect("Database connection failed");
 
-    if !INIT.is_completed() {
+    let mut migration_done = MIGRATION_DONE.lock().await;
+    if !*migration_done {
         println!("Running migrations...");
-        let conn_for_migration = conn.clone();
-        Migrator::up(&conn_for_migration, None).await?;
-        INIT.call_once(|| ());
+        Migrator::up(&conn, None).await?;
+        *migration_done = true;
     }
 
     Ok(conn)

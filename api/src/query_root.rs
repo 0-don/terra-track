@@ -1,4 +1,3 @@
-use crate::OrmDataloader;
 use async_graphql::{dataloader::DataLoader, dynamic::*};
 use entity::{
     ip_flag, ip_host_script, ip_hosting_details, ip_location, ip_main, ip_network_details,
@@ -9,6 +8,10 @@ use seaography::{Builder, BuilderContext};
 use std::sync::OnceLock;
 
 pub static CONTEXT: OnceLock<BuilderContext> = OnceLock::new();
+
+pub struct OrmDataloader {
+    pub db: DatabaseConnection,
+}
 
 pub fn schema(
     database: DatabaseConnection,

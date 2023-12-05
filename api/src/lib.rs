@@ -4,12 +4,14 @@ use async_graphql::{
 };
 use async_graphql_poem::GraphQL;
 use dotenvy::dotenv;
+use migration::db::get_db_connection;
 use poem::{
     get, handler, listener::TcpListener, middleware::Cors, web::Html, EndpointExt, IntoResponse,
     Route, Server,
 };
-use sea_orm::{Database, DatabaseConnection};
 use std::sync::OnceLock;
+
+use crate::query_root::OrmDataloader;
 pub mod query_root;
 
 pub static URL: OnceLock<String> = OnceLock::new();
@@ -17,10 +19,6 @@ pub static ENDPOINT: OnceLock<String> = OnceLock::new();
 pub static DATABASE_URL: OnceLock<String> = OnceLock::new();
 pub static DEPTH_LIMIT: OnceLock<usize> = OnceLock::new();
 pub static COMPLEXITY_LIMIT: OnceLock<usize> = OnceLock::new();
-
-pub struct OrmDataloader {
-    pub db: DatabaseConnection,
-}
 
 #[handler]
 async fn graphql_playground() -> impl IntoResponse {
@@ -34,9 +32,7 @@ async fn start() -> anyhow::Result<()> {
     dotenv().ok();
     setup();
     println!("Running asdasdas...");
-    let database = Database::connect(DATABASE_URL.get().unwrap())
-        .await
-        .expect("Fail to initialize database connection");
+    let database = get_db_connection().await?;
     let orm_dataloader: DataLoader<OrmDataloader> = DataLoader::new(
         OrmDataloader {
             db: database.clone(),
