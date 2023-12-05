@@ -13,6 +13,8 @@ migration = { path = "migration" }
 scanner = { path = "scanner" }
 api = { path = "api" }
 
+tokio = { version = "1" }
+
 [profile.release]
 # panic = "abort"
 # codegen-units = 1

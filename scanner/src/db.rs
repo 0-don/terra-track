@@ -1,3 +1,4 @@
+use dotenvy::dotenv;
 use migration::{
     sea_orm::{Database, DatabaseConnection},
     Migrator, MigratorTrait,
@@ -10,6 +11,7 @@ use tokio::{runtime::Runtime, task};
 static INIT: Once = Once::new();
 
 pub async fn get_db_connection() -> anyhow::Result<DatabaseConnection> {
+    dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
 
     let conn = Database::connect(db_url)
