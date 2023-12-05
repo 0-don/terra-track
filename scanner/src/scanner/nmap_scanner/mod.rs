@@ -1,12 +1,13 @@
 use crate::types::Nmap;
+use crate::utils::constants::SCRIPTS;
 use crate::VALUE;
 use quickxml_to_serde::{xml_string_to_json, Config};
+use std::env;
 use std::fs::{create_dir_all, File};
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
 use std::path::Path;
 use std::process::{Command, Stdio};
-
 
 pub struct NmapScanner {
     ip: IpAddr,
@@ -18,9 +19,15 @@ pub struct NmapScanner {
 
 impl NmapScanner {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
-        let xml_path = format!("./output/{}", ip.to_string());
-        let xml_file_path = format!("{}/{}.xml", xml_path, ip.to_string());
-        let xml_nmap_path = format!("{}/{}", xml_path, ip.to_string());
+        let root_path = env::current_dir()
+            .expect("Failed to get current directory")
+            .display()
+            .to_string();
+        let xml_path = format!("{root_path:?}/output/{ip:?}");
+        let xml_file_path = format!("{xml_path:?}/{ip:?}.xml");
+        let xml_nmap_path = format!("{xml_path:?}/{ip:?}");
+
+        println!("{:?}", xml_path);
         Self {
             ip,
             open_ports,
@@ -42,32 +49,12 @@ impl NmapScanner {
             .collect::<Vec<_>>()
             .join(",");
 
-        // let udp_ports_str = "7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024";
         let udp_ports_str = "";
 
         let full_ports_str = format!("T:{},U:{}", tcp_ports_str, udp_ports_str);
         let ip = self.ip.to_string();
 
-        let scripts = vec![
-            // CATEGORY: Default, Version, Discovery, Auth, Vuln, External, Exploit, Malware, Safe, Intrusive
-            "(default or version or discovery or auth or vuln or external or exploit or malware or safe or intrusive)".to_string(),
-        
-            // CATEGORY: Exclude - Broadcast, ASN targets, Robtex, Multicast, iCloud, Hostmap Robtex, Virustotal
-            "and not (broadcast-* or targets-asn or http-robtex-shared-ns or lltd-discovery or *multicast* or http-icloud-* or hostmap-robtex or http-virustotal)".to_string(),
-        
-            // CATEGORY: Exclude - DNS, Tor, Domain, ASN query, Config Backup, Mrinfo, IIS Short Name Brute, CVE 2013-7091 Vulnerability
-            "and not (*dns* or tor-consensus-checker or *domain* or asn-query or http-config-backup or mrinfo or http-iis-short-name-brute or http-vuln-cve2013-7091)".to_string(),
-        
-            // CATEGORY: Exclude - Google Malware, IP Geolocation (Google, Bing), Qscan, Useragent Tester, Mobileversion Checker, Slowloris, Enum
-            "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan or http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)".to_string(),
-        
-            // CATEGORY: Exclude - Chrono, EAP info, Port States, Geolocation KML, Reverse Index, Citrix Brute, HTTP Fetch
-            "and not (mysql-vuln-cve2012-2122 or http-chrono or eap-info or port-states or ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)".to_string(),
-        ]
-        .join(" ");
-        
-
-        let arguments = vec![
+        let arguments = [
             "nmap",
             "-v6",
             "-d1",
@@ -86,7 +73,7 @@ impl NmapScanner {
             "-p",
             &full_ports_str,
             "--script",
-            &scripts,
+            &SCRIPTS.join(" "),
             "--script-args",
             "http.max-cache-size=2000000",
             &ip,
@@ -96,7 +83,7 @@ impl NmapScanner {
 
         self.create_directory()?;
 
-        let script = self.execute_script(arguments);
+        let script = self.execute_script(arguments.to_vec());
         match script {
             Ok(_nmap) => self.parse_nmap_xml(),
             Err(err) => {
