@@ -4,7 +4,10 @@ use async_graphql::{
 };
 use async_graphql_poem::GraphQL;
 use dotenvy::dotenv;
-use poem::{get, handler, listener::TcpListener, web::Html, IntoResponse, Route, Server};
+use poem::{
+    get, handler, listener::TcpListener, middleware::Cors, web::Html, EndpointExt, IntoResponse,
+    Route, Server,
+};
 use sea_orm::{Database, DatabaseConnection};
 use std::sync::OnceLock;
 pub mod query_root;
@@ -29,6 +32,7 @@ async fn graphql_playground() -> impl IntoResponse {
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {
     dotenv().ok();
+    setup();
 
     let database = Database::connect(DATABASE_URL.get().unwrap())
         .await
@@ -46,9 +50,18 @@ async fn start() -> anyhow::Result<()> {
         COMPLEXITY_LIMIT.get(),
     )
     .unwrap();
+
+    let cors = Cors::new()
+        .allow_origin("http://localhost:8000")
+        .allow_origin("https://studio.apollographql.com")
+        .allow_methods(["POST", "GET", "OPTIONS"])
+        .allow_credentials(true);
+
     let app = Route::new().at(
         ENDPOINT.get().unwrap(),
-        get(graphql_playground).post(GraphQL::new(schema)),
+        get(graphql_playground)
+            .post(GraphQL::new(schema))
+            .with(cors),
     );
     println!("Visit GraphQL Playground at http://{}", URL.get().unwrap());
     Server::new(TcpListener::bind(URL.get().unwrap()))
@@ -57,6 +70,25 @@ async fn start() -> anyhow::Result<()> {
         .expect("Fail to start web server");
 
     Ok(())
+}
+
+fn setup() {
+    dotenv().ok();
+    let _ = URL.set(std::env::var("URL").unwrap_or("0.0.0.0:8000".into()));
+    let _ = ENDPOINT.set(std::env::var("ENDPOINT").unwrap_or("/graphql".into()));
+    let _ = DATABASE_URL.set(std::env::var("DATABASE_URL").unwrap_or("".into()));
+    let _ = DEPTH_LIMIT.set(
+        std::env::var("DEPTH_LIMIT")
+            .unwrap_or("10".into())
+            .parse::<usize>()
+            .unwrap(),
+    );
+    let _ = COMPLEXITY_LIMIT.set(
+        std::env::var("COMPLEXITY_LIMIT")
+            .unwrap_or("1000".into())
+            .parse::<usize>()
+            .unwrap(),
+    );
 }
 
 pub fn main() {
