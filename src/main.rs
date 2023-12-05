@@ -1,4 +1,4 @@
 fn main() {
-    let _ = std::thread::spawn(|| scanner::main()).join();
+    std::thread::spawn(|| scanner::main());
     let _ = std::thread::spawn(|| api::main()).join();
 }

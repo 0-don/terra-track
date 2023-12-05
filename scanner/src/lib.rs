@@ -32,7 +32,6 @@ async fn start() -> anyhow::Result<()> {
     // single_scan("1.0.15.178").await?;
     while true {
         loop_scan().await?;
-        // print!("1");
     }
 
     Ok(())
