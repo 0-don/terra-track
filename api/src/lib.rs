@@ -1,3 +1,5 @@
+pub mod query_root;
+use crate::query_root::OrmDataloader;
 use async_graphql::{
     dataloader::DataLoader,
     http::{playground_source, GraphQLPlaygroundConfig},
@@ -10,9 +12,6 @@ use poem::{
     Route, Server,
 };
 use std::sync::OnceLock;
-
-use crate::query_root::OrmDataloader;
-pub mod query_root;
 
 pub static URL: OnceLock<String> = OnceLock::new();
 pub static ENDPOINT: OnceLock<String> = OnceLock::new();
