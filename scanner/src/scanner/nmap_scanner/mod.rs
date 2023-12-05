@@ -6,28 +6,25 @@ use std::env;
 use std::fs::{create_dir_all, File};
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::IpAddr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 pub struct NmapScanner {
     ip: IpAddr,
     open_ports: Vec<u16>,
-    xml_path: String,
+    xml_path: PathBuf,
     xml_file_path: String,
     xml_nmap_path: String,
 }
 
 impl NmapScanner {
     pub fn new(ip: IpAddr, open_ports: Vec<u16>) -> Self {
-        let root_path = env::current_dir()
+        let xml_path: PathBuf = env::current_dir()
             .expect("Failed to get current directory")
-            .display()
-            .to_string();
-        let xml_path = format!("{root_path:?}/output/{ip:?}");
-        let xml_file_path = format!("{xml_path:?}/{ip:?}.xml");
-        let xml_nmap_path = format!("{xml_path:?}/{ip:?}");
-
-        println!("{:?}", xml_path);
+            .join("output")
+            .join(&ip.to_string());
+        let xml_file_path = xml_path.join(format!("{ip:?}.xml")).display().to_string();
+        let xml_nmap_path = xml_path.join(ip.to_string()).display().to_string();
         Self {
             ip,
             open_ports,
