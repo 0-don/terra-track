@@ -2,7 +2,6 @@ use crate::mapper::ip_os_mapper::process_os;
 use crate::mapper::ip_service_mapper::process_service;
 use crate::mapper::ip_service_script_mapper::process_service_scripts;
 use crate::mapper::{ip_host_script_mapper, ip_location_mapper};
-use crate::printlog;
 use crate::service::ip_host_script_e::ip_host_script_m;
 use crate::service::ip_location_e::ip_location_m;
 use crate::service::ip_main_e::ip_main_m;
