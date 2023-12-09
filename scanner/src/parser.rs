@@ -12,7 +12,6 @@ use crate::service::ip_service_script_e::ip_service_script_m;
 use crate::types::{Nmap, PortUnion};
 
 pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
-    printlog!("Parsing nmap results Start");
     let host = nmap.nmaprun.host.as_ref().unwrap();
     let ip = &host.address.addr;
     let ports = &host.ports.port;
@@ -92,6 +91,5 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
     }
     ip_service_script_m::Mutation::create_many_ip_service_scripts(script_models).await?;
 
-    printlog!("Parsing nmap results End");
     Ok(())
 }
