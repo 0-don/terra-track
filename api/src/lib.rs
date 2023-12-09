@@ -86,9 +86,13 @@ fn setup() {
 }
 
 pub fn main() {
-    let result = start();
+    loop {
+        let result = start();
 
-    if let Some(err) = result.err() {
-        println!("Error: {err}");
+        if let Err(_) = result {
+            // eprintln!("Application error: {err}, restarting...");
+            // Sleep for a short duration before restarting to prevent rapid restart loops
+            // std::thread::sleep(std::time::Duration::from_secs(1));
+        }
     }
 }
