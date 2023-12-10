@@ -33,7 +33,7 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
     ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
         protocol: Set(port.protocol.clone()),
-        port: Set(port.portid as i16),
+        port: Set(port.portid as i32),
         name: Set(service.name.clone()),
         conf: Set(service.conf as i16),
         version: Set(version),

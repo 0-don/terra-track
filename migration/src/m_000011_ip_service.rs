@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(IpService::IpMainId).big_integer().not_null())
                     .col(ColumnDef::new(IpService::Protocol).string().not_null())
-                    .col(ColumnDef::new(IpService::Port).small_integer().not_null())
+                    .col(ColumnDef::new(IpService::Port).integer().not_null())
                     .col(ColumnDef::new(IpService::Name).string().not_null())
                     .col(ColumnDef::new(IpService::Conf).tiny_integer().not_null())
                     .col(ColumnDef::new(IpService::Version).string())
