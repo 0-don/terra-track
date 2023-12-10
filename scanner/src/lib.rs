@@ -27,11 +27,13 @@ pub static BATCH_SIZE: i32 = 20;
 #[tokio::main]
 async fn start() -> anyhow::Result<()> {
     dotenv().ok();
-    // reset(false).await?;
-    // single_scan("1.0.15.178").await?;
+
     while true {
         if cfg!(debug_assertions) {
             // loop_scan().await?;
+            reset(false).await?;
+
+            single_scan("1.0.64.11").await?;
         } else {
             loop_scan().await?;
         }

@@ -82,7 +82,7 @@ pub struct Ports {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Port {
-    pub portid: i16,
+    pub portid: u16,
     pub protocol: String,
     pub script: Option<ScriptUnion>,
     pub service: Service,
@@ -108,7 +108,7 @@ pub struct Table {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Service {
     pub name: String,
-    pub conf: i16,
+    pub conf: u16,
     pub method: String,
     pub version: Option<Value>,
     pub product: Option<String>,
