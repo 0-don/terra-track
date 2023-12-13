@@ -85,7 +85,7 @@ pub struct Port {
     pub portid: u16,
     pub protocol: String,
     pub script: Option<ScriptUnion>,
-    pub service: Service,
+    pub service: Option<Service>,
     pub state: State,
 }
 

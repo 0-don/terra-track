@@ -1,13 +1,17 @@
 use super::ip_os_mapper::parse_os_from_nmap_output;
-use crate::types::{CpeUnion, Port};
+use crate::types::{CpeUnion, Service};
 use entity::ip_service;
 use sea_orm::Set;
 use serde_json::json;
 
-pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel {
-    let service = &port.service;
+pub fn process_service(
+    ip_main_id: i64,
+    service: &Service,
+    protocol: &String,
+    portid: &i32,
+) -> ip_service::ActiveModel {
     let mut cpuarch = None;
-    let mut ostype = port.service.ostype.clone();
+    let mut ostype = service.ostype.clone();
     if let Some(servicefp) = &service.servicefp {
         let (os_type, cpu_arch) = parse_os_from_nmap_output(servicefp.clone());
         if os_type.is_some() && ostype.is_none() {
@@ -30,10 +34,10 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
         None => None,
     };
 
-    ip_service::ActiveModel {
+    return ip_service::ActiveModel {
         ip_main_id: Set(ip_main_id),
-        protocol: Set(port.protocol.clone()),
-        port: Set(port.portid as i32),
+        protocol: Set(protocol.clone()),
+        port: Set(portid.clone()),
         name: Set(service.name.clone()),
         conf: Set(service.conf as i16),
         version: Set(version),
@@ -52,5 +56,5 @@ pub fn process_service(ip_main_id: i64, port: &Port) -> ip_service::ActiveModel 
         service_fp: Set(service.servicefp.clone()),
         cpe: Set(cpe),
         ..Default::default()
-    }
+    };
 }

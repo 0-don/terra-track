@@ -25,10 +25,26 @@ pub async fn parse_nmap_results(nmap: &Nmap) -> anyhow::Result<()> {
         match ports.as_ref().unwrap() {
             PortUnion::PortArray(ports) => {
                 for port in ports {
-                    services_to_create.push(process_service(ip_main.id, &port));
+                    if let Some(service) = &port.service {
+                        services_to_create.push(process_service(
+                            ip_main.id,
+                            &service,
+                            &port.protocol,
+                            &(port.portid as i32),
+                        ));
+                    }
                 }
             }
-            PortUnion::Port(port) => services_to_create.push(process_service(ip_main.id, &port)),
+            PortUnion::Port(port) => {
+                if let Some(service) = &port.service {
+                    services_to_create.push(process_service(
+                        ip_main.id,
+                        &service,
+                        &port.protocol,
+                        &(port.portid as i32),
+                    ));
+                }
+            }
         };
     }
 
