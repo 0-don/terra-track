@@ -32,7 +32,7 @@ async fn start() -> anyhow::Result<()> {
         if cfg!(debug_assertions) {
             // loop_scan().await?;
             reset(false).await?;
-            single_scan("1.0.67.7").await?;
+            single_scan("1.0.75.12").await?;
         } else {
             loop_scan().await?;
         }

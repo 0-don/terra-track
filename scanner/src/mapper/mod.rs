@@ -4,7 +4,7 @@ pub mod ip_os_mapper;
 pub mod ip_service_mapper;
 pub mod ip_service_script_mapper;
 use crate::{
-    types::{ElemUnion, Script, Table, TableUnion},
+    types::{ElemUnion, EnumValue, Script, Table, TableUnion},
     ELEM, TABLE, VALUE,
 };
 use serde_json::{json, Map, Value};
@@ -125,7 +125,15 @@ fn parse_table(table: &Table) -> Value {
                 // Nest the inner table within the current table's key if it exists
                 if let Some(key) = &table.key {
                     let inner_table_value = parse_table(inner_table);
-                    map.insert(key.clone(), inner_table_value);
+                    map.insert(
+                        match key.clone() {
+                            EnumValue::String(s) => s,
+                            EnumValue::Integer(n) => n.to_string(),
+                            EnumValue::Double(n) => n.to_string(),
+                            EnumValue::Bool(b) => b.to_string(),
+                        },
+                        inner_table_value,
+                    );
                 } else {
                     map.insert(TABLE.to_string(), parse_table(inner_table));
                 }
@@ -134,7 +142,15 @@ fn parse_table(table: &Table) -> Value {
                 // Nest each inner table within the current table's key if it exists
                 let values: Vec<_> = inner_tables.iter().map(parse_table).collect();
                 if let Some(key) = &table.key {
-                    map.insert(key.clone(), json!(values));
+                    map.insert(
+                        match key.clone() {
+                            EnumValue::String(s) => s,
+                            EnumValue::Integer(n) => n.to_string(),
+                            EnumValue::Double(n) => n.to_string(),
+                            EnumValue::Bool(b) => b.to_string(),
+                        },
+                        json!(values),
+                    );
                 } else {
                     map.insert(TABLE.to_string(), json!(values));
                 }

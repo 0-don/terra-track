@@ -42,7 +42,7 @@ pub struct Hostscript {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Elem {
     pub key: String,
-    pub value: Option<Value>,
+    pub value: Option<EnumValue>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -92,7 +92,7 @@ pub struct Port {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Script {
     pub id: String,
-    pub output: Value,
+    pub output: EnumValue,
     pub elem: Option<ElemUnion>,
     pub table: Option<TableUnion>,
     pub value: Option<bool>,
@@ -100,7 +100,7 @@ pub struct Script {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Table {
-    pub key: Option<String>,
+    pub key: Option<EnumValue>,
     pub elem: Option<ElemUnion>,
     pub table: Option<TableUnion>,
 }
@@ -110,7 +110,7 @@ pub struct Service {
     pub name: String,
     pub conf: u16,
     pub method: String,
-    pub version: Option<Value>,
+    pub version: Option<EnumValue>,
     pub product: Option<String>,
     pub extrainfo: Option<String>,
     pub tunnel: Option<String>,
@@ -136,14 +136,14 @@ pub struct State {
 pub struct Scaninfo {
     pub numservices: i64,
     pub protocol: String,
-    pub services: Value,
+    pub services: EnumValue,
     #[serde(rename = "type")]
     pub scaninfo_type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum Value {
+pub enum EnumValue {
     Double(f64),
     String(String),
     Integer(i64),
