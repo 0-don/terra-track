@@ -4,7 +4,7 @@ pub mod ip_os_mapper;
 pub mod ip_service_mapper;
 pub mod ip_service_script_mapper;
 use crate::{
-    types::{ElemUnion, EnumValue, Script, Table, TableUnion},
+    types::{ElemUnion, Script, Table, TableUnion},
     ELEM, TABLE, VALUE,
 };
 use serde_json::{json, Map, Value};
@@ -62,12 +62,18 @@ fn flatten_map(current_map: &mut Map<String, Value>, root_map: &mut Map<String, 
                 }
                 Value::Array(arr) => {
                     // Flatten each element in the array
+                    let mut array_values = vec![];
                     for elem in arr {
                         if let Value::Object(obj) = elem {
                             let mut nested_obj = obj.clone();
                             flatten_map(&mut nested_obj, root_map);
+                        } else {
+                            // For non-object elements, add them directly to an array
+                            array_values.push(elem.clone());
                         }
-                        // Additional handling for non-object elements within the array if needed
+                    }
+                    if !array_values.is_empty() {
+                        merge_into_root_map(root_map, key, Value::Array(array_values));
                     }
                 }
                 _ => {
@@ -125,15 +131,7 @@ fn parse_table(table: &Table) -> Value {
                 // Nest the inner table within the current table's key if it exists
                 if let Some(key) = &table.key {
                     let inner_table_value = parse_table(inner_table);
-                    map.insert(
-                        match key.clone() {
-                            EnumValue::String(s) => s,
-                            EnumValue::Integer(n) => n.to_string(),
-                            EnumValue::Double(n) => n.to_string(),
-                            EnumValue::Bool(b) => b.to_string(),
-                        },
-                        inner_table_value,
-                    );
+                    map.insert(key.clone().parse(), inner_table_value);
                 } else {
                     map.insert(TABLE.to_string(), parse_table(inner_table));
                 }
@@ -142,15 +140,7 @@ fn parse_table(table: &Table) -> Value {
                 // Nest each inner table within the current table's key if it exists
                 let values: Vec<_> = inner_tables.iter().map(parse_table).collect();
                 if let Some(key) = &table.key {
-                    map.insert(
-                        match key.clone() {
-                            EnumValue::String(s) => s,
-                            EnumValue::Integer(n) => n.to_string(),
-                            EnumValue::Double(n) => n.to_string(),
-                            EnumValue::Bool(b) => b.to_string(),
-                        },
-                        json!(values),
-                    );
+                    map.insert(key.clone().parse(), json!(values));
                 } else {
                     map.insert(TABLE.to_string(), json!(values));
                 }

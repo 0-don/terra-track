@@ -150,6 +150,17 @@ pub enum EnumValue {
     Bool(bool),
 }
 
+impl EnumValue {
+   pub fn parse(&self) -> String {
+        match self {
+            EnumValue::String(s) => s.clone(),
+            EnumValue::Integer(n) => n.to_string(),
+            EnumValue::Double(n) => n.to_string(),
+            EnumValue::Bool(b) => b.to_string(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ScriptUnion {
