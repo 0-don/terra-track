@@ -1,7 +1,7 @@
 use crate::types::Nmap;
 use crate::utils::constants::SCRIPTS;
 use crate::VALUE;
-use quickxml_to_serde::{xml_string_to_json, Config};
+use quickxml_to_serde::{xml_string_to_json, Config, NullValue};
 use std::env;
 use std::fs::{create_dir_all, File};
 use std::io::{self, BufRead, BufReader, Read, Write};
@@ -153,6 +153,7 @@ impl NmapScanner {
             &Config {
                 xml_attr_prefix: "".to_string(),
                 xml_text_node_prop_name: VALUE.to_string(),
+                empty_element_handling: NullValue::Ignore,
                 ..Default::default()
             },
         )?;
