@@ -64,7 +64,7 @@ pub struct OsclassElement {
     #[serde(rename = "type")]
     pub osclass_type: String,
     pub vendor: String,
-    pub osgen: Option<String>,
+    pub osgen: Option<EnumValue>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -72,7 +72,7 @@ pub struct Osmatch {
     pub accuracy: i64,
     pub line: i64,
     pub name: String,
-    pub osclass: OsMatchClassUnion,
+    pub osclass: Option<OsMatchClassUnion>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -151,7 +151,7 @@ pub enum EnumValue {
 }
 
 impl EnumValue {
-   pub fn parse(&self) -> String {
+    pub fn parse(&self) -> String {
         match self {
             EnumValue::String(s) => s.clone(),
             EnumValue::Integer(n) => n.to_string(),

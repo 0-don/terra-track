@@ -19,15 +19,16 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch_array: &[Osmatch]) -> ip_
     let mut os_class_map = HashMap::new();
     for osmatch in osmatch_array {
         let osclass_elements = match &osmatch.osclass {
-            OsMatchClassUnion::OsclassElementArray(array) => array,
-            OsMatchClassUnion::OsclassElement(element) => std::slice::from_ref(element),
+            Some(OsMatchClassUnion::OsclassElementArray(array)) => array,
+            Some(OsMatchClassUnion::OsclassElement(element)) => std::slice::from_ref(element),
+            None => continue,
         };
 
         for os_class in osclass_elements {
             let key = (
                 os_class.osfamily.clone(),
                 os_class.vendor.clone(),
-                os_class.osgen.clone(),
+                os_class.osgen.as_ref().map(|gen| gen.parse()),
             );
             os_class_map
                 .entry(key)
@@ -60,7 +61,7 @@ pub fn parse_osmatch(ip_main_id: i64, os: &Os, osmatch_array: &[Osmatch]) -> ip_
         osfamily: Set(best_os_class.osfamily.clone()),
         r#type: Set(best_os_class.osclass_type.clone()),
         vendor: Set(best_os_class.vendor.clone()),
-        os_gen: Set(best_os_class.osgen.clone()),
+        os_gen: Set(best_os_class.osgen.as_ref().map(|gen| gen.parse())),
         cpu_arch: Set(cpu_arch),
         cpe: Set(cpe),
         ..Default::default()
