@@ -19,7 +19,7 @@ Dive deep into the vast ocean of the internet's open ports with TerraTrack. Our 
 ## Installation:
 
 ```bash
-git clone https://github.com/don-cryptus/terra-track.git
+git clone https://github.com/0-don/terra-track.git
 cd terra-track
 ```
 
@@ -39,4 +39,4 @@ Join us in refining TerraTrack! Be it bug reports, feature suggestions, or direc
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request.
 
-For a detailed walkthrough on contributing, please refer to our [CONTRIBUTING.md](https://github.com/don-cryptus/terra-track/CONTRIBUTING.md).
+For a detailed walkthrough on contributing, please refer to our [CONTRIBUTING.md](https://github.com/0-don/terra-track/CONTRIBUTING.md).
