@@ -22,6 +22,8 @@ jobs:
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
           echo WIREGUARD_PRIVATE_KEY=${{ secrets.WIREGUARD_PRIVATE_KEY }} >> .env
           echo WIREGUARD_ADDRESSES=${{ secrets.WIREGUARD_ADDRESSES }} >> .env
+          echo OPENVPN_USER=${{ secrets.OPENVPN_USER }} >> .env
+          echo OPENVPN_PASSWORD=${{ secrets.OPENVPN_PASSWORD }} >> .env
           echo SERVER_CITIES=${{ secrets.SERVER_CITIES }} >> .env
           cat .env
 

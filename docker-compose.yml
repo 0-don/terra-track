@@ -24,10 +24,13 @@ services:
       - NET_ADMIN
     environment:
       - VPN_SERVICE_PROVIDER=mullvad
-      - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
-      - SERVER_CITIES=${SERVER_CITIES}
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      # - VPN_TYPE=wireguard
+      # - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      # - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      # - SERVER_CITIES=${SERVER_CITIES}
       - LOG_LEVEL=debug
     links:
       - terra-track-db
