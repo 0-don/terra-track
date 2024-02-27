@@ -19,7 +19,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libpcap-dev libssl-dev libssh2-1-dev curl grep
-        sudo apt-get install -y lua liblua-dev
+
+    - name: Install Latest Lua Version
+      run: |
+        LUA_PACKAGE=$(apt-cache search '^lua[0-9]+\.[0-9]+$' | sort -rV | head -n 1 | cut -d' ' -f1)
+        echo "Installing $LUA_PACKAGE and its dev package..."
+        sudo apt-get install -y $LUA_PACKAGE ${LUA_PACKAGE}-dev
 
     - name: Download Latest Nmap Source
       run: |
