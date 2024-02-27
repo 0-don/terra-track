@@ -7,5 +7,5 @@ pub static SCRIPTS: [&str; 9] = [
   "and not (http-google-malware or ip-geolocation-map-google or ip-geolocation-map-bing or qscan)",
   "and not (http-useragent-tester or http-mobileversion-checker or *slowloris* or *enum*)",
   "and not (mysql-vuln-cve2012-2122 or http-chrono or eap-info or port-states)",
-  "and not (ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch)",
+  "and not (ip-geolocation-map-kml or reverse-index or citrix-brute-xml or http-fetch or ssh-brute)",
 ];
