@@ -1,0 +1,38 @@
+name: Linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpcap-dev libssl-dev libssh2-1-dev curl grep
+        sudo apt-get install -y lua liblua-dev
+
+    - name: Download Latest Nmap Source
+      run: |
+        LATEST_NMAP_URL=$(curl -s https://nmap.org/download.html | grep -oP 'https://nmap.org/dist/nmap-[0-9.]+.tar.bz2' | head -1)
+        echo "Latest Nmap URL: $LATEST_NMAP_URL"
+        curl -O $LATEST_NMAP_URL
+        tar xvjf nmap-*.tar.bz2
+        NMAP_DIR=$(ls -d nmap-*/)
+        echo "NMAP_DIR=$NMAP_DIR" >> $GITHUB_ENV
+
+    - name: Compile Nmap
+      run: |
+        cd $NMAP_DIR
+        ./configure
+        make
+        ls -a
