@@ -67,7 +67,7 @@ impl NmapScanner {
             &self.xml_nmap_path,
             "-sS",
             "-sU",
-            "--script-timeout=1m",
+            // "--script-timeout=1m",
             "-p",
             &full_ports_str,
             "--script",

@@ -1,45 +1,45 @@
-name: Linux
+# name: Linux
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [master]
-concurrency:
-  group: linux-${{ github.ref }}
-  cancel-in-progress: true
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: [master]
+# concurrency:
+#   group: linux-${{ github.ref }}
+#   cancel-in-progress: true
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout Repository
+#       uses: actions/checkout@v4
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libpcap-dev libssl-dev libssh2-1-dev curl grep build-essential
+#     - name: Install Dependencies
+#       run: |
+#         sudo apt-get update
+#         sudo apt-get install -y libpcap-dev libssl-dev libssh2-1-dev curl grep build-essential
 
-    - name: Install Latest Lua Version and Dev Package
-      run: |
-        LUA_PACKAGE=$(apt-cache search '^lua[0-9]+\.[0-9]+$' | sort -rV | head -n 1 | cut -d' ' -f1)
-        echo "Installing $LUA_PACKAGE and its dev package..."
-        sudo apt-get install -y $LUA_PACKAGE ${LUA_PACKAGE}-dev
-        echo "LUA_PACKAGE=${LUA_PACKAGE}" >> $GITHUB_ENV
-        LUA_VERSION=$(echo $LUA_PACKAGE | grep -oP 'lua[0-9]+\.[0-9]+')
-        echo "LUA_INCLUDE_PATH=/usr/include/$LUA_VERSION" >> $GITHUB_ENV
+#     - name: Install Latest Lua Version and Dev Package
+#       run: |
+#         LUA_PACKAGE=$(apt-cache search '^lua[0-9]+\.[0-9]+$' | sort -rV | head -n 1 | cut -d' ' -f1)
+#         echo "Installing $LUA_PACKAGE and its dev package..."
+#         sudo apt-get install -y $LUA_PACKAGE ${LUA_PACKAGE}-dev
+#         echo "LUA_PACKAGE=${LUA_PACKAGE}" >> $GITHUB_ENV
+#         LUA_VERSION=$(echo $LUA_PACKAGE | grep -oP 'lua[0-9]+\.[0-9]+')
+#         echo "LUA_INCLUDE_PATH=/usr/include/$LUA_VERSION" >> $GITHUB_ENV
 
-    - name: Download Latest Nmap Source
-      run: |
-        LATEST_NMAP_URL=$(curl -s https://nmap.org/download.html | grep -oP 'https://nmap.org/dist/nmap-[0-9.]+.tar.bz2' | head -1)
-        curl -O $LATEST_NMAP_URL
-        tar xvjf nmap-*.tar.bz2
-        NMAP_DIR=$(ls -d nmap-*/)
-        echo "NMAP_DIR=$NMAP_DIR" >> $GITHUB_ENV
+#     - name: Download Latest Nmap Source
+#       run: |
+#         LATEST_NMAP_URL=$(curl -s https://nmap.org/download.html | grep -oP 'https://nmap.org/dist/nmap-[0-9.]+.tar.bz2' | head -1)
+#         curl -O $LATEST_NMAP_URL
+#         tar xvjf nmap-*.tar.bz2
+#         NMAP_DIR=$(ls -d nmap-*/)
+#         echo "NMAP_DIR=$NMAP_DIR" >> $GITHUB_ENV
 
-    - name: Compile Nmap
-      run: |
-        cd $NMAP_DIR
-        CPPFLAGS="-I$LUA_INCLUDE_PATH" ./configure
-        make
-        ls -a
+#     - name: Compile Nmap
+#       run: |
+#         cd $NMAP_DIR
+#         CPPFLAGS="-I$LUA_INCLUDE_PATH" ./configure
+#         make
+#         ls -a
