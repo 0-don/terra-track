@@ -54,7 +54,7 @@ impl NmapScanner {
         let arguments = [
             "nmap",
             "-v6",
-            "-d1",
+            "-dd",
             "-T4",
             "-n",
             "-A",
@@ -67,6 +67,7 @@ impl NmapScanner {
             &self.xml_nmap_path,
             "-sS",
             "-sU",
+            "--script-timeout=1m",
             "-p",
             &full_ports_str,
             "--script",

@@ -59,7 +59,7 @@ impl Mutation {
             .await?;
 
         // Fetching records created in the last 5 minutes
-        let five_minutes_ago = date(Duration::minutes(5));
+        let five_minutes_ago = date(Duration::try_minutes(5).unwrap());
         let inserted_models = ip_service::Entity::find()
             .filter(ip_service::Column::IpMainId.eq(ip_main_id.unwrap())) // Adjust based on your field's actual name
             .filter(ip_service::Column::CreatedAt.gt(five_minutes_ago))

@@ -86,7 +86,7 @@ async fn single_scan(ip_str: &str) -> anyhow::Result<()> {
     printlog!("Scanning IP: {}", ip);
 
     if let Some(_) =
-        ip_main_q::Query::find_ip_main_by_ip_older_then(ip_str, Some(date(Duration::days(365))))
+        ip_main_q::Query::find_ip_main_by_ip_older_then(ip_str, Some(date(Duration::try_days(365).unwrap())))
             .await?
     {
         printlog!("IP already scanned: {}", ip);
