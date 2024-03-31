@@ -187,6 +187,8 @@ pub enum OsMatchClassUnion {
 pub enum ElemUnion {
     String(String),
     StringArray(Vec<String>),
+    Integer(i64),
+    IntegerArray(Vec<i64>),
     Elem(Elem),
     ElemArray(Vec<Elem>),
     ElemUnion(Vec<ElemUnion>),

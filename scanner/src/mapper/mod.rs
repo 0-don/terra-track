@@ -92,6 +92,8 @@ pub fn parse_script_elem(elem_union: &ElemUnion) -> Value {
     match elem_union {
         ElemUnion::String(s) => json!({ VALUE: s }),
         ElemUnion::StringArray(arr) => json!(arr),
+        ElemUnion::Integer(s) => json!({ VALUE: s }),
+        ElemUnion::IntegerArray(arr) => json!(arr),
         ElemUnion::Elem(e) => {
             let mut map = HashMap::new();
             map.insert(&e.key, &e.value);
