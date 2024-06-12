@@ -9,11 +9,15 @@ entity = { path = "../entity" }
 migration = { path = "../migration" }
 
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-sea-orm = { version = "0", features = ["runtime-tokio-rustls"] }
+sea-orm = { version = "0", features = [
+  "sqlx-postgres",
+  "runtime-async-std-native-tls",
+  "seaography",
+] }
 
-poem = { version = "1" }
-async-graphql-poem = { version = "5" }
-async-graphql = { version = "5", features = [
+poem = { version = "3" }
+async-graphql-poem = { version = "7" }
+async-graphql = { version = "7", features = [
   "decimal",
   "chrono",
   "dataloader",
@@ -22,6 +26,7 @@ async-graphql = { version = "5", features = [
 seaography = { version = "1.0.0-rc.4", features = [
   "with-decimal",
   "with-chrono",
+  "with-postgres-array",
 ] }
 
 anyhow = "1"
