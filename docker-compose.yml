@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   terra-track:
     container_name: terra-track
