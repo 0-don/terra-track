@@ -19,7 +19,7 @@ async-graphql = { version = "5", features = [
   "dataloader",
   "dynamic-schema",
 ] }
-seaography = { version = "1.0.0-rc.2", features = [
+seaography = { version = "1.0.0-rc.4", features = [
   "with-decimal",
   "with-chrono",
 ] }

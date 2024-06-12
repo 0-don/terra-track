@@ -23,7 +23,7 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      # - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_SERVICE_PROVIDER=mullvad
       # - VPN_TYPE=openvpn
       # - OPENVPN_USER=${OPENVPN_USER}
       # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
