@@ -8,7 +8,7 @@ edition = "2021"
 migration = { path = "../migration" }
 entity = { path = "../entity" }
 sea-orm = { version = "0", features = ["runtime-tokio-rustls"] }
-tokio = { version = "1" }
+tokio = { version = "1", features = ["full"] }
 futures = "0"
 
 serde = { version = "1" }

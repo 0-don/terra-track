@@ -11,7 +11,7 @@ members = [".", "migration", "entity", "scanner", "api"]
 entity = { path = "entity" }
 migration = { path = "migration" }
 scanner = { path = "scanner" }
-api = { path = "api" }
+# api = { path = "api" }
 
 [profile.release]
 # panic = "abort"
